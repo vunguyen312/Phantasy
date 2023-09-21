@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
+const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require("discord.js");
 const clanModel = require('../../models/clanSchema');
 const profileModel = require('../../models/profileSchema');
 
@@ -16,7 +16,9 @@ module.exports = {
             option
             .setName('public')
             .setDescription('Will your Clan be private or public? (Invite required or not)')
-            .setRequired(true)),
+            .setRequired(true))
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+        .setDMPermission(false),
     async execute(interaction, profileData){
         if(profileData.allegiance){
             return interaction.reply({ content: `Hm... It appears you're already in a clan.`, ephemeral: true});
