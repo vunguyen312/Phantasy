@@ -6,12 +6,11 @@ const clanSchema = new mongoose.Schema({
     serverID: { type: String, require:true, unique: true},
     public: { type:Boolean, require: true},
     members: { type: Map, require:true },
+    citizens: { type: Number },
 
     //Clan Resources
 
-
-    wood: { type: Number },
-    stone: { type: Number }
+    inventory: { type: Map }
 });
 
 module.exports = mongoose.model('ClanModels', clanSchema);

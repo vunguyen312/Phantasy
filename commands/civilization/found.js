@@ -6,22 +6,34 @@ module.exports = {
     cooldown: 5,
     data: new SlashCommandBuilder()
         .setName('found')
-        .setDescription('Found your clan! (Creates a clan for the server)')
+        .setDescription('Found your civilization! (Creates a civilization for the server)')
         .addStringOption(option =>
             option
             .setName('name')
-            .setDescription('The name of your new Clan!')
+            .setDescription('The name of your new civilization!')
             .setRequired(true))
         .addBooleanOption(option =>
             option
             .setName('public')
-            .setDescription('Will your Clan be private or public? (Invite required or not)')
+            .setDescription('Will your Civilization be private or public? (Invite required or not)')
             .setRequired(true))
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .setDMPermission(false),
     async execute(interaction, profileData){
+
+        //Checks so the game doesn't break
+
         if(profileData.allegiance){
-            return interaction.reply({ content: `Hm... It appears you're already in a clan.`, ephemeral: true});
+            return interaction.reply({ content: `Hm... It appears you're already in a civilization.`, ephemeral: true});
+        }
+        else if(interaction.options.getString('name').length > 20){
+            return interaction.reply({ content: `Max Character Limit: 20`, ephemeral:true });
+        }
+        else if(await clanModel.findOne({ clanName: interaction.options.getString('name') })){
+            return interaction.reply({ content: 'A civilization with this name already exists!', ephemeral:true });
+        }
+        else if(await clanModel.findOne({ serverID: interaction.guild.id })){
+            return interaction.reply({ content: 'A civilization has already been founded in this server!', ephemeral:true });
         }
 
         const embed = new EmbedBuilder()
@@ -39,12 +51,12 @@ module.exports = {
                     leaderID: interaction.user.id,
                     serverID: interaction.guild.id,
                     public: interaction.options.getBoolean('public'),
-                    members: new Map().set(interaction.user.id, 'Leader'),
+                    members: new Map().set(interaction.user.id, 'King'),
+                    citizens: 1,
 
-                    //Resources
+                    //Inventory
 
-                    wood: 0,
-                    stone: 0
+                    inventory: new Map()
 
                 }
             );
@@ -52,7 +64,11 @@ module.exports = {
 
             const response2 = await profileModel.findOneAndUpdate(
                 {
-                    allegiance: interaction.options.getString('name')
+                    userID: interaction.user.id
+                },
+                {
+                    allegiance: interaction.options.getString('name'),
+                    rank: 'King'
                 }
             );
         }catch(error){

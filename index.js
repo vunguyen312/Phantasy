@@ -58,13 +58,16 @@ client.on(Discord.Events.InteractionCreate, async interaction =>{
     try {
         profileData = await profileModel.findOne({ userID: interaction.user.id });
         if (!profileData) {
-        let profile = await profileModel.create({
+            let profile = await profileModel.create({
             userID: interaction.user.id,
-            serverID: interaction.guild.id,
+            allegiance: null,
+            rank: null,
             gold: 0,
             bank: 0,
+            inventory: new Map()
         });
         profile.save();
+        profileData = profile;
         }
     } catch (error) {
         await interaction.reply({ content: 'Uh oh! Something went wrong while setting up your profile!'});
