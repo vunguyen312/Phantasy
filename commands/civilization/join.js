@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require("discord.js");
+const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const clanModel = require('../../models/clanSchema');
 const profileModel = require('../../models/profileSchema');
 
@@ -27,6 +27,8 @@ module.exports = {
             return interaction.reply({ content: 'This civilization is private and invite only!'});
         }
 
+        //Create the embed
+
         const embed = new EmbedBuilder()
         .setColor('Blue')
         .setTitle(`${interaction.user.tag} has joined ${clanData.clanName}!`)
@@ -34,6 +36,8 @@ module.exports = {
             { name: '💎 Rank:', value: '*Baron*'},
         )
         .setThumbnail(interaction.user.displayAvatarURL());
+
+        //Update the database    
 
         try{
             await profileModel.findOneAndUpdate(
