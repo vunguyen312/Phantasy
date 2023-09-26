@@ -20,10 +20,13 @@ module.exports = {
             .setTitle(`📈 ${interaction.user.tag}'s Stats`)
             .setDescription(`The stats of user ${interaction.user.tag}`)
             .setFields(
-                { name: '🚩 Allegiance:', value: `${ profileData.allegiance ?? 'None'}`},
-                { name: '🥇 Rank', value: `${ profileData.rank ?? 'None'}`},
+                { name: '🚩 Allegiance:', value: `*${ profileData.allegiance ?? 'None'}*`},
+                { name: '🥇 Rank', value: `*${ profileData.rank ?? 'None'}*`},
                 { name: '🧈 Gold:', value: `${ profileData.gold }`},
-                { name: '💰 Bank:', value: `${ profileData.bank }`}
+                { name: '💰 Bank:', value: `${ profileData.bank }`},
+                { name: '📈 Growth Rate:', value: `${ profileData.growthRate } citizen/h`},
+                { name: '🏆 Gold Rate:', value: `${ profileData.earnRate } gold/h`},
+                { name: '💸 Tax Rate:', value: `${ profileData.taxRate * 100}%`},
             )
             .setThumbnail(interaction.user.displayAvatarURL());
         } else if(profileData.allegiance && interaction.options.getString('profile') === 'civ'){
@@ -34,7 +37,7 @@ module.exports = {
             .setFields(
                 { name: '👑 Leader', value: `<@${ clanData.leaderID }>`},
                 { name: '🛡️ Members:', value: `${ clanData.members.size }`},
-                { name: '🧑‍🤝‍🧑 Citizens:', value: `${ clanData.citizens }`},
+                { name: '🧑‍🤝‍🧑 Citizens:', value: `placeholder`},
                 { name: '🌎 Server:', value: `${ clanData.serverID }`}
             )
         } else {

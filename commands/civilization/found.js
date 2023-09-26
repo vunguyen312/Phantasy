@@ -52,7 +52,6 @@ module.exports = {
                     serverID: interaction.guild.id,
                     public: interaction.options.getBoolean('public'),
                     members: new Map().set(interaction.user.id, 'King'),
-                    citizens: 1,
 
                     //Inventory
 

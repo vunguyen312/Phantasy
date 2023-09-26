@@ -64,6 +64,12 @@ client.on(Discord.Events.InteractionCreate, async interaction =>{
             rank: null,
             gold: 0,
             bank: 0,
+            growthRate: 1,
+            earnRate: 1,
+            taxRate: .1,
+            job: new Map(),
+            notifications: true,
+
             inventory: new Map()
         });
         profile.save();
@@ -87,42 +93,3 @@ client.on(Discord.Events.InteractionCreate, async interaction =>{
 });
 
 client.login(process.env.CLIENT_TOKEN);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
