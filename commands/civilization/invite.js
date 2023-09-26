@@ -14,6 +14,11 @@ module.exports = {
             .setRequired(true))
         .setDMPermission(false),
     async execute(interaction, profileData){
+
+        if(interaction.options.getUser('user').bot === true){
+            return interaction.reply({ content: `You can't invite bots to civilizations!`, ephemeral: true });
+        }
+
         const clanData = await clanModel.findOne({ [`members.${interaction.user.id}`]: { $exists : true } });
         const targetData = await profileModel.findOne({ userID: interaction.options.getUser('user').id });
 
@@ -22,11 +27,11 @@ module.exports = {
         if(!profileData.allegiance){
             return interaction.reply({ content: `Hm... It appears you're not in a civilization.`, ephemeral: true});
         }
+        else if(targetData.allegiance){
+            return interaction.reply({ content: `The user you're trying to invite is already in a civilization.`, ephemeral: true});
+        }
         else if(!clanData){
             return interaction.reply({ content: 'Error while requesting clan data.', ephemeral: true });
-        }
-        else if(interaction.options.getUser('user').bot === true){
-            return interaction.reply({ concent: `You can't invite bots to civilizations!`, ephemeral: true });
         }
         else if(!targetData){
             return interaction.reply({ content: `User isn't logged in the database. Get them to run any command.`, ephemeral:true });
@@ -103,7 +108,7 @@ module.exports = {
                 embed
                 .setTitle(`✔️ Welcome to ${clanData.clanName}`)
                 .setFields({ name: '💎 Rank:', value: '*Baron*'})
-                .setThumbnail(interaction.user.displayAvatarURL());
+                .setThumbnail(interaction.options.getUser('user').displayAvatarURL());
                 await confirm.update({ embeds: [embed], components: [] });
 
             } else if (confirm.customId === 'decline') {

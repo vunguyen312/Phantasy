@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require("discord.js");
 const clanModel = require('../../models/clanSchema');
 const profileModel = require('../../models/profileSchema');
+const profanityFilter = import('@coffeeandfun/google-profanity-words');
 
 module.exports = {
     cooldown: 5,
@@ -21,6 +22,10 @@ module.exports = {
         .setDMPermission(false),
     async execute(interaction, profileData){
 
+        //Check for slurs
+
+        const profanity = new (await profanityFilter).ProfanityEngine();
+
         //Checks so the game doesn't break
 
         if(profileData.allegiance){
@@ -34,6 +39,9 @@ module.exports = {
         }
         else if(await clanModel.findOne({ serverID: interaction.guild.id })){
             return interaction.reply({ content: 'A civilization has already been founded in this server!', ephemeral:true });
+        }
+        else if(await profanity.search(interaction.options.getString('name'))){
+            return interaction.reply({ content: 'Profanity detected in name.', ephemeral:true });
         }
 
         const embed = new EmbedBuilder()
