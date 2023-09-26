@@ -7,13 +7,13 @@ module.exports = async (client) => {
 
     //Update gold every hour
 
-    let currHour;
+    let prevHour;
 
     setInterval(async () => {
         try{
             const profiles = await profileModel.find({});
-            if(new Date(Date.now()).getMinutes() == "00" && new Date(Date.now()).getHours() != currHour){
-                currHour = new Date(Date.now()).getHours();
+            if(new Date(Date.now()).getMinutes() == "00" && new Date(Date.now()).getHours() != prevHour){
+                prevHour = new Date(Date.now()).getHours();
 
                 for (const profile of profiles) {
                     const { earnRate } = profile;
