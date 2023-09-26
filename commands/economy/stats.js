@@ -21,9 +21,10 @@ module.exports = {
             .setDescription(`The stats of user ${interaction.user.tag}`)
             .setFields(
                 { name: '🚩 Allegiance:', value: `*${ profileData.allegiance ?? 'None'}*`},
-                { name: '🥇 Rank', value: `*${ profileData.rank ?? 'None'}*`},
+                { name: '🥇 Rank:', value: `*${ profileData.rank }*`},
                 { name: '🧈 Gold:', value: `${ profileData.gold }`},
                 { name: '💰 Bank:', value: `${ profileData.bank }`},
+                { name: '🧑‍🤝‍🧑 Citizens:', value: `${ profileData.citizens }`},
                 { name: '📈 Growth Rate:', value: `${ profileData.growthRate } citizen/h`},
                 { name: '🏆 Gold Rate:', value: `${ profileData.earnRate } gold/h`},
                 { name: '💸 Tax Rate:', value: `${ profileData.taxRate * 100}%`},

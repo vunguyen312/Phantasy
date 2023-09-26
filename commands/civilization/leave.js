@@ -33,7 +33,7 @@ module.exports = {
                 },
                 {
                     allegiance: null,
-                    rank: null
+                    rank: 'Lord'
                 }
             );
             await clanModel.findOneAndUpdate(
