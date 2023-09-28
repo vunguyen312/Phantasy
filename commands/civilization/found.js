@@ -22,7 +22,9 @@ module.exports = {
         .setDMPermission(false),
     async execute(interaction, profileData){
 
-        //Check for slurs
+        //Check for non-alphabetical characters and profanity
+
+        const regex = /^[a-zA-Z]+$/;
 
         const profanity = new (await profanityFilter).ProfanityEngine();
 
@@ -34,14 +36,17 @@ module.exports = {
         else if(interaction.options.getString('name').length > 20){
             return interaction.reply({ content: `Max Character Limit: 20`, ephemeral:true });
         }
+        else if(await profanity.search(interaction.options.getString('name'))){
+            return interaction.reply({ content: 'Profanity detected in name.', ephemeral:true });
+        }
+        else if(!regex.test(interaction.options.getString('name'))){
+            return interaction.reply({ content: 'Non-alphabetical characters cannot be used in your civilization name.', ephemeral:true });
+        }
         else if(await clanModel.findOne({ clanName: interaction.options.getString('name') })){
             return interaction.reply({ content: 'A civilization with this name already exists!', ephemeral:true });
         }
         else if(await clanModel.findOne({ serverID: interaction.guild.id })){
             return interaction.reply({ content: 'A civilization has already been founded in this server!', ephemeral:true });
-        }
-        else if(await profanity.search(interaction.options.getString('name'))){
-            return interaction.reply({ content: 'Profanity detected in name.', ephemeral:true });
         }
 
         const embed = new EmbedBuilder()
