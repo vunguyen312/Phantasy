@@ -13,16 +13,16 @@ module.exports = {
             .setRequired(true)),
     async execute(interaction, profileData){
         const amount = interaction.options.getNumber('amount');
-        if(amount <= 0 || amount > profileData.bank){
-            return interaction.reply({ content: 'Please withdraw a real amount of gold.', ephemeral: true});
+        if(amount <= 0 || amount > profileData.bank || amount % 1 != 0){
+            return interaction.reply({ content: 'Please withdraw a real amount of gold.', ephemeral: true });
         }
 
         const embed = new EmbedBuilder()
         .setColor('Blue')
         .setTitle(`💰 ${interaction.user.tag} has withdrawn gold`)
         .setFields(
-            { name: '🧈 Gold Withdrawn:', value: `${amount}`},
-            { name: '🏦 New Balance:', value: `${profileData.bank - amount}`}
+            { name: '🧈 Gold Withdrawn:', value: `${ amount }`},
+            { name: '🏦 New Balance:', value: `${ profileData.bank - amount }`}
         )
         .setThumbnail(interaction.user.displayAvatarURL());
 
@@ -38,7 +38,7 @@ module.exports = {
                     }
                 }
             );
-        } catch (error) {
+        } catch ( error ) {
             return interaction.reply({ content: 'Uh oh! Something went wrong while withdrawing your gold!', ephemeral:true});
         }
 

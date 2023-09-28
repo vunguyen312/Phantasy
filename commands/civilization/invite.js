@@ -37,8 +37,6 @@ module.exports = {
             return interaction.reply({ content: `User isn't logged in the database. Get them to run any command.`, ephemeral:true });
         }
 
-        //Create the embed
-
         const embed = new EmbedBuilder()
         .setColor('Blue')
         .setTitle(`🛡️ ${interaction.user.tag} has invited ${interaction.options.getUser('user').username} to join ${clanData.clanName}!`);

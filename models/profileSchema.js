@@ -6,11 +6,13 @@ const profileSchema = new mongoose.Schema({
     rank: { type: String, require: true },
     gold: { type: Number, require: true },
     bank: { type: Number, require: true },
+    productionScore: { type: Number, require: true },
     citizens: { type: Number, require: true },
     growthRate: { type: Number, require: true },
     earnRate: { type: Number, require: true },
     taxRate: { type: Number, require: true },
     jobs: { type: Map, require: true },
+    structures: { type: Map, require: true },
     notifications: { type: Boolean, require: true },
 
     //Inventory

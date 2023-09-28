@@ -39,15 +39,16 @@ module.exports = async (client, Discord, interaction) => {
         if (!profileData) {
             let profile = await profileModel.create({
             userID: interaction.user.id,
-            allegiance: null,
             rank: 'Lord',
             gold: 0,
             bank: 0,
+            productionScore: 1,
             citizens: 1,
             growthRate: 1,
-            earnRate: 1,
+            earnRate: 10,
             taxRate: .1,
-            job: new Map(),
+            jobs: new Map(),
+            structures: new Map(),
             notifications: true,
 
             inventory: new Map()

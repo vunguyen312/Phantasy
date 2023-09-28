@@ -13,7 +13,7 @@ module.exports = {
             .setRequired(true)),
     async execute(interaction, profileData){
         const amount = interaction.options.getNumber('amount');
-        if(amount <= 0 || amount > profileData.gold){
+        if(amount <= 0 || amount > profileData.gold || amount % 1 != 0){
             return interaction.reply({ content: 'Please deposit a real amount of gold.', ephemeral: true});
         }
 
@@ -21,8 +21,8 @@ module.exports = {
         .setColor('Blue')
         .setTitle(`💰 ${interaction.user.tag} has deposited gold`)
         .setFields(
-            { name: '🧈 Gold Deposited:', value: `${amount}`},
-            { name: '🏦 New Balance:', value: `${profileData.bank + amount}`}
+            { name: '🧈 Gold Deposited:', value: `${ amount }`},
+            { name: '🏦 New Balance:', value: `${ profileData.bank + amount }`}
         )
         .setThumbnail(interaction.user.displayAvatarURL());
 

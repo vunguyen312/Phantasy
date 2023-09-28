@@ -11,24 +11,35 @@ module.exports = async (client) => {
 
     setInterval(async () => {
         try{
-            const profiles = await profileModel.find({});
-            if(new Date(Date.now()).getMinutes() == "00" && new Date(Date.now()).getHours() != prevHour){
-                prevHour = new Date(Date.now()).getHours();
 
-                for (const profile of profiles) {
-                    const { earnRate } = profile;
-            
-                    await profileModel.updateOne(
-                      { 
-                        userID: profile.userID 
-                      },
-                      { 
-                        $inc: { gold: earnRate } 
-                      }
-                    );
-                  }
-                  console.log('Updated values of all players.');
+          const profiles = await profileModel.find({});
+
+          if(new Date(Date.now()).getMinutes() == "00" && new Date(Date.now()).getHours() != prevHour){
+
+            prevHour = new Date(Date.now()).getHours();
+
+            for (const profile of profiles) {
+
+              const { earnRate, growthRate } = profile;
+      
+              await profileModel.updateMany(
+                { 
+                  userID: profile.userID 
+                },
+                { 
+                  $inc: 
+                  { 
+                    citizens: growthRate,
+                    earnRate: growthRate,
+                    growthRate: 1,
+                    gold: earnRate,
+                  } 
+                }
+              );
             }
+            console.log('Updated values of all players.');
+        }
+
         } catch (error) {
             return console.log('Error while updating values.', error);
         }
