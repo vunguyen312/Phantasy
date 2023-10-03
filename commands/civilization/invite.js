@@ -19,22 +19,22 @@ module.exports = {
             return interaction.reply({ content: `You can't invite bots to civilizations!`, ephemeral: true });
         }
 
-        const clanData = await clanModel.findOne({ [`members.${interaction.user.id}`]: { $exists : true } });
+        const clanData = await clanModel.findOne({ clanName: profileData.allegiance });
         const targetData = await profileModel.findOne({ userID: interaction.options.getUser('user').id });
 
         //Checks so the game doesn't break
 
-        if(!profileData.allegiance){
-            return interaction.reply({ content: `Hm... It appears you're not in a civilization.`, ephemeral: true});
-        }
-        else if(targetData.allegiance){
-            return interaction.reply({ content: `The user you're trying to invite is already in a civilization.`, ephemeral: true});
-        }
-        else if(!clanData){
+        if(!clanData){
             return interaction.reply({ content: 'Error while requesting clan data.', ephemeral: true });
         }
         else if(!targetData){
             return interaction.reply({ content: `User isn't logged in the database. Get them to run any command.`, ephemeral:true });
+        }
+        else if(!profileData.allegiance){
+            return interaction.reply({ content: `Hm... It appears you're not in a civilization.`, ephemeral: true});
+        }
+        else if(targetData.allegiance){
+            return interaction.reply({ content: `The user you're trying to invite is already in a civilization.`, ephemeral: true});
         }
 
         const embed = new EmbedBuilder()
@@ -78,30 +78,25 @@ module.exports = {
 
             //Updates the database
 
-                try{
-                    await profileModel.findOneAndUpdate(
-                        {
-                            userID: interaction.options.getUser('user').id,
-                        },
-                        {
-                            allegiance: clanData.clanName,
-                            rank: 'Baron'
-                        }
-                    );
-                    await clanModel.findOneAndUpdate(
-                        {
-                            serverID: interaction.options.getString('id') ?? interaction.guild.id,
-                        },
-                        {
-                            $set: {
-                                [`members.${interaction.options.getUser('user').id}`]: 'Baron'
-                            }
-                        }
-                    );
-                } catch (error) {
-                    console.log(error);
-                    return interaction.reply({ content: 'Uh oh! Something went wrong while joining this civilization!', ephemeral:true });
+            await profileModel.findOneAndUpdate(
+                {
+                    userID: interaction.options.getUser('user').id,
+                },
+                {
+                    allegiance: clanData.clanName,
+                    rank: 'Baron'
                 }
+            );
+            await clanModel.findOneAndUpdate(
+                {
+                    clanName: profileData.allegiance, 
+                },
+                {
+                    $set: {
+                        [`members.Baron.${targetData.userID}`]: targetData.userID
+                    }
+                }
+            );
 
                 embed
                 .setTitle(`✔️ Welcome to ${clanData.clanName}`)
@@ -115,9 +110,10 @@ module.exports = {
                 await confirm.update({ embeds: [embed], components: [] });
 
             }
-        } catch (e) {
+        } catch (error) {
+            console.log(error);
             embed.setTitle('❌ Invite has expired.');
-            await interaction.editReply({ embeds: [embed], components: [] });
+            return await interaction.editReply({ embeds: [embed], components: [] });
         }
     }
 }

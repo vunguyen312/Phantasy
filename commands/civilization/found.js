@@ -58,13 +58,18 @@ module.exports = {
         .setThumbnail(interaction.user.displayAvatarURL());
 
         try{
-            let clan = await clanModel.create(
+            
+            const clan = await clanModel.create(
                 {
                     clanName: interaction.options.getString('name'),
                     leaderID: interaction.user.id,
                     serverID: interaction.guild.id,
                     public: interaction.options.getBoolean('public'),
-                    members: new Map().set(interaction.user.id, 'King'),
+                    members: {
+                        King: new Map([[interaction.user.id, interaction.user.id]]),
+                        Duke: new Map(),
+                        Baron: new Map()
+                    },
 
                     //Inventory
 
@@ -74,7 +79,7 @@ module.exports = {
             );
             clan.save();
 
-            const response2 = await profileModel.findOneAndUpdate(
+            await profileModel.findOneAndUpdate(
                 {
                     userID: interaction.user.id
                 },
@@ -83,6 +88,7 @@ module.exports = {
                     rank: 'King'
                 }
             );
+
         }catch(error){
             return interaction.reply(`Uh oh! Something went wrong while setting up your Clan!`), console.log(error);
         }

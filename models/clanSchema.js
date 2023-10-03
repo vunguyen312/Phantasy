@@ -5,7 +5,7 @@ const clanSchema = new mongoose.Schema({
     leaderID: { type: String, require:true, unique: true },
     serverID: { type: String, require:true, unique: true},
     public: { type:Boolean, require: true},
-    members: { type: Map, require:true },
+    members: { type: Object, require:true },
 
     //Clan Resources
 

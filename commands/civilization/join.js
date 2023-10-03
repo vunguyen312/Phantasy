@@ -55,7 +55,7 @@ module.exports = {
                 },
                 {
                     $set: {
-                        [`members.${interaction.user.id}`]: 'Baron'
+                        [`members.Baron.${interaction.user.id}`]: interaction.user.id
                     }
                 }
             );

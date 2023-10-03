@@ -12,7 +12,7 @@ module.exports = async (client) => {
     setInterval(async () => {
         try{
 
-          const profiles = await profileModel.find({});
+          const profiles = await profileModel.find();
 
           if(new Date(Date.now()).getHours() != prevHour){
 
