@@ -9,12 +9,19 @@ module.exports = {
         .setDescription('Leave a civilization!')
         .setDMPermission(false),
     async execute(interaction, profileData){
-        const clanData = await clanModel.findOne({ serverID: interaction.options.getString('id') }) || await clanModel.findOne({ serverID: interaction.guild.id });
+
+        const clanData = await clanModel.findOne({ clanName: profileData.allegiance });
 
         //Checks so the game doesn't break
 
         if(!profileData.allegiance){
             return interaction.reply({ content: `Hm... It appears you're not in a civilization.`, ephemeral: true});
+        }
+        else if(!clanData){
+            return interaction.reply({ content: `Could not retrieve your clan information. `, ephemeral: true });
+        }
+        else if(clanData.leaderID === interaction.user.id){
+            return interaction.reply({ content: 'The leader of the civilization cannot leave. You must do /disband to disintegrate the civilization.', ephemeral: true});
         }
 
         //Create the embed

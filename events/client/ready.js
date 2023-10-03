@@ -14,7 +14,7 @@ module.exports = async (client) => {
 
           const profiles = await profileModel.find({});
 
-          if(new Date(Date.now()).getMinutes() == "00" && new Date(Date.now()).getHours() != prevHour){
+          if(new Date(Date.now()).getHours() != prevHour){
 
             prevHour = new Date(Date.now()).getHours();
 
@@ -37,11 +37,12 @@ module.exports = async (client) => {
                 }
               );
             }
+            
             console.log('Updated values of all players.');
         }
 
         } catch (error) {
             return console.log('Error while updating values.', error);
         }
-    }, 20000);
+    }, 3600000);
 }
