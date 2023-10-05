@@ -10,9 +10,11 @@ module.exports = {
             option
             .setName('profile')
             .setDescription('Add civ for Civilization Stats or leave blank for Personal Stats.')),
-    async execute(interaction, profileData){
+    async execute(interaction, profileData, itemsList){
         const embed = new EmbedBuilder()
         const clanData = await clanModel.findOne({ serverID: interaction.guild.id });
+
+        console.log(itemsList);
 
         if(!interaction.options.getString('profile')){
             embed

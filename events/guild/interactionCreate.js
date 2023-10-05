@@ -1,4 +1,17 @@
 const profileModel = require('../../models/profileSchema');
+const fs = require('fs');
+
+//There's 100% a better way to do this but it works thanks to arcane sorcery.
+
+let itemsList;
+
+fs.readFile("items.json", 'utf8', (error, data) => {
+
+    if(error) throw error;
+
+    return itemsList = JSON.parse(data);
+    
+});
 
 module.exports = async (client, Discord, interaction) => {
     
@@ -61,7 +74,7 @@ module.exports = async (client, Discord, interaction) => {
     }
 
     try {
-        await command.execute(interaction, profileData);
+        await command.execute(interaction, profileData, itemsList);
     } catch (error) {
         if(interaction.replied || interaction.deferred) {
             await interaction.followUp({ content:'Error while executing command.', ephemeral: true });

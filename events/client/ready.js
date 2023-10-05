@@ -9,6 +9,26 @@ module.exports = async (client) => {
 
     let prevHour;
 
+    const updateProfile = async (profile) =>{
+      const { earnRate, growthRate } = profile;
+      
+      await profileModel.updateMany(
+        { 
+          userID: profile.userID 
+        },
+        { 
+          $inc: 
+          { 
+            citizens: growthRate,
+            earnRate: growthRate,
+            growthRate: 1,
+            gold: earnRate,
+          } 
+        }
+      );
+
+    }
+
     setInterval(async () => {
         try{
 
@@ -19,23 +39,7 @@ module.exports = async (client) => {
             prevHour = new Date(Date.now()).getHours();
 
             for (const profile of profiles) {
-
-              const { earnRate, growthRate } = profile;
-      
-              await profileModel.updateMany(
-                { 
-                  userID: profile.userID 
-                },
-                { 
-                  $inc: 
-                  { 
-                    citizens: growthRate,
-                    earnRate: growthRate,
-                    growthRate: 1,
-                    gold: earnRate,
-                  } 
-                }
-              );
+              updateProfile(profile);
             }
             
             console.log('Updated values of all players.');
@@ -45,4 +49,5 @@ module.exports = async (client) => {
             return console.log('Error while updating values.', error);
         }
     }, 3600000);
+
 }

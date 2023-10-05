@@ -1,0 +1,7 @@
+{
+    "test": {
+        "name": "Test",
+        "description": "Hello this is a test item",
+        "amount": 0
+    }
+}

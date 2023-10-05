@@ -2,7 +2,8 @@ const fs = require('fs');
 const path = require('path');
 
 module.exports = (client, Discord) =>{
-    const load_directory = (dirs) =>{
+    
+    const load_directory = (dirs) => {
         const event_folder_path = path.join(__dirname, `../events/${dirs}`);
         const event_files = fs.readdirSync(`./events/${dirs}`).filter(file => file.endsWith('.js'));
 
@@ -13,15 +14,8 @@ module.exports = (client, Discord) =>{
             /*Check if the event we're listening for is interactionCreate or anything else. 
             If it is, we grab interaction as well and push it to interactionCreate.js*/
 
-            switch(event_name){
-                case(event_name === "interactionCreate"):
-                    client.on(event_name, async interaction => {
-                        client.on(event_name, event.bind(null, client, Discord, interaction));
-                    });
-                break;
-                default:
-                    client.on(event_name, event.bind(null, client, Discord));
-            }
+            client.on(event_name, event.bind(null, client, Discord));
+
         }
     }
 
@@ -31,4 +25,5 @@ module.exports = (client, Discord) =>{
         load_directory(e);
         console.log(`${e} has been loaded.`);
     });
+
 }
