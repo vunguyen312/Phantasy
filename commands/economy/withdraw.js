@@ -12,7 +12,9 @@ module.exports = {
             .setDescription('The amount of coins to withdraw.')
             .setRequired(true)),
     async execute(interaction, profileData){
+        
         const amount = interaction.options.getNumber('amount');
+
         if(amount <= 0 || amount > profileData.bank || amount % 1 != 0){
             return interaction.reply({ content: 'Please withdraw a real amount of gold.', ephemeral: true });
         }
