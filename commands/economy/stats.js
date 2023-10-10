@@ -22,14 +22,14 @@ module.exports = {
             .setTitle(`📈 ${interaction.user.tag}'s Stats`)
             .setDescription(`The stats of user ${interaction.user.tag}`)
             .setFields(
-                { name: '🚩 Allegiance:', value: `*${ profileData.allegiance ?? 'None'}*`},
-                { name: '🥇 Rank:', value: `*${ profileData.rank }*`},
-                { name: '🧈 Gold:', value: `${ profileData.gold }`},
-                { name: '💰 Bank:', value: `${ profileData.bank }`},
-                { name: '🧑‍🤝‍🧑 Citizens:', value: `${ profileData.citizens }`},
-                { name: '📈 Growth Rate:', value: `${ profileData.growthRate } citizen/h`},
-                { name: '🏆 Gold Rate:', value: `${ profileData.earnRate } gold/h`},
-                { name: '💸 Tax Rate:', value: `${ profileData.taxRate * 100}%`},
+                { name: '🚩 Allegiance:', value: `*${ profileData.allegiance ?? 'None'}*` },
+                { name: '🥇 Rank:', value: `*${ profileData.rank }*` },
+                { name: '🧈 Gold:', value: `${ profileData.gold }` },
+                { name: '💰 Bank:', value: `${ profileData.bank }` },
+                { name: '🧑‍🤝‍🧑 Citizens:', value: `${ profileData.citizens }` },
+                { name: '📈 Growth Rate:', value: `${ profileData.growthRate } citizen/h` },
+                { name: '🏆 Gold Rate:', value: `${ profileData.earnRate } gold/h` },
+                { name: '💸 Tax Rate:', value: `${ profileData.taxRate * 100}%` },
             )
             .setThumbnail(interaction.user.displayAvatarURL());
         } else if(profileData.allegiance && interaction.options.getString('profile') === 'civ'){
@@ -38,10 +38,10 @@ module.exports = {
             .setTitle(`📈 ${profileData.allegiance}'s Stats`)
             .setDescription(`The stats of ${profileData.allegiance}`)
             .setFields(
-                { name: '👑 Leader', value: `<@${ clanData.leaderID }>`},
-                { name: '🛡️ Members:', value: `${ clanData.members.size }`},
+                { name: '👑 Leader', value: `<@${ clanData.leaderID }>` },
+                { name: '🛡️ Members:', value: `${ clanData.members.size }` },
                 { name: '🧑‍🤝‍🧑 Citizens:', value: `placeholder`},
-                { name: '🌎 Server:', value: `${ clanData.serverID }`}
+                { name: '🌎 Server:', value: `${ clanData.serverID }` }
             )
         } else {
             return interaction.reply({ content: `Missing fields or not apart of any civilization.`, ephemeral: true});

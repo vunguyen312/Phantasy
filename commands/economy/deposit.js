@@ -16,7 +16,7 @@ module.exports = {
         const amount = interaction.options.getNumber('amount');
 
         if(amount <= 0 || amount > profileData.gold || amount % 1 != 0){
-            return interaction.reply({ content: 'Please deposit a real amount of gold.', ephemeral: true});
+            return interaction.reply({ content: 'Please deposit a real amount of gold.', ephemeral: true });
         }
 
         const embed = new EmbedBuilder()
@@ -41,7 +41,7 @@ module.exports = {
                 }
             );
         } catch (error) {
-            return interaction.reply({ content: 'Uh oh! Something went wrong while depositing your gold!', ephemeral:true});
+            return interaction.reply({ content: 'Uh oh! Something went wrong while depositing your gold!', ephemeral:true });
         }
 
         

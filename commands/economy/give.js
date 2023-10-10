@@ -4,29 +4,29 @@ const profileModel = require('../../models/profileSchema');
 module.exports = {
     cooldown: 5,
     data: new SlashCommandBuilder()
-        .setName('pay')
-        .setDescription(`Give away some gold!`)
-        .addNumberOption(option =>
+        .setName('give')
+        .setDescription(`Give away some items!`)
+        .addStringOption(option =>
             option
-            .setName('amount')
-            .setDescription('The amount of coins to give.')
+            .setName('item')
+            .setDescription('The item to give.')
             .setRequired(true))
         .addUserOption(option =>
             option
             .setName('user')
-            .setDescription('The user to invite.')
+            .setDescription('The user to give the item to.')
             .setRequired(true)),
-    async execute(interaction, profileData){
+    async execute(interaction, profileData, itemsList){
 
         if(interaction.options.getUser('user').bot === true){
-            return interaction.reply({ content: `You can't pay bots!`, ephemeral: true });
+            return interaction.reply({ content: `You can't give items to bots!`, ephemeral: true });
         }
 
-        const amount = interaction.options.getNumber('amount');
+        const itemToGive = interaction.options.getString('item');
         const targetData = await profileModel.findOne({ userID: interaction.options.getUser('user').id });
         
-        if(amount <= 0 || amount > profileData.gold || amount % 1 != 0){
-            return interaction.reply({ content: 'Please enter a real amount of gold.', ephemeral: true});
+        if(!itemsList[itemToGive]){
+            return interaction.reply({ content: 'Please enter a valid item.', ephemeral: true});
         }
         else if(!targetData){
             return interaction.reply({ content: `User isn't logged in the database. Get them to run any command.`, ephemeral:true });
@@ -35,31 +35,27 @@ module.exports = {
 
         const embed = new EmbedBuilder()
         .setColor('Blue')
-        .setTitle(`💰 ${interaction.user.tag} has paid ${interaction.options.getUser('user').username} ${amount} gold`)
-        .setFields(
-            { name: '🧈 Gold Paid:', value: `${amount}` },
-            { name: '🏦 New Balance:', value: `${profileData.gold - amount}` }
-        )
+        .setTitle(`💰 ${interaction.user.tag} has received *${itemToGive.toUpperCase()}*!`)
         .setThumbnail(interaction.user.displayAvatarURL());
 
         try {
-            await profileModel.findOneAndUpdate(
+            profileModel.findOneAndUpdate(
                 {
-                    userID: interaction.user.id
+                    userID: targetData.userID
                 },
                 {
-                    $inc: {
-                        gold: -amount,
+                    $set: {
+                        [`inventory.${itemToGive}`]: itemsList[itemToGive]
                     }
                 }
             );
             await profileModel.findOneAndUpdate(
                 {
-                    userID: interaction.options.getUser('user').id
+                    userID: targetData.userID
                 },
                 {
-                    $inc:{
-                        gold: amount
+                    $inc: {
+                        [`inventory.${itemToGive}.amount`]: 1
                     }
                 }
             );
