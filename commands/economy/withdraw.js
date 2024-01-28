@@ -11,13 +11,12 @@ module.exports = {
             .setName('amount')
             .setDescription('The amount of coins to withdraw.')
             .setRequired(true)),
+    conditions: [
+        {check: (interaction) => {const amount = interaction.options.getNumber('amount'); return amount <= 0 || amount > profileData.bank || amount % 1 != 0;}, msg: `Please withdraw a real amount of gold.`}
+    ],
     async execute(interaction, profileData){
         
         const amount = interaction.options.getNumber('amount');
-
-        if(amount <= 0 || amount > profileData.bank || amount % 1 != 0){
-            return interaction.reply({ content: 'Please withdraw a real amount of gold.', ephemeral: true });
-        }
 
         const embed = new EmbedBuilder()
         .setColor('Blue')
@@ -40,7 +39,7 @@ module.exports = {
                     }
                 }
             );
-        } catch ( error ) {
+        } catch (error) {
             return interaction.reply({ content: 'Uh oh! Something went wrong while withdrawing your gold!', ephemeral:true});
         }
 

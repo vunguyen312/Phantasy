@@ -12,15 +12,15 @@ module.exports = {
             .setName('id')
             .setDescription('ID of the Server/Civilization'))
         .setDMPermission(false),
+    conditions: [
+        {check: (interaction, profileData) => profileData.allegiance, msg: `Hm... It appears you're already in a civilization.`},
+    ],
     async execute(interaction, profileData){
         const clanData = await clanModel.findOne({ serverID: interaction.options.getString('id') }) || await clanModel.findOne({ serverID: interaction.guild.id });
 
         //Checks so the game doesn't break
 
-        if(profileData.allegiance){
-            return interaction.reply({ content: `Hm... It appears you're already in a civilization.`, ephemeral: true});
-        }
-        else if(!clanData){
+        if(!clanData){
             return interaction.reply({ content: 'Invalid Civilization ID (Server ID)', ephemeral:true });
         }
         else if(clanData.public === false){

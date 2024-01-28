@@ -11,13 +11,12 @@ module.exports = {
             .setName('amount')
             .setDescription('The amount of coins to despoit.')
             .setRequired(true)),
+    conditions: [
+        {check: (interaction, profileData) => {const amount = interaction.options.getNumber('amount'); return amount <= 0 || amount > profileData.gold || amount % 1 != 0;}, msg: ` Please deposit a real amount of gold.`}
+    ],
     async execute(interaction, profileData){
-        
-        const amount = interaction.options.getNumber('amount');
 
-        if(amount <= 0 || amount > profileData.gold || amount % 1 != 0){
-            return interaction.reply({ content: 'Please deposit a real amount of gold.', ephemeral: true });
-        }
+        const amount = interaction.options.getNumber('amount'); 
 
         const embed = new EmbedBuilder()
         .setColor('Blue')
@@ -43,8 +42,6 @@ module.exports = {
         } catch (error) {
             return interaction.reply({ content: 'Uh oh! Something went wrong while depositing your gold!', ephemeral:true });
         }
-
-        
 
         await interaction.reply({ embeds: [embed] });
     }

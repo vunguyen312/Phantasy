@@ -8,6 +8,10 @@ module.exports = {
         .setName('disband')
         .setDescription('Disband a civilization.')
         .setDMPermission(false),
+    conditions: [
+        {check: (interaction, profileData) => !profileData.allegiance, msg: `You're not in a civilization.` },
+        {check: (interaction) => clanData.leaderID !== interaction.user.id, msg: `You're not the leader of this civilization.` },
+    ],
     async execute(interaction, profileData){
 
         const clanData = await clanModel.findOne({ clanName: profileData.allegiance });
@@ -15,13 +19,6 @@ module.exports = {
         const clanName = profileData.allegiance;
 
         //Checks so the game doesn't break
-
-        if(!profileData.allegiance){
-            return interaction.reply({ content: `You're not in a civilization.`, ephemeral: true});
-        }
-        else if(clanData.leaderID !== interaction.user.id){
-            return interaction.reply({ content: `You're not the leader of this civilization.`, ephemeral:true });
-        }
 
         const embed = new EmbedBuilder()
         .setColor('Blue')

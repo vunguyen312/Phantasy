@@ -1,7 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require("discord.js");
 const clanModel = require('../../models/clanSchema');
 const profileModel = require('../../models/profileSchema');
-const profanityFilter = import('@coffeeandfun/google-profanity-words');
 
 module.exports = {
     cooldown: 5,
@@ -20,34 +19,14 @@ module.exports = {
             .setRequired(true))
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .setDMPermission(false),
+    conditions: [
+        {check: (interaction, profileData) => profileData.allegiance, msg: `Hm... It appears you're already in a civilization.`},
+        {check: (interaction) => interaction.options.getString('name').length > 20, msg: `Max Character Limit: 20`},
+        {check: (interaction) => !/^[a-zA-Z]+$/.test(interaction.options.getString('name')), msg: `Non-alphabetical characters cannot be used in your civilization name.`},
+        {check: async (interaction) => await clanModel.findOne({ clanName: interaction.options.getString('name') }), msg: `A civilization with this name already exists!`},
+        {check: async (interaction) => await clanModel.findOne({ serverID: interaction.guild.id }), msg: `A civilization has already been founded in this server!`},
+    ],
     async execute(interaction, profileData){
-
-        //Check for non-alphabetical characters and profanity
-
-        const regex = /^[a-zA-Z]+$/;
-
-        const profanity = new (await profanityFilter).ProfanityEngine();
-
-        //Checks so the game doesn't break
-
-        if(profileData.allegiance){
-            return interaction.reply({ content: `Hm... It appears you're already in a civilization.`, ephemeral: true});
-        }
-        else if(interaction.options.getString('name').length > 20){
-            return interaction.reply({ content: `Max Character Limit: 20`, ephemeral:true });
-        }
-        else if(await profanity.search(interaction.options.getString('name'))){
-            return interaction.reply({ content: 'Profanity detected in name.', ephemeral:true });
-        }
-        else if(!regex.test(interaction.options.getString('name'))){
-            return interaction.reply({ content: 'Non-alphabetical characters cannot be used in your civilization name.', ephemeral:true });
-        }
-        else if(await clanModel.findOne({ clanName: interaction.options.getString('name') })){
-            return interaction.reply({ content: 'A civilization with this name already exists!', ephemeral:true });
-        }
-        else if(await clanModel.findOne({ serverID: interaction.guild.id })){
-            return interaction.reply({ content: 'A civilization has already been founded in this server!', ephemeral:true });
-        }
 
         const embed = new EmbedBuilder()
         .setColor('Blue')

@@ -5,6 +5,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('ping')
         .setDescription('Test Speed'),
+    condition: [],
     async execute(interaction){
         const embed = new EmbedBuilder()
         .setColor('Blue')

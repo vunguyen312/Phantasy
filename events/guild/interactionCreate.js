@@ -1,7 +1,6 @@
 const profileModel = require('../../models/profileSchema');
+const clanModel = require('../../models/clanSchema');
 const fs = require('fs');
-
-//There's 100% a better way to do this but it works thanks to arcane sorcery.
 
 let itemsList;
 
@@ -47,25 +46,26 @@ module.exports = async (client, Discord, interaction) => {
     setTimeout(() => timestamps.delete(interaction.user.id), cd);
 
     let profileData;
+    
     try {
         profileData = await profileModel.findOne({ userID: interaction.user.id });
         if (!profileData) {
             let profile = await profileModel.create({
-            userID: interaction.user.id,
-            rank: 'Lord',
-            gold: 0,
-            bank: 0,
-            productionScore: 1,
-            citizens: 1,
-            growthRate: 1,
-            earnRate: 10,
-            taxRate: .1,
-            jobs: new Map(),
-            structures: new Map(),
-            notifications: true,
+                userID: interaction.user.id,
+                rank: 'Lord',
+                gold: 0,
+                bank: 0,
+                productionScore: 1,
+                citizens: 1,
+                growthRate: 1,
+                earnRate: 10,
+                taxRate: .1,
+                jobs: new Map(),
+                structures: new Map(),
+                notifications: true,
 
-            inventory: new Map()
-        });
+                inventory: new Map()
+            });
         profile.save();
         profileData = profile;
         }
@@ -73,8 +73,25 @@ module.exports = async (client, Discord, interaction) => {
         await interaction.reply({ content: 'Uh oh! Something went wrong while setting up your profile!'});
     }
 
+    const clanData = await clanModel.findOne({ clanName: profileData.allegiance });
+
+    const failedCondition = command.conditions ?
+      (
+        await Promise.all(
+          command.conditions.map(async condition => ({
+            result: await condition.check(interaction, profileData),
+            msg: condition.msg,
+          }))
+        )
+      ).find(condition => condition.result)
+      : false;
+
+    if (failedCondition) {
+        return interaction.reply({ content: failedCondition.msg, ephemeral: true });
+    }
+
     try {
-        await command.execute(interaction, profileData, itemsList);
+        await command.execute(interaction, profileData, clanData, itemsList);
     } catch (error) {
         if(interaction.replied || interaction.deferred) {
             await interaction.followUp({ content:'Error while executing command.', ephemeral: true });

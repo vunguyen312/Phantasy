@@ -10,11 +10,12 @@ module.exports = {
             option
             .setName('profile')
             .setDescription('Add civ for Civilization Stats or leave blank for Personal Stats.')),
-    async execute(interaction, profileData, itemsList){
+    conditions: [
+        {check: (interaction, profileData) => !profileData.allegiance && interaction.options.getString('profile') === 'civ', msg: `You need to be a civilization to check civilization stats!`}
+    ],
+    async execute(interaction, profileData){
         const embed = new EmbedBuilder()
         const clanData = await clanModel.findOne({ serverID: interaction.guild.id });
-
-        console.log(itemsList);
 
         if(!interaction.options.getString('profile')){
             embed
@@ -22,7 +23,7 @@ module.exports = {
             .setTitle(`📈 ${interaction.user.tag}'s Stats`)
             .setDescription(`The stats of user ${interaction.user.tag}`)
             .setFields(
-                { name: '🚩 Allegiance:', value: `*${ profileData.allegiance ?? 'None'}*` },
+                { name: '🚩 Allegiance:', value: `*${ profileData.allegiance ?? 'None' }*` },
                 { name: '🥇 Rank:', value: `*${ profileData.rank }*` },
                 { name: '🧈 Gold:', value: `${ profileData.gold }` },
                 { name: '💰 Bank:', value: `${ profileData.bank }` },
@@ -32,7 +33,7 @@ module.exports = {
                 { name: '💸 Tax Rate:', value: `${ profileData.taxRate * 100}%` },
             )
             .setThumbnail(interaction.user.displayAvatarURL());
-        } else if(profileData.allegiance && interaction.options.getString('profile') === 'civ'){
+        } else if(interaction.options.getString('profile') === 'civ'){
             embed
             .setColor('Blue')
             .setTitle(`📈 ${profileData.allegiance}'s Stats`)

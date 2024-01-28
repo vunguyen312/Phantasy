@@ -16,22 +16,15 @@ module.exports = {
             .setName('user')
             .setDescription('The user to invite.')
             .setRequired(true)),
+    conditions: [
+        {check: (interaction) => interaction.options.getUser('user').bot, msg: `You can't pay bots!`},
+        {check: (interaction) => {const amount = interaction.options.getNumber('amount'); return amount <= 0 || amount > profileData.gold || amount % 1 != 0;}, msg: `Please enter a real amount of gold.`},
+        {check: async (interaction) => !(await profileModel.findOne({ userID: interaction.options.getUser('user').id })), msg: `User isn't logged in the database. Get them to run any command.`}
+    ],
     async execute(interaction, profileData){
-
-        if(interaction.options.getUser('user').bot === true){
-            return interaction.reply({ content: `You can't pay bots!`, ephemeral: true });
-        }
 
         const amount = interaction.options.getNumber('amount');
         const targetData = await profileModel.findOne({ userID: interaction.options.getUser('user').id });
-        
-        if(amount <= 0 || amount > profileData.gold || amount % 1 != 0){
-            return interaction.reply({ content: 'Please enter a real amount of gold.', ephemeral: true});
-        }
-        else if(!targetData){
-            return interaction.reply({ content: `User isn't logged in the database. Get them to run any command.`, ephemeral:true });
-        }
-        
 
         const embed = new EmbedBuilder()
         .setColor('Blue')

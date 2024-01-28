@@ -13,29 +13,16 @@ module.exports = {
             .setDescription('The user to invite.')
             .setRequired(true))
         .setDMPermission(false),
+    conditions: [
+        {check: (interaction) => interaction.options.getUser('user').bot, msg: `You can't invite bots to civilizations!`},
+        {check: async (interaction) => !(await profileModel.findOne({ userID: interaction.options.getUser('user').id })), msg: `User isn't logged in the database. Get them to run any command.`},
+        {check: (interaction, profileData) => !profileData.allegiance, msg: `Hm... It appears you're not in a civilization.`},
+        {check: async (interaction) => (await profileModel.findOne({ userID: interaction.options.getUser('user').id })).allegiance, msg: `The user you're trying to invite is already in a civilization.`},
+    ],
     async execute(interaction, profileData){
-
-        if(interaction.options.getUser('user').bot === true){
-            return interaction.reply({ content: `You can't invite bots to civilizations!`, ephemeral: true });
-        }
 
         const clanData = await clanModel.findOne({ clanName: profileData.allegiance });
         const targetData = await profileModel.findOne({ userID: interaction.options.getUser('user').id });
-
-        //Checks so the game doesn't break
-
-        if(!clanData){
-            return interaction.reply({ content: 'Error while requesting clan data.', ephemeral: true });
-        }
-        else if(!targetData){
-            return interaction.reply({ content: `User isn't logged in the database. Get them to run any command.`, ephemeral:true });
-        }
-        else if(!profileData.allegiance){
-            return interaction.reply({ content: `Hm... It appears you're not in a civilization.`, ephemeral: true});
-        }
-        else if(targetData.allegiance){
-            return interaction.reply({ content: `The user you're trying to invite is already in a civilization.`, ephemeral: true});
-        }
 
         const embed = new EmbedBuilder()
         .setColor('Blue')

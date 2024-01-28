@@ -16,23 +16,16 @@ module.exports = {
             .setName('user')
             .setDescription('The user to give the item to.')
             .setRequired(true)),
+    conditions: [
+        {check: (interaction) => interaction.options.getUser('user').bot, msg: `You can't give items to bots!`},
+        {check: (interaction) => !itemsList[interaction.options.getString('item')], msg: `Please enter a valid item.`},
+        {check: async (interaction) => !(await profileModel.findOne({ userID: interaction.options.getUser('user').id })), msg: `User isn't logged in the database. Get them to run any command.`}
+    ],
     async execute(interaction, profileData, itemsList){
-
-        if(interaction.options.getUser('user').bot === true){
-            return interaction.reply({ content: `You can't give items to bots!`, ephemeral: true });
-        }
 
         const itemToGive = interaction.options.getString('item');
         const targetData = await profileModel.findOne({ userID: interaction.options.getUser('user').id });
         
-        if(!itemsList[itemToGive]){
-            return interaction.reply({ content: 'Please enter a valid item.', ephemeral: true});
-        }
-        else if(!targetData){
-            return interaction.reply({ content: `User isn't logged in the database. Get them to run any command.`, ephemeral:true });
-        }
-        
-
         const embed = new EmbedBuilder()
         .setColor('Blue')
         .setTitle(`💰 ${interaction.user.tag} has received *${itemToGive.toUpperCase()}*!`)
