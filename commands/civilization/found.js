@@ -59,13 +59,8 @@ module.exports = {
             clan.save();
 
             await profileModel.findOneAndUpdate(
-                {
-                    userID: interaction.user.id
-                },
-                {
-                    allegiance: interaction.options.getString('name'),
-                    rank: 'King'
-                }
+                { userID: interaction.user.id },
+                { allegiance: interaction.options.getString('name'), rank: 'King' }
             );
 
         }catch(error){

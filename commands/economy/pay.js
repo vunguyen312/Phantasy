@@ -37,24 +37,12 @@ module.exports = {
 
         try {
             await profileModel.findOneAndUpdate(
-                {
-                    userID: interaction.user.id
-                },
-                {
-                    $inc: {
-                        gold: -amount,
-                    }
-                }
+                { userID: interaction.user.id },
+                { $inc: { gold: -amount } }
             );
             await profileModel.findOneAndUpdate(
-                {
-                    userID: interaction.options.getUser('user').id
-                },
-                {
-                    $inc:{
-                        gold: amount
-                    }
-                }
+                { userID: interaction.options.getUser('user').id },
+                { $inc: { gold: amount } }
             );
         } catch (error) {
             return interaction.reply({ content: 'Uh oh! Something went wrong!', ephemeral:true});

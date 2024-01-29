@@ -27,8 +27,6 @@ module.exports = {
             return interaction.reply({ content: 'This civilization is private and invite only!'});
         }
 
-        //Create the embed
-
         const embed = new EmbedBuilder()
         .setColor('Blue')
         .setTitle(`${interaction.user.tag} has joined ${clanData.clanName}!`)
@@ -41,23 +39,12 @@ module.exports = {
 
         try{
             await profileModel.findOneAndUpdate(
-                {
-                    userID: interaction.user.id,
-                },
-                {
-                    allegiance: clanData.clanName,
-                    rank: 'Baron'
-                }
+                { userID: interaction.user.id },
+                { allegiance: clanData.clanName, rank: 'Baron' }
             );
             await clanModel.findOneAndUpdate(
-                {
-                    serverID: interaction.options.getString('id') ?? interaction.guild.id,
-                },
-                {
-                    $set: {
-                        [`members.Baron.${interaction.user.id}`]: interaction.user.id
-                    }
-                }
+                { serverID: interaction.options.getString('id') ?? interaction.guild.id },
+                { $set: { [`members.Baron.${interaction.user.id}`]: interaction.user.id } }
             );
         } catch (error) {
             console.log(error);

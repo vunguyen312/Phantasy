@@ -27,10 +27,8 @@ const checkTime = async (prevHour) => {
 
       if(currHour != prevHour){
 
-        for (const profile of profiles) {
-          updateProfile(profile);
-        }
-        
+        profiles.forEach(profile => updateProfile(profile));
+  
         console.log('Updated values of all players.');
       }
 

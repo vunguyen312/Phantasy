@@ -50,24 +50,14 @@ module.exports = {
             const confirm = await response.awaitMessageComponent({ filter: userFilter, time: 60_000 });
 
             if (confirm.customId === 'accept') {
-
-
+                
             await profileModel.updateMany(
-                {
-                    allegiance: clanData.clanName
-                },
-                {
-                    $set: {
-                        allegiance: null,
-                        rank: 'Lord'
-                    }
-                }
+                { allegiance: clanData.clanName },
+                { $set: { allegiance: null, rank: 'Lord' } }
             );
 
             await clanData.deleteOne(
-                {
-                    clanName: profileData.allegiance
-                }
+                { clanName: profileData.allegiance }
             );
 
             embed

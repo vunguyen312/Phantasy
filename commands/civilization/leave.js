@@ -24,23 +24,12 @@ module.exports = {
 
         try{
             await profileModel.findOneAndUpdate(
-                {
-                    userID: interaction.user.id,
-                },
-                {
-                    allegiance: null,
-                    rank: 'Lord'
-                }
+                { userID: interaction.user.id },
+                { allegiance: null, rank: 'Lord' }
             );
             await clanModel.findOneAndUpdate(
-                {
-                    serverID: interaction.options.getString('id') ?? interaction.guild.id,
-                },
-                {
-                    $unset: {
-                        [`members.${interaction.user.id}`]: profileData.rank
-                    }
-                }
+                { serverID: interaction.options.getString('id') ?? interaction.guild.id },
+                { $unset: { [`members.${interaction.user.id}`]: profileData.rank } }
             );
         } catch (error) {
             console.log(error);

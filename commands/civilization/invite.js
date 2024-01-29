@@ -49,40 +49,21 @@ module.exports = {
             components: [row]
         });
 
-        //Filter out anybody that's not our invite's recipient
-
         const userFilter = i => i.user.id === interaction.options.getUser('user').id;
 
         try {
 
-            //Set a timer for the user to accept the invite
-
             const confirm = await response.awaitMessageComponent({ filter: userFilter, time: 60_000 });
-
-            //Check if the user accepted or declined
 
             if (confirm.customId === 'accept') {
 
-            //Updates the database
-
             await profileModel.findOneAndUpdate(
-                {
-                    userID: interaction.options.getUser('user').id,
-                },
-                {
-                    allegiance: clanData.clanName,
-                    rank: 'Baron'
-                }
+                { userID: interaction.options.getUser('user').id },
+                { allegiance: clanData.clanName, rank: 'Baron' }
             );
             await clanModel.findOneAndUpdate(
-                {
-                    clanName: profileData.allegiance, 
-                },
-                {
-                    $set: {
-                        [`members.Baron.${targetData.userID}`]: targetData.userID
-                    }
-                }
+                { clanName: profileData.allegiance },
+                { $set: { [`members.Baron.${targetData.userID}`]: targetData.userID } }
             );
 
                 embed

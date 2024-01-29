@@ -33,24 +33,12 @@ module.exports = {
 
         try {
             profileModel.findOneAndUpdate(
-                {
-                    userID: targetData.userID
-                },
-                {
-                    $set: {
-                        [`inventory.${itemToGive}`]: itemsList[itemToGive]
-                    }
-                }
+                { userID: targetData.userID },
+                { $set: { [`inventory.${itemToGive}`]: itemsList[itemToGive] } }
             );
             await profileModel.findOneAndUpdate(
-                {
-                    userID: targetData.userID
-                },
-                {
-                    $inc: {
-                        [`inventory.${itemToGive}.amount`]: 1
-                    }
-                }
+                { userID: targetData.userID },
+                { $inc: { [`inventory.${itemToGive}.amount`]: 1 } }
             );
         } catch (error) {
             return interaction.reply({ content: 'Uh oh! Something went wrong!', ephemeral:true});

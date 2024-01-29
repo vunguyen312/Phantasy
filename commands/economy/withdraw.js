@@ -29,15 +29,8 @@ module.exports = {
 
         try {
             await profileModel.findOneAndUpdate(
-                {
-                    userID: interaction.user.id
-                },
-                {
-                    $inc: {
-                        gold: amount,
-                        bank: -amount
-                    }
-                }
+                { userID: interaction.user.id },
+                { $inc: { gold: amount, bank: -amount } }
             );
         } catch (error) {
             return interaction.reply({ content: 'Uh oh! Something went wrong while withdrawing your gold!', ephemeral:true});
