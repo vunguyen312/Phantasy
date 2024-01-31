@@ -10,18 +10,22 @@ module.exports = {
     async execute(interaction, profileData) {
 
         const lootTable = [
-            { amount: 10, msg: `You searched and found 10 gold!`}
+            { amount: 10, msg: `As you tripped over a tree root, you discover 🥇 5 gold coins! Lucky stumble!`},
+            { amount: 8, msg: `While dodging a falling branch, you stumbled upon 🥇 8 gold coins! Fortune favors the agile!`},
+            { amount: 16, msg: `Along the glinting marble mountains, you find 🥇 16 gold coins glinting in the sunlight! A fortunate discovery!`},
+            { amount: 80, msg: `A wealthy noble wishes to curry your favour with a gift of 🥇 80 gold coins! Friend or foe, his smile holds an ulterior motive...`},
+            { amount: -10, msg: `Rats! A horde of bandits threaten your wealth, leaving behind 🥇 10 gold coins as you flee!`},
         ];
 
-        const randomLoot = lootTable[Math.round(Math.random(0, lootTable.length - 1))];
+        const randomLoot = lootTable[Math.floor(Math.random() * (lootTable.length - 1))];
 
         const embed = new EmbedBuilder()
-        .setColor('Blue')
+        .setColor(randomLoot.amount > 0 ? "Green" : "Red")
         .setTitle(`📝 Exploration Results`)
         .setDescription(randomLoot.msg)
         .setFields(
-            { name: '🧈 Gold Deposited:', value: `${ randomLoot.amount }`},
-            { name: '🏦 New Balance:', value: `${ profileData.gold + randomLoot.amount }`}
+            { name: randomLoot.amount > 0 ? '🧈 Gold Deposited:' : '🧈 Gold Taken:', value: `${ randomLoot.amount }`},
+            { name: '💰 New Balance:', value: `${ profileData.gold + randomLoot.amount }`}
         )
         .setThumbnail(interaction.user.displayAvatarURL());
 
