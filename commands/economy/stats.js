@@ -17,20 +17,26 @@ module.exports = {
         const embed = new EmbedBuilder()
         const clanData = await clanModel.findOne({ serverID: interaction.guild.id });
 
+        const embedSpace = { name: '\u200B', value: '\u200B', inline: true };
+
         if(!interaction.options.getString('profile')){
             embed
             .setColor('Blue')
             .setTitle(`📈 ${interaction.user.tag}'s Stats`)
-            .setDescription(`The stats of user ${interaction.user.tag}`)
+            .setDescription(`Personal Stat Page of ${interaction.user.tag}`)
             .setFields(
-                { name: '🚩 Allegiance:', value: `*${ profileData.allegiance ?? 'None' }*` },
-                { name: '🥇 Rank:', value: `*${ profileData.rank }*` },
-                { name: '🧈 Gold:', value: `${ profileData.gold }` },
-                { name: '💰 Bank:', value: `${ profileData.bank }` },
-                { name: '🧑‍🤝‍🧑 Citizens:', value: `${ profileData.citizens }` },
-                { name: '📈 Growth Rate:', value: `${ profileData.growthRate } citizen/h` },
-                { name: '🏆 Gold Rate:', value: `${ profileData.earnRate } gold/h` },
-                { name: '💸 Tax Rate:', value: `${ profileData.taxRate * 100}%` },
+                { name: '🚩 Allegiance:', value: `\`${ profileData.allegiance ?? 'None' }\``, inline: true },
+                embedSpace,
+                { name: '🥇 Rank:', value: `\`${ profileData.rank }\``, inline: true },
+                { name: '🧈 Gold:', value: `\`${ profileData.gold }\``, inline: true },
+                embedSpace,
+                { name: '💰 Bank:', value: `\`${ profileData.bank }\``, inline: true },
+                { name: '🧑‍🤝‍🧑 Citizens:', value: `\`${ profileData.citizens }\``, inline: true },
+                embedSpace,
+                { name: '📈 Growth Rate:', value: `\`${ profileData.growthRate } citizens/h\``, inline: true },
+                { name: '🏆 Gold Rate:', value: `\`${ profileData.earnRate } gold/h\``, inline: true },
+                embedSpace,
+                { name: '💸 Tax Rate:', value: `\`${ profileData.taxRate * 100 }%\``, inline: true },
             )
             .setThumbnail(interaction.user.displayAvatarURL());
         } else if(interaction.options.getString('profile') === 'civ'){

@@ -1,0 +1,48 @@
+{
+    "deityTable": [
+        {
+            "name": "Vinaria",
+            "modifier": "Lady Of The Harvest",
+            "religionName": "Harvest",
+            "img": "",
+            "description": "*Thine people art destined for hunger. Permit me to aid thee.*",
+            "blessing": "**Food Production is increased by 6% for each Worship Level**",
+            "curse": "**Exploration Food Yields are decreased by 75%**",
+            "stats": {
+                "growthRate": 100
+            }
+        },
+        {
+            "name": "Agares",
+            "modifier": "Tower Bibliothecary",
+            "religionName": "Wisdom",
+            "img": "",
+            "description": "*Hark, curious one, dost thou pursue knowledge, though it curses misfortune unto thy kin? If such be thy quest, then I proffer thee my library.*",
+            "blessing": "**Production Score is increased by 2% for each Worship Level**",
+            "curse": "**Base Death Rate is increased by 25%**",
+            "stats": {}
+        },
+        {
+            "name": "Befinex",
+            "modifier": "Misfortune's Shackled Prisoner",
+            "religionName": "Adversity",
+            "img": "",
+            "description": "*Come forth, child... Even thou may grasp destiny. In what manner does reward manifest without adversity?*",
+            "blessing": "**Exploration Yield Rate is increased by 30%**",
+            "curse": "**Exploration Base Fail Rate is increased by 100%**",
+            "stats": {
+                "taxRate": 0.05
+            }
+        },
+        {
+            "name": "Faithless",
+            "modifier": "A World Without Gods",
+            "religionName": "Faithless",
+            "img": "",
+            "description": "*Fools... I applaud thy bravery in defiance of the tower. O' lords of the tower, I beseech thee, grant these heretics a merciful death, though they deny your blessings.*",
+            "blessing": "**There art no blessings reserved for fools**",
+            "curse": "**The lords of the tower keep a vigilant gaze upon thee**",
+            "stats": {}
+        }
+    ]
+}

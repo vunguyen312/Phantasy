@@ -12,7 +12,7 @@ module.exports = {
             .setDescription('The amount of coins to withdraw.')
             .setRequired(true)),
     conditions: [
-        {check: (interaction) => {const amount = interaction.options.getNumber('amount'); return amount <= 0 || amount > profileData.bank || amount % 1 != 0;}, msg: `Please withdraw a real amount of gold.`}
+        {check: (interaction, profileData) => {const amount = interaction.options.getNumber('amount'); return amount <= 0 || amount > profileData.bank || amount % 1 != 0;}, msg: `Please withdraw a real amount of gold.`}
     ],
     async execute(interaction, profileData){
         

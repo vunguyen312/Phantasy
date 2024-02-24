@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const profileModel = require('../../models/profileSchema');
+const { modifyValue } = require('../../utilities/utilities');
 
 module.exports = {
     cooldown: 5,
@@ -18,13 +19,13 @@ module.exports = {
             .setRequired(true)),
     conditions: [
         {check: (interaction) => interaction.options.getUser('user').bot, msg: `You can't pay bots!`},
-        {check: (interaction) => {const amount = interaction.options.getNumber('amount'); return amount <= 0 || amount > profileData.gold || amount % 1 != 0;}, msg: `Please enter a real amount of gold.`},
-        {check: async (interaction) => !(await profileModel.findOne({ userID: interaction.options.getUser('user').id })), msg: `User isn't logged in the database. Get them to run any command.`}
+        {check: (interaction, profileData) => {const amount = interaction.options.getNumber('amount'); return amount <= 0 || amount > profileData.gold || amount % 1 != 0;}, msg: `Please enter a real amount of gold.`},
+        {check: async (interaction) => !await profileModel.findOne({ userID: interaction.options.getUser('user').id }), msg: `User isn't logged in the database. Get them to run any command.`}
     ],
     async execute(interaction, profileData){
 
         const amount = interaction.options.getNumber('amount');
-        const targetData = await profileModel.findOne({ userID: interaction.options.getUser('user').id });
+        //const targetData = await profileModel.findOne({ userID: interaction.options.getUser('user').id });
 
         const embed = new EmbedBuilder()
         .setColor('Blue')
@@ -35,20 +36,15 @@ module.exports = {
         )
         .setThumbnail(interaction.user.displayAvatarURL());
 
-        try {
-            await profileModel.findOneAndUpdate(
-                { userID: interaction.user.id },
-                { $inc: { gold: -amount } }
-            );
-            await profileModel.findOneAndUpdate(
-                { userID: interaction.options.getUser('user').id },
-                { $inc: { gold: amount } }
-            );
-        } catch (error) {
-            return interaction.reply({ content: 'Uh oh! Something went wrong!', ephemeral:true});
-        }
+        await modifyValue(
+            { userID: interaction.user.id }, 
+            { $inc: { gold: -amount } }
+        );
 
-        
+        await modifyValue(
+            { userID: interaction.options.getUser('user').id }, 
+            { $inc: { gold: amount } }
+        );
 
         await interaction.reply({ embeds: [embed] });
     }

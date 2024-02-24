@@ -1,16 +1,7 @@
 const profileModel = require('../../models/profileSchema');
 const clanModel = require('../../models/clanSchema');
 const fs = require('fs');
-
-let itemsList;
-
-fs.readFile("items.json", 'utf8', (error, data) => {
-
-    if(error) throw error;
-
-    return itemsList = JSON.parse(data);
-    
-});
+const { jsonMap } = require('../../utilities/utilities');
 
 module.exports = async (client, Discord, interaction) => {
     
@@ -18,10 +9,7 @@ module.exports = async (client, Discord, interaction) => {
 
     const command = interaction.client.commands.get(interaction.commandName);
 
-    if(!command){
-        console.error(`Command ${interaction.commandName} doesn't exist.`);
-        return;
-    }
+    if(!command) return console.error(`Command ${interaction.commandName} doesn't exist.`);
 
     const { cooldowns } = client;
 
@@ -91,7 +79,7 @@ module.exports = async (client, Discord, interaction) => {
     }
 
     try {
-        await command.execute(interaction, profileData, clanData, itemsList);
+        await command.execute(interaction, profileData, clanData, jsonMap.items);
     } catch (error) {
         if(interaction.replied || interaction.deferred) {
             await interaction.followUp({ content:'Error while executing command.', ephemeral: true });

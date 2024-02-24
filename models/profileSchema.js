@@ -19,6 +19,10 @@ const profileSchema = new mongoose.Schema({
 
     inventory: { type: Map, require: true }
 
+    //Hidden Stats
+
+    
+
 });
 
 module.exports = mongoose.model('ProfileModels', profileSchema);

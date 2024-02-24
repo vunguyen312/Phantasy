@@ -1,7 +1,7 @@
 const { REST, Routes } = require('discord.js');
 require('dotenv').config();
-const fs = require('node:fs');
-const path = require('node:path');
+const fs = require('fs');
+const path = require('path');
 
 module.exports = (client, Discord) => {
     const commands = [];

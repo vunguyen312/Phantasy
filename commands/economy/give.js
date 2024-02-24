@@ -19,7 +19,7 @@ module.exports = {
     conditions: [
         {check: (interaction) => interaction.options.getUser('user').bot, msg: `You can't give items to bots!`},
         {check: (interaction) => !itemsList[interaction.options.getString('item')], msg: `Please enter a valid item.`},
-        {check: async (interaction) => !(await profileModel.findOne({ userID: interaction.options.getUser('user').id })), msg: `User isn't logged in the database. Get them to run any command.`}
+        {check: async (interaction) => !await profileModel.findOne({ userID: interaction.options.getUser('user').id }), msg: `User isn't logged in the database. Get them to run any command.`}
     ],
     async execute(interaction, profileData, itemsList){
 
