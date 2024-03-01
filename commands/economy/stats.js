@@ -13,9 +13,8 @@ module.exports = {
     conditions: [
         {check: (interaction, profileData) => !profileData.allegiance && interaction.options.getString('profile') === 'civ', msg: `You need to be a civilization to check civilization stats!`}
     ],
-    async execute(interaction, profileData){
+    async execute(interaction, profileData, clanData){
         const embed = new EmbedBuilder()
-        const clanData = await clanModel.findOne({ serverID: interaction.guild.id });
 
         const embedSpace = { name: '\u200B', value: '\u200B', inline: true };
 

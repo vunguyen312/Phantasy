@@ -22,17 +22,17 @@ const updateProfile = async (profile) =>{
 const checkTime = async (prevHour) => {
     try{
 
-      const profiles = await profileModel.find();
-      const currHour = new Date(Date.now()).getHours();
+        const profiles = await profileModel.find();
+        const currHour = new Date(Date.now()).getHours();
 
-      if(currHour != prevHour){
+        if(currHour != prevHour){
 
-        profiles.forEach(profile => updateProfile(profile));
+            profiles.forEach(profile => updateProfile(profile));
   
-        console.log('Updated values of all players.');
-      }
+            console.log('Updated values of all players.');
+        }
 
-      setTimeout(async () => await checkTime(currHour), 360000);
+        setTimeout(async () => await checkTime(currHour), 360000);
 
     } catch (error) {
         return console.log('Error while updating values.', error);

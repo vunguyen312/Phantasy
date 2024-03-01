@@ -1,5 +1,20 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const { createConfirmation, modifyValue, fileMap } = require('../../utilities/utilities');
+const { createButton, createConfirmation, modifyValue, jsonMap } = require('../../utilities/utilities');
+
+const showDeity = async (embed, index, confirm) => {
+    const deity = jsonMap.deities.deityTable[index];
+
+    embed
+    .setTitle(`${deity.name} - ${deity.modifier}`)
+    .setDescription(deity.description)
+    .setFields(
+        { name: "Religion:", value: deity.religionName },
+        { name: "Blessing:", value: deity.blessing },
+        { name: "Curse:", value: deity.curse }
+    );
+
+    return await confirm.update({ embeds: [embed], components: [] });
+}
 
 module.exports = {
     cooldown: 20,
@@ -22,6 +37,29 @@ module.exports = {
             embeds: [embed],
             components: [row]
         });
+
+        const userFilter = i => i.user.id === interaction.user.id;
+
+        try {
+
+            const confirm = await response.awaitMessageComponent({ filter: userFilter, time: 60_000 });
+
+            if (confirm.customId === 'accept') {
+
+                await showDeity(embed, 0, confirm);
+
+            } else if (confirm.customId === 'decline') {
+
+                embed.setTitle('❌ Invite has been declined.');
+
+            }
+        } catch (error) {
+            console.log(error);
+            const failEmbed = new EmbedBuilder()
+            .setTitle('❌ Window has expired.')
+            .setColor('Red');
+            return await interaction.editReply({ embeds: [failEmbed], components: [] });
+        }
 
     }
 }

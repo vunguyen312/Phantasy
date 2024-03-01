@@ -34,26 +34,27 @@ module.exports = async (client, Discord, interaction) => {
     setTimeout(() => timestamps.delete(interaction.user.id), cd);
 
     let profileData;
+
+    const playerStats = {
+        userID: interaction.user.id,
+        rank: 'Lord',
+        gold: 0,
+        bank: 0,
+        productionScore: 1,
+        citizens: 1,
+        growthRate: 1,
+        earnRate: 10,
+        taxRate: .1,
+        jobs: new Map(),
+        structures: new Map(),
+        notifications: true,
+        inventory: new Map()
+    }
     
     try {
         profileData = await profileModel.findOne({ userID: interaction.user.id });
         if (!profileData) {
-            let profile = await profileModel.create({
-                userID: interaction.user.id,
-                rank: 'Lord',
-                gold: 0,
-                bank: 0,
-                productionScore: 1,
-                citizens: 1,
-                growthRate: 1,
-                earnRate: 10,
-                taxRate: .1,
-                jobs: new Map(),
-                structures: new Map(),
-                notifications: true,
-
-                inventory: new Map()
-            });
+            let profile = await profileModel.create(playerStats);
         profile.save();
         profileData = profile;
         }
@@ -64,8 +65,7 @@ module.exports = async (client, Discord, interaction) => {
     const clanData = await clanModel.findOne({ clanName: profileData.allegiance });
 
     const failedCondition = command.conditions ?
-      (
-        await Promise.all(
+      (await Promise.all(
           command.conditions.map(async condition => ({
             result: await condition.check(interaction, profileData),
             msg: condition.msg,
@@ -81,11 +81,10 @@ module.exports = async (client, Discord, interaction) => {
     try {
         await command.execute(interaction, profileData, clanData, jsonMap.items);
     } catch (error) {
-        if(interaction.replied || interaction.deferred) {
-            await interaction.followUp({ content:'Error while executing command.', ephemeral: true });
-        } else {
-            await interaction.reply({ content:'Error while executing command.', ephemeral: true });
-        }
+        (interaction.replied || interaction.deferred) ?
+        await interaction.followUp({ content:'Error while executing command.', ephemeral: true })
+        :   
+        await interaction.reply({ content:'Error while executing command.', ephemeral: true });
         console.log(error);
     }
 }

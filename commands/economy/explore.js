@@ -10,7 +10,7 @@ module.exports = {
     conditions: [],
     async execute(interaction, profileData) {
 
-        const lootTable = jsonMap.loot.lootTable
+        const lootTable = jsonMap.loot.lootTable;
 
         const randomLoot = lootTable[Math.floor(Math.random() * (lootTable.length - 1))];
         
@@ -22,8 +22,9 @@ module.exports = {
         .setTitle(`📝 Exploration Results`)
         .setDescription(randomLoot.msg)
         .setFields(
-            { name: randomLoot.amount > 0 ? '🧈 Gold Deposited:' : '🧈 Gold Taken:', value: `${ randomLoot.amount }`},
-            { name: '💰 New Balance:', value: `${ profileData.gold + randomLoot.amount }`}
+            { name: randomLoot.amount > 0 ? '🧈 Gold Deposited:' : '🧈 Gold Taken:', value: `${ randomLoot.amount }`, inline: true},
+            { name: '\u200B', value: '\u200B', inline: true },
+            { name: '💰 New Balance:', value: `${ profileData.gold + randomLoot.amount }`, inline: true }
         )
         .setThumbnail(interaction.user.displayAvatarURL());
 
