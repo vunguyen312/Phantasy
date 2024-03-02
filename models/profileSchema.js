@@ -14,6 +14,7 @@ const profileSchema = new mongoose.Schema({
     jobs: { type: Map, require: true },
     structures: { type: Map, require: true },
     notifications: { type: Boolean, require: true },
+    oath: { type: String, require: true},
 
     //Inventory
 

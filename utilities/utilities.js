@@ -1,6 +1,6 @@
 //Button Builder
 
-const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
+const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
 
 const createButton = (id, label, style) => {
     const button = new ButtonBuilder()
@@ -20,6 +20,29 @@ const createConfirmation = () => {
 
     return row;
 }
+
+/*const checkResponse = async (interaction, response, buttonIDs) => {
+    const userFilter = i => i.user.id === interaction.user.id;
+
+    try {
+
+        const confirm = await response.awaitMessageComponent({ filter: userFilter, time: 60_000 });
+
+        //[{id, func},{id, func},...]
+
+        for(let i = 0; i < buttonIDs.length; i++){
+            console.log(buttonIDs[i]);
+            confirm.customID === buttonIDs[i].id ? false : await buttonIDs[i].func();
+        }
+
+    } catch (error) {
+        console.log(error);
+        const failEmbed = new EmbedBuilder()
+        .setTitle('❌ Window has expired.')
+        .setColor('Red');
+        return await interaction.editReply({ embeds: [failEmbed], components: [] });
+    }
+}*/
 
 //JSON Parsing
 

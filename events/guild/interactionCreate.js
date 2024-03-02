@@ -48,6 +48,7 @@ module.exports = async (client, Discord, interaction) => {
         jobs: new Map(),
         structures: new Map(),
         notifications: true,
+        oath: 'Wanderer',
         inventory: new Map()
     }
     
