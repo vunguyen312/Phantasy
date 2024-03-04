@@ -18,10 +18,11 @@ const showDeity = async (embed, index, interaction, response, confirm) => {
     const rightArrow = createButton("rightArrow", "➡️", ButtonStyle.Secondary);
     const oathButton = createButton("oath", "Oath 🙏", ButtonStyle.Primary);
 
-    console.log(index);
-
     const row = new ActionRowBuilder()
         .setComponents(leftArrow, oathButton, rightArrow);
+
+    index - 1 < 0 ? row.components[0].setDisabled(true) : false;
+    index + 1 > jsonMap.deities.deityTable.length - 1 ? row.components[2].setDisabled(true) : false;
 
     await confirm.update({ embeds: [embed], components: [row] });
 
@@ -29,9 +30,9 @@ const showDeity = async (embed, index, interaction, response, confirm) => {
 
         try {
 
-            const confirm = await response.awaitMessageComponent({ filter: userFilter, time: 60_000 });
+            const confirm2 = await response.awaitMessageComponent({ filter: userFilter, time: 60_000 });
 
-            switch(confirm.customId){
+            switch(confirm2.customId){
                 case "oath":
                     await modifyValue(
                         { userID: interaction.user.id },
@@ -40,13 +41,13 @@ const showDeity = async (embed, index, interaction, response, confirm) => {
                     const successEmbed = new EmbedBuilder()
                     .setTitle("Oath Sworn")
                     .setColor("White");
-                    await confirm.update({ embeds: [successEmbed], components: [] });
+                    await confirm2.update({ embeds: [successEmbed], components: [] });
                     break;
                 case "leftArrow":
-                    index > 0 ? await showDeity(embed, index - 1, interaction, response, confirm) : false;
+                    await showDeity(embed, index - 1, interaction, response, confirm2);
                     break;
                 case "rightArrow":
-                    index < jsonMap.deities.deityTable.length ? await showDeity(embed, index + 1, interaction, response, confirm) : false;
+                    await showDeity(embed, index + 1, interaction, response, confirm2);
                     break;
             }
 
