@@ -1,7 +1,18 @@
 const { SlashCommandBuilder, EmbedBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
-const { createButton, createConfirmation, modifyValue, jsonMap } = require('../../utilities/utilities');
+const { createButton, createConfirmation, waitForResponse, checkResponse, updateDeclined, modifyValue, jsonMap } = require('../../utilities/utilities');
 
-const showDeity = async (embed, index, interaction, response, confirm) => {
+const changeOath = async (interaction, confirm, deity) => {
+    await modifyValue(
+        { userID: interaction.user.id },
+        { oath: deity.religionName, $inc: { gold: -10000 } }
+    );
+    const successEmbed = new EmbedBuilder()
+    .setTitle("Oath Sworn")
+    .setColor("White");
+    await confirm.update({ embeds: [successEmbed], components: [] });
+}
+
+const showDeity = async (interaction, response, confirm, embed, index) => {
     const deity = jsonMap.deities.deityTable[index];
 
     embed
@@ -26,40 +37,15 @@ const showDeity = async (embed, index, interaction, response, confirm) => {
 
     await confirm.update({ embeds: [embed], components: [row] });
 
-    const userFilter = i => i.user.id === interaction.user.id;
+    const confirm2 = await waitForResponse(interaction, response);
 
-        try {
+    const actions = {
+        "oath": await changeOath.bind(null, interaction, confirm2, deity),
+        "leftArrow": await showDeity.bind(null, interaction, response, confirm2, embed, index - 1),
+        "rightArrow": await showDeity.bind(null, interaction, response, confirm2, embed, index + 1)
+    };
 
-            const confirm2 = await response.awaitMessageComponent({ filter: userFilter, time: 60_000 });
-
-            switch(confirm2.customId){
-                case "oath":
-                    await modifyValue(
-                        { userID: interaction.user.id },
-                        { oath: deity.religionName }
-                    );
-                    const successEmbed = new EmbedBuilder()
-                    .setTitle("Oath Sworn")
-                    .setColor("White");
-                    await confirm2.update({ embeds: [successEmbed], components: [] });
-                    break;
-                case "leftArrow":
-                    await showDeity(embed, index - 1, interaction, response, confirm2);
-                    break;
-                case "rightArrow":
-                    await showDeity(embed, index + 1, interaction, response, confirm2);
-                    break;
-            }
-
-        } catch (error) {
-            console.log(error);
-            const failEmbed = new EmbedBuilder()
-            .setTitle('❌ Window has expired.')
-            .setColor('Red');
-            return await interaction.editReply({ embeds: [failEmbed], components: [] });
-        }
-
-    return; 
+    await checkResponse(interaction, actions, confirm2);
 }
 
 module.exports = {
@@ -83,29 +69,13 @@ module.exports = {
             components: [createConfirmation()]
         });
 
-        const userFilter = i => i.user.id === interaction.user.id;
+        const confirm = await waitForResponse(interaction, response);
 
-        try {
-
-            const confirm = await response.awaitMessageComponent({ filter: userFilter, time: 60_000 });
-
-            switch(confirm.customId){
-                case "accept":
-                    await showDeity(embed, 0, interaction, response, confirm);
-                    break;
-                case "decline":
-                    embed.setTitle('❌ Invite has been declined.');
-                    await confirm.update({ embeds: [embed], components: [] });
-                    break;
-            }
-
-        } catch (error) {
-            console.log(error);
-            const failEmbed = new EmbedBuilder()
-            .setTitle('❌ Window has expired.')
-            .setColor('Red');
-            return await interaction.editReply({ embeds: [failEmbed], components: [] });
+        const actions = {
+            "accept": await showDeity.bind(null, interaction, response, confirm, embed, 0),
+            "decline": await updateDeclined.bind(null, confirm)
         }
 
+        await checkResponse(interaction, actions, confirm);
     }
 }

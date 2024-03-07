@@ -1,6 +1,6 @@
-//Button Builder
-
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
+
+//Embed Utilities
 
 const createButton = (id, label, style) => {
     const button = new ButtonBuilder()
@@ -21,19 +21,26 @@ const createConfirmation = () => {
     return row;
 }
 
-/*const checkResponse = async (interaction, response, buttonIDs) => {
-    const userFilter = i => i.user.id === interaction.user.id;
+const updateDeclined = async (confirm) => {
+    const embed = new EmbedBuilder()
+    .setTitle('❌ Invite has been declined.')
+    .setColor('Red');
+    await confirm.update({ embeds: [embed], components: [] });
+}
 
+const waitForResponse = async (interaction, response) => {
+    const userFilter = i => i.user.id === interaction.user.id;
+    return await response.awaitMessageComponent({ filter: userFilter, time: 60_000 });
+}
+
+const checkResponse = async (interaction, actions, confirm) => {
     try {
 
-        const confirm = await response.awaitMessageComponent({ filter: userFilter, time: 60_000 });
+        const { customId } = confirm;
 
-        //[{id, func},{id, func},...]
+        //actions = [{id: function},{id: function},...];
 
-        for(let i = 0; i < buttonIDs.length; i++){
-            console.log(buttonIDs[i]);
-            confirm.customID === buttonIDs[i].id ? false : await buttonIDs[i].func();
-        }
+        actions[customId] ? await actions[customId]() : console.log("Error: Invalid Action");
 
     } catch (error) {
         console.log(error);
@@ -42,7 +49,7 @@ const createConfirmation = () => {
         .setColor('Red');
         return await interaction.editReply({ embeds: [failEmbed], components: [] });
     }
-}*/
+}
 
 //JSON Parsing
 
@@ -79,4 +86,4 @@ const modifyValue = async (query, operation) => {
     }
 }
 
-module.exports = { jsonMap, createButton, createConfirmation, modifyValue};
+module.exports = { jsonMap, createButton, createConfirmation, modifyValue, waitForResponse, checkResponse, updateDeclined};
