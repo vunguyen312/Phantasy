@@ -75,9 +75,7 @@ module.exports = async (client, Discord, interaction) => {
       ).find(condition => condition.result)
       : false;
 
-    if (failedCondition) {
-        return interaction.reply({ content: failedCondition.msg, ephemeral: true });
-    }
+    if (failedCondition) return interaction.reply({ content: failedCondition.msg, ephemeral: true });
 
     try {
         await command.execute(interaction, profileData, clanData, jsonMap.items);

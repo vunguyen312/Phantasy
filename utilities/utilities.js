@@ -3,12 +3,10 @@ const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("
 //Embed Utilities
 
 const createButton = (id, label, style) => {
-    const button = new ButtonBuilder()
-		.setCustomId(id)
-		.setLabel(label)
-		.setStyle(style);
-
-    return button;
+    return new ButtonBuilder()
+    .setCustomId(id)
+	.setLabel(label)
+	.setStyle(style);
 }
 
 const createConfirmation = () => {
@@ -23,14 +21,33 @@ const createConfirmation = () => {
 
 const updateDeclined = async (confirm) => {
     const embed = new EmbedBuilder()
-    .setTitle('❌ Invite has been declined.')
+    .setTitle('❌ Window has been closed.')
     .setColor('Red');
     await confirm.update({ embeds: [embed], components: [] });
 }
 
-const waitForResponse = async (interaction, response) => {
-    const userFilter = i => i.user.id === interaction.user.id;
-    return await response.awaitMessageComponent({ filter: userFilter, time: 60_000 });
+const waitForResponse = async (interaction, response, target) => {
+    try{
+
+        let userFilter;
+
+        switch(target){
+            case "user":
+                userFilter = i => i.user.id === interaction.user.id;
+                break;
+            case "targetUser":
+                userFilter = i => i.user.id === interaction.options.getUser('user').id;
+                break;
+            case "allUser":
+                userFilter = i => i.user.id;
+                break;
+        }
+        
+        return await response.awaitMessageComponent({ filter: userFilter, time: 60_000 });
+
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 const checkResponse = async (interaction, actions, confirm) => {
@@ -43,7 +60,6 @@ const checkResponse = async (interaction, actions, confirm) => {
         actions[customId] ? await actions[customId]() : console.log("Error: Invalid Action");
 
     } catch (error) {
-        console.log(error);
         const failEmbed = new EmbedBuilder()
         .setTitle('❌ Window has expired.')
         .setColor('Red');
@@ -77,12 +93,9 @@ const profileModel = require('../models/profileSchema');
 
 const modifyValue = async (query, operation) => {
     try{
-        await profileModel.findOneAndUpdate(
-            query,
-            operation
-        );
+        await profileModel.findOneAndUpdate(query, operation);
     } catch (error) {
-        console.log(`Problem Modifying Value`);
+        console.log(error);
     }
 }
 

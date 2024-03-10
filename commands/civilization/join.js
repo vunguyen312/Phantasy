@@ -18,14 +18,9 @@ module.exports = {
     async execute(interaction, profileData){
         const clanData = await clanModel.findOne({ serverID: interaction.options.getString('id') }) || await clanModel.findOne({ serverID: interaction.guild.id });
 
-        //Checks so the game doesn't break
-
-        if(!clanData){
-            return interaction.reply({ content: 'Invalid Civilization ID (Server ID)', ephemeral:true });
-        }
-        else if(clanData.public === false){
-            return interaction.reply({ content: 'This civilization is private and invite only!'});
-        }
+        if(!clanData) return interaction.reply({ content: 'Invalid Civilization ID (Server ID)', ephemeral:true });
+        if(clanData.public === false) return interaction.reply({ content: 'This civilization is private and invite only!'});
+    
 
         const embed = new EmbedBuilder()
         .setColor('Blue')
@@ -33,9 +28,7 @@ module.exports = {
         .setFields(
             { name: '💎 Rank:', value: '*Baron*'},
         )
-        .setThumbnail(interaction.user.displayAvatarURL());
-
-        //Update the database    
+        .setThumbnail(interaction.user.displayAvatarURL()); 
 
         try{
             await profileModel.findOneAndUpdate(

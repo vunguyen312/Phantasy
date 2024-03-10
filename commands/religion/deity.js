@@ -4,7 +4,7 @@ const { createButton, createConfirmation, waitForResponse, checkResponse, update
 const changeOath = async (interaction, confirm, deity) => {
     await modifyValue(
         { userID: interaction.user.id },
-        { oath: deity.religionName, $inc: { gold: -10000 } }
+        { oath: deity.religionName, $inc: { gold: -10_000 } }
     );
     const successEmbed = new EmbedBuilder()
     .setTitle("Oath Sworn")
@@ -37,7 +37,7 @@ const showDeity = async (interaction, response, confirm, embed, index) => {
 
     await confirm.update({ embeds: [embed], components: [row] });
 
-    const confirm2 = await waitForResponse(interaction, response);
+    const confirm2 = await waitForResponse(interaction, response, "user");
 
     const actions = {
         "oath": await changeOath.bind(null, interaction, confirm2, deity),
@@ -54,7 +54,7 @@ module.exports = {
         .setName('deity')
         .setDescription(`Found a deity for your people to worship!`),
     conditions: [
-        {check: (interaction, profileData) => profileData.gold < 10000, msg: `You need 🧈 10,000 gold to found a deity!`},
+        {check: (interaction, profileData) => profileData.gold < 10_000, msg: `You need 🧈 10,000 gold to found a deity!`},
         {check: (interaction, profileData) => profileData.oath !== "Wanderer", msg: `The path you've chosen is set in stone...`}
     ],
     async execute(interaction, profileData){
@@ -69,7 +69,7 @@ module.exports = {
             components: [createConfirmation()]
         });
 
-        const confirm = await waitForResponse(interaction, response);
+        const confirm = await waitForResponse(interaction, response, "user");
 
         const actions = {
             "accept": await showDeity.bind(null, interaction, response, confirm, embed, 0),
