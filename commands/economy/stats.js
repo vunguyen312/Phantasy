@@ -5,41 +5,39 @@ module.exports = {
     cooldown: 5,
     data: new SlashCommandBuilder()
         .setName('stats')
-        .setDescription(`Get the stats of your profile or your civilization's!`)
-        .addStringOption(option =>
-            option
-            .setName('profile')
-            .setDescription('Add civ for Civilization Stats or leave blank for Personal Stats.')),
+        .setDescription(`Get the stats of your profile or your civilization's!`),
     conditions: [
         {check: (interaction, profileData) => !profileData.allegiance && interaction.options.getString('profile') === 'civ', msg: `You need to be a civilization to check civilization stats!`}
     ],
     async execute(interaction, profileData, clanData){
         const embed = new EmbedBuilder()
 
+        //TODO: add a button to show civilization stats but im too lazy :v
+
         const embedSpace = { name: '\u200B', value: '\u200B', inline: true };
 
-        if(!interaction.options.getString('profile')){
-            embed
-            .setColor('Blue')
-            .setTitle(`📈 ${interaction.user.tag}'s Stats`)
-            .setDescription(`Personal Stat Page of ${interaction.user.tag}`)
-            .setFields(
-                { name: '🚩 Allegiance:', value: `\`${ profileData.allegiance ?? 'None' }\``, inline: true },
-                embedSpace,
-                { name: '🥇 Rank:', value: `\`${ profileData.rank }\``, inline: true },
-                { name: '🧈 Gold:', value: `\`${ profileData.gold }\``, inline: true },
-                embedSpace,
-                { name: '💰 Bank:', value: `\`${ profileData.bank }\``, inline: true },
-                { name: '🧑‍🤝‍🧑 Citizens:', value: `\`${ profileData.citizens }\``, inline: true },
-                embedSpace,
-                { name: '📈 Growth Rate:', value: `\`${ profileData.growthRate } citizens/h\``, inline: true },
-                { name: '🏆 Gold Rate:', value: `\`${ profileData.earnRate } gold/h\``, inline: true },
-                embedSpace,
-                { name: '💸 Tax Rate:', value: `\`${ profileData.taxRate * 100 }%\``, inline: true },
-            )
-            .setThumbnail(interaction.user.displayAvatarURL());
-        } else if(interaction.options.getString('profile') === 'civ'){
-            embed
+        embed
+        .setColor('Blue')
+        .setTitle(`📈 ${interaction.user.tag}'s Stats`)
+        .setDescription(`Personal Stat Page of ${interaction.user.tag}`)
+        .setFields(
+            { name: '🚩 Allegiance:', value: `\`${ profileData.allegiance ?? 'None' }\``, inline: true },
+            embedSpace,
+            { name: '🥇 Rank:', value: `\`${ profileData.rank }\``, inline: true },
+            { name: '🧈 Gold:', value: `\`${ profileData.gold }\``, inline: true },
+            embedSpace,
+            { name: '💰 Bank:', value: `\`${ profileData.bank }\``, inline: true },
+            { name: '🧑‍🤝‍🧑 Citizens:', value: `\`${ profileData.citizens }\``, inline: true },
+            embedSpace,
+            { name: '📈 Growth Rate:', value: `\`${ profileData.growthRate } citizens/h\``, inline: true },
+            { name: '🏆 Gold Rate:', value: `\`${ profileData.earnRate } gold/h\``, inline: true },
+            embedSpace,
+            { name: '💸 Tax Rate:', value: `\`${ profileData.taxRate * 100 }%\``, inline: true },
+        )
+        .setThumbnail(interaction.user.displayAvatarURL());
+
+
+        /*    embed
             .setColor('Blue')
             .setTitle(`📈 ${profileData.allegiance}'s Stats`)
             .setDescription(`The stats of ${profileData.allegiance}`)
@@ -51,7 +49,7 @@ module.exports = {
             )
         } else {
             return interaction.reply({ content: `Missing fields or not apart of any civilization.`, ephemeral: true});
-        }
+        }*/
 
         await interaction.reply({ embeds: [embed] });
     }

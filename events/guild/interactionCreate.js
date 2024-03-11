@@ -55,9 +55,9 @@ module.exports = async (client, Discord, interaction) => {
     try {
         profileData = await profileModel.findOne({ userID: interaction.user.id });
         if (!profileData) {
-            let profile = await profileModel.create(playerStats);
-        profile.save();
-        profileData = profile;
+            const profile = await profileModel.create(playerStats);
+            profile.save();
+            profileData = profile;
         }
     } catch (error) {
         await interaction.reply({ content: 'Uh oh! Something went wrong while setting up your profile!'});
