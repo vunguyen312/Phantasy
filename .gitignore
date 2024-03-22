@@ -1,5 +1,4 @@
 node_modules
 .env
 start.bat
-utilities/JSON/items.JSON
-utilities/JSON/permissions.JSON
+utilities/JSON
