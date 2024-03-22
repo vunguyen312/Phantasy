@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const profileModel = require('../../models/profileSchema');
+const { modifyValue } = require('../../utilities/dbQuery');
 
 module.exports = {
     cooldown: 5,
@@ -27,14 +28,10 @@ module.exports = {
         )
         .setThumbnail(interaction.user.displayAvatarURL());
 
-        try {
-            await profileModel.findOneAndUpdate(
-                { userID: interaction.user.id },
-                { $inc: { gold: -amount, bank: amount } }
-            );
-        } catch (error) {
-            return interaction.reply({ content: 'Uh oh! Something went wrong while depositing your gold!', ephemeral:true });
-        }
+        await modifyValue(
+            { userID: interaction.user.id },
+            { $inc: { gold: -amount, bank: amount } }
+        );
 
         await interaction.reply({ embeds: [embed] });
     }

@@ -10,13 +10,11 @@ module.exports = {
         .setDMPermission(false),
     conditions: [
         {check: (interaction, profileData) => !profileData.allegiance, msg: `You're not in a civilization.` },
-        {check: (interaction) => clanData.leaderID !== interaction.user.id, msg: `You're not the leader of this civilization.` },
+        {check: (interaction, profileData, clanData) => clanData.leaderID !== interaction.user.id, msg: `You're not the leader of this civilization.` },
     ],
-    async execute(interaction, profileData){
+    async execute(interaction, profileData, clanData){
 
-        const clanData = await clanModel.findOne({ clanName: profileData.allegiance });
-        console.log(clanData.leaderID, interaction.user.id);
-        const clanName = profileData.allegiance;
+        const clanName = clanData.clanName;
 
         //Checks so the game doesn't break
 

@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const profileModel = require("../../models/profileSchema");
 const clanModel = require("../../models/clanSchema");
-const { jsonMap } = require("../../utilities/utilities");
+const { jsonMap } = require("../../utilities/jsonParse");
 
 module.exports = {
     cooldown: 5,

@@ -1,5 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
-const { createButton, createConfirmation, waitForResponse, checkResponse, updateDeclined, modifyValue, jsonMap } = require('../../utilities/utilities');
+const { createButton, createConfirmation, waitForResponse, checkResponse, updateDeclined } = require('../../utilities/embedUtils');
+const { modifyValue } = require('../../utilities/dbQuery');
+const { jsonMap } = require('../../utilities/jsonParse');
 
 const changeOath = async (interaction, confirm, deity) => {
     await modifyValue(
@@ -32,8 +34,8 @@ const showDeity = async (interaction, response, confirm, embed, index) => {
     const row = new ActionRowBuilder()
         .setComponents(leftArrow, oathButton, rightArrow);
 
-    index - 1 < 0 ? row.components[0].setDisabled(true) : false;
-    index + 1 > jsonMap.deities.deityTable.length - 1 ? row.components[2].setDisabled(true) : false;
+    if(index - 1 < 0) row.components[0].setDisabled(true);
+    else if(index + 1 > jsonMap.deities.deityTable.length - 1) row.components[2].setDisabled(true);
 
     await confirm.update({ embeds: [embed], components: [row] });
 
@@ -45,7 +47,7 @@ const showDeity = async (interaction, response, confirm, embed, index) => {
         "rightArrow": await showDeity.bind(null, interaction, response, confirm2, embed, index + 1)
     };
 
-    await checkResponse(interaction, actions, confirm2);
+    await checkResponse(response, actions, confirm2);
 }
 
 module.exports = {
@@ -59,12 +61,12 @@ module.exports = {
     ],
     async execute(interaction, profileData){
         const embed = new EmbedBuilder()
-        .setColor("White")
-        .setTitle(`A Challenger Approaches The Tower...`)
+        .setColor('White')
+        .setTitle('A Challenger Approaches The Tower...')
         .setDescription("`Dost thou wish to proceed?`")
-        .setImage("https://cdn.discordapp.com/attachments/769659795740688424/1210771403108777985/image.png?ex=65ebc5bd&is=65d950bd&hm=287e92f051136266113aa8df6ba3c9827f05b4427db95f6a0e0aab8686569663&");
+        .setImage('https://cdn.discordapp.com/attachments/769659795740688424/1210771403108777985/image.png?ex=65ebc5bd&is=65d950bd&hm=287e92f051136266113aa8df6ba3c9827f05b4427db95f6a0e0aab8686569663&');
 
-        const response = await interaction.reply({ 
+        const response = await interaction.user.send({ 
             embeds: [embed],
             components: [createConfirmation()]
         });
@@ -76,6 +78,6 @@ module.exports = {
             "decline": await updateDeclined.bind(null, confirm)
         }
 
-        await checkResponse(interaction, actions, confirm);
+        await checkResponse(response, actions, confirm);
     }
 }

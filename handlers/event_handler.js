@@ -12,7 +12,6 @@ module.exports = (client, Discord) =>{
             const event_name = file.split('.')[0];
 
             client.on(event_name, event.bind(null, client, Discord));
-
         }
     }
 

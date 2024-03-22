@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const profileModel = require('../../models/profileSchema');
+const { modifyValue } = require('../../utilities/dbQuery');
 
 module.exports = {
     cooldown: 5,
@@ -31,20 +32,15 @@ module.exports = {
         .setTitle(`💰 ${interaction.user.tag} has received *${itemToGive.toUpperCase()}*!`)
         .setThumbnail(interaction.user.displayAvatarURL());
 
-        try {
-            profileModel.findOneAndUpdate(
-                { userID: targetData.userID },
-                { $set: { [`inventory.${itemToGive}`]: itemsList[itemToGive] } }
-            );
-            await profileModel.findOneAndUpdate(
-                { userID: targetData.userID },
-                { $inc: { [`inventory.${itemToGive}.amount`]: 1 } }
-            );
-        } catch (error) {
-            return interaction.reply({ content: 'Uh oh! Something went wrong!', ephemeral:true});
-        }
+        await modifyValue(
+            { userID: targetData.userID },
+            { $set: { [`inventory.${itemToGive}`]: itemsList[itemToGive] } }
+        );
 
-        
+        await modifyValue(
+            { userID: targetData.userID },
+            { $inc: { [`inventory.${itemToGive}.amount`]: 1 } }
+        );        
 
         await interaction.reply({ embeds: [embed] });
     }

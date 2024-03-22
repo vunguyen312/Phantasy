@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const clanModel = require('../../models/clanSchema');
 const profileModel = require('../../models/profileSchema');
+const { modifyValue } = require('../../utilities/dbQuery');
 
 module.exports = {
     cooldown: 10,
@@ -30,19 +31,15 @@ module.exports = {
         )
         .setThumbnail(interaction.user.displayAvatarURL()); 
 
-        try{
-            await profileModel.findOneAndUpdate(
-                { userID: interaction.user.id },
-                { allegiance: clanData.clanName, rank: 'Baron' }
-            );
-            await clanModel.findOneAndUpdate(
-                { serverID: interaction.options.getString('id') ?? interaction.guild.id },
-                { $set: { [`members.Baron.${interaction.user.id}`]: interaction.user.id } }
-            );
-        } catch (error) {
-            console.log(error);
-            return interaction.reply({ content: 'Uh oh! Something went wrong while joining this civilization!', ephemeral:true });
-        }
+        await modifyValue(
+            { userID: interaction.user.id },
+            { allegiance: clanData.clanName, rank: 'Baron' }
+        );
+
+        await modifyValue(
+            { serverID: interaction.options.getString('id') ?? interaction.guild.id },
+            { $set: { [`members.Baron.${interaction.user.id}`]: interaction.user.id } }
+        );
 
         await interaction.reply({ embeds: [embed] });
     }

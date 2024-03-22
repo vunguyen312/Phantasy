@@ -53,7 +53,6 @@ module.exports = {
                     //Inventory
 
                     inventory: new Map()
-
                 }
             );
             clan.save();

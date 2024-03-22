@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const profileModel = require('../../models/profileSchema');
-const { modifyValue } = require('../../utilities/utilities');
+const { modifyValue } = require('../../utilities/dbQuery');
 
 module.exports = {
     cooldown: 5,

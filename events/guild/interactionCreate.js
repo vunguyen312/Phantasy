@@ -1,7 +1,7 @@
 const profileModel = require('../../models/profileSchema');
 const clanModel = require('../../models/clanSchema');
 const fs = require('fs');
-const { jsonMap } = require('../../utilities/utilities');
+const { jsonMap } = require('../../utilities/jsonParse');
 
 module.exports = async (client, Discord, interaction) => {
     

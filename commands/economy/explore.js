@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const profileModel = require('../../models/profileSchema');
-const { modifyValue, jsonMap } = require('../../utilities/utilities');
+const { modifyValue } = require('../../utilities/dbQuery');
+const { jsonMap } = require('../../utilities/jsonParse');
 
 module.exports = {
     cooldown: 30,

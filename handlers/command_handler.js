@@ -8,21 +8,23 @@ module.exports = (client, Discord) => {
 
     const foldersPath = path.join(__dirname, `../commands`);
     const commandFolders = fs.readdirSync(foldersPath);
+    let commandFiles = new Map();
 
     for (const folder of commandFolders) {
 	    const commandsPath = path.join(foldersPath, folder);
-	    const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-	    for (const file of commandFiles) {
-		    const filePath = path.join(commandsPath, file);
-		    const command = require(filePath);
-		
-		    if ('data' in command && 'execute' in command) {
-                client.commands.set(command.data.name, command);
-                commands.push(command.data.toJSON());
-		    } else {
-                console.log(`The command at ${filePath} is missing a required "data" or "execute" property.`);
-            }
+	    fs.readdirSync(commandsPath).forEach(file => file.endsWith('.js') ? commandFiles.set(file, commandsPath) : undefined);
+    }
+
+    for (const [file, commandsPath] of commandFiles) {
+        const filePath = path.join(commandsPath, file);
+        const command = require(filePath);
+    
+        if ('data' in command && 'execute' in command) {
+            client.commands.set(command.data.name, command);
+            commands.push(command.data.toJSON());
+            continue;
         }
+        console.log(`The command at ${filePath} is missing a required "data" or "execute" property.`);
     }
 
     const rest = new REST().setToken(process.env.CLIENT_TOKEN);

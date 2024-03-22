@@ -1,7 +1,8 @@
 const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
 const clanModel = require('../../models/clanSchema');
 const profileModel = require('../../models/profileSchema');
-const { createConfirmation, waitForResponse, checkResponse, updateDeclined, modifyValue  } = require("../../utilities/utilities");
+const { createConfirmation, waitForResponse, checkResponse, updateDeclined } = require("../../utilities/embedUtils");
+const { modifyValue } = require('../../utilities/dbQuery');
 
 const updateAccepted = async (interaction, targetData, profileData, clanData, embed, confirm) => {
 
@@ -60,6 +61,6 @@ module.exports = {
             "decline": updateDeclined.bind(null, confirm)
         }
 
-        await checkResponse(interaction, actions, confirm);
+        await checkResponse(response, actions, confirm);
     }
 }
