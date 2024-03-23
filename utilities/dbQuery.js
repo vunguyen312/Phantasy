@@ -4,7 +4,7 @@ const modifyValue = async (query, operation) => {
     try{
         await profileModel.findOneAndUpdate(query, operation);
     } catch (error) {
-        console.log(error);
+        console.error(error);
     }
 }
 
