@@ -15,9 +15,9 @@ module.exports = (client, Discord) =>{
         }
     }
 
-    ['client', 'guild'].forEach(e => {
-        load_directory(e);
-        console.log(`${e} has been loaded.`);
+    ['client', 'guild'].forEach(dir => {
+        load_directory(dir);
+        console.log(`✓ ${dir} has been loaded.`);
     });
 
 }

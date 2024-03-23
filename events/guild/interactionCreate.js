@@ -19,7 +19,7 @@ module.exports = async (client, Discord, interaction) => {
 
     const currTime = Date.now();
     const timestamps = cooldowns.get(command.data.name);
-    const cd = (command.cooldown) * 1000;
+    const cd = command.cooldown * 1000;
 
     if(timestamps.has(interaction.user.id)){
         const expirTime = timestamps.get(interaction.user.id) + cd;
