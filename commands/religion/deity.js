@@ -31,8 +31,7 @@ const showDeity = async (interaction, response, confirm, embed, index) => {
     const rightArrow = createButton("rightArrow", "➡️", ButtonStyle.Secondary);
     const oathButton = createButton("oath", "Oath 🙏", ButtonStyle.Primary);
 
-    const row = new ActionRowBuilder()
-        .setComponents(leftArrow, oathButton, rightArrow);
+    const row = new ActionRowBuilder().setComponents(leftArrow, oathButton, rightArrow);
 
     if(index - 1 < 0) row.components[0].setDisabled(true);
     else if(index + 1 > jsonMap.deities.deityTable.length - 1) row.components[2].setDisabled(true);
