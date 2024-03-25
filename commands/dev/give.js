@@ -1,12 +1,13 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const profileModel = require('../../models/profileSchema');
 const { modifyValue } = require('../../utilities/dbQuery');
+const { jsonMap } = require("../../utilities/jsonParse");
 
 module.exports = {
     cooldown: 5,
     data: new SlashCommandBuilder()
         .setName('give')
-        .setDescription(`Give away some items!`)
+        .setDescription(`Give away some items.`)
         .addStringOption(option =>
             option
             .setName('item')
@@ -17,7 +18,9 @@ module.exports = {
             .setName('user')
             .setDescription('The user to give the item to.')
             .setRequired(true)),
+    syntax: '/give <item> <user>',
     conditions: [
+        {check: (interaction) => !jsonMap.permissions.hierarchy[interaction.user.id], msg: `L + not a tester lololol`},
         {check: (interaction) => interaction.options.getUser('user').bot, msg: `You can't give items to bots!`},
         {check: (interaction) => !itemsList[interaction.options.getString('item')], msg: `Please enter a valid item.`},
         {check: async (interaction) => !await profileModel.findOne({ userID: interaction.options.getUser('user').id }), msg: `User isn't logged in the database. Get them to run any command.`}

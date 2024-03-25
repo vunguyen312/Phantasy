@@ -1,8 +1,8 @@
-Remake of an old discord bot I used to own.
+# Introducing Phantasy
 
-Now fully compatible with interactions and slash commands!
+Phantasy is a text-based MMORPG hosted on a Discord Bot. Pushing Node.js to its limits,
+it uses discord.js, a versatile node module, to deliver seamless gameplay.
 
-This bot is essentially a civilization simulator that uses
-servers as clans to fight against other servers.
+![discordbotDEMO](https://cdn.discordapp.com/attachments/798592742976389160/1221293910890905661/bot_screenshot.png?ex=66120d96&is=65ff9896&hm=486e39455d29d952d305312c19d6d353d0c3a15dbfce4c34e4c7f8dcf7c9d5be&)
 
-![discordbotDEMO](https://github.com/vunguyen312/Discord-Bot-Remake/assets/145513842/55c0b71f-77d4-46b1-a6fa-05547927a14e)
+#

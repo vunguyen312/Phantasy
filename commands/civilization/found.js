@@ -6,11 +6,11 @@ module.exports = {
     cooldown: 5,
     data: new SlashCommandBuilder()
         .setName('found')
-        .setDescription('Found your civilization! (Creates a civilization for the server)')
+        .setDescription('Found a civilization in the current server the command is run in.')
         .addStringOption(option =>
             option
             .setName('name')
-            .setDescription('The name of your new civilization!')
+            .setDescription('The name of your new civilization.')
             .setRequired(true))
         .addBooleanOption(option =>
             option
@@ -19,6 +19,7 @@ module.exports = {
             .setRequired(true))
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .setDMPermission(false),
+    syntax: '/found <name> <public>',
     conditions: [
         {check: (interaction, profileData) => profileData.allegiance, msg: `Hm... It appears you're already in a civilization.`},
         {check: (interaction) => interaction.options.getString('name').length > 20, msg: `Max Character Limit: 20`},

@@ -26,13 +26,14 @@ module.exports = {
     cooldown: 30,
     data: new SlashCommandBuilder()
         .setName('invite')
-        .setDescription('Invite someone to join a civilization!')
+        .setDescription('Invite someone to join your current civilization.')
         .addUserOption(option =>
             option
             .setName('user')
             .setDescription('The user to invite.')
             .setRequired(true))
         .setDMPermission(false),
+    syntax: '/invite <user>',
     conditions: [
         {check: (interaction) => interaction.options.getUser('user').bot, msg: `You can't invite bots to civilizations!`},
         {check: async (interaction) => !await profileModel.findOne({ userID: interaction.options.getUser('user').id }), msg: `User isn't logged in the database. Get them to run any command.`},

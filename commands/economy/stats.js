@@ -5,7 +5,8 @@ module.exports = {
     cooldown: 5,
     data: new SlashCommandBuilder()
         .setName('stats')
-        .setDescription(`Get the stats of your profile or your civilization's!`),
+        .setDescription(`Get the stats of your profile or your civilization.`),
+    syntax: '/stats',
     conditions: [],
     async execute(interaction, profileData, clanData){
         const embedSpace = { name: '\u200B', value: '\u200B', inline: true };

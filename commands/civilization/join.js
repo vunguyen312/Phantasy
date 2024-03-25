@@ -7,12 +7,13 @@ module.exports = {
     cooldown: 10,
     data: new SlashCommandBuilder()
         .setName('join')
-        .setDescription('Join a civilization!')
+        .setDescription('Join a civilization.')
         .addStringOption(option =>
             option
             .setName('id')
             .setDescription('ID of the Server/Civilization'))
         .setDMPermission(false),
+    syntax: '/join <id>',
     conditions: [
         {check: (interaction, profileData) => profileData.allegiance, msg: `Hm... It appears you're already in a civilization.`},
     ],

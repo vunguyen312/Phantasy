@@ -7,7 +7,8 @@ module.exports = {
     cooldown: 5,
     data: new SlashCommandBuilder()
         .setName('reset')
-        .setDescription('Reset user profile'),
+        .setDescription(`Reset the command user's profile.`),
+    syntax: '/reset',
     conditions: [
         {check: (interaction) => !jsonMap.permissions.hierarchy[interaction.user.id], msg: `L + not a tester lololol`}
     ],
