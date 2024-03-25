@@ -5,18 +5,12 @@ module.exports = {
     cooldown: 5,
     data: new SlashCommandBuilder()
         .setName('stats')
-        .setDescription(`Get the stats of your profile or your civilization's!`),
-    conditions: [
-        {check: (interaction, profileData) => !profileData.allegiance && interaction.options.getString('profile') === 'civ', msg: `You need to be a civilization to check civilization stats!`}
-    ],
+        .setDescription(`Get the stats of your profile or your civilization.`),
+    syntax: '/stats',
+    conditions: [],
     async execute(interaction, profileData, clanData){
-        const embed = new EmbedBuilder()
-
-        //TODO: add a button to show civilization stats but im too lazy :v
-
         const embedSpace = { name: '\u200B', value: '\u200B', inline: true };
-
-        embed
+        const embed = new EmbedBuilder()
         .setColor('Blue')
         .setTitle(`📈 ${interaction.user.tag}'s Stats`)
         .setDescription(`Personal Stat Page of ${interaction.user.tag}`)
@@ -32,7 +26,7 @@ module.exports = {
             { name: '📈 Growth Rate:', value: `\`${ profileData.growthRate } citizens/h\``, inline: true },
             { name: '🏆 Gold Rate:', value: `\`${ profileData.earnRate } gold/h\``, inline: true },
             embedSpace,
-            { name: '💸 Tax Rate:', value: `\`${ profileData.taxRate * 100 }%\``, inline: true },
+            { name: '💸 Tax Rate:', value: `\`${ profileData.taxRate * 100 }%\``, inline: true }
         )
         .setThumbnail(interaction.user.displayAvatarURL());
 

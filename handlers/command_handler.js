@@ -3,6 +3,21 @@ require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 
+const refreshCommands = async (commands, rest) => {
+    try {
+        console.log(`✓ Refreshing ${commands.length} application (/) commands.`);
+
+        const data = await rest.put(
+            Routes.applicationCommands(process.env.CLIENT_ID),
+            { body: commands },
+        );
+
+        console.log(`✓ Successfully reloaded ${data.length} application (/) commands.`);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 module.exports = (client, Discord) => {
     const commands = [];
 
@@ -19,28 +34,14 @@ module.exports = (client, Discord) => {
         const filePath = path.join(commandsPath, file);
         const command = require(filePath);
     
-        if ('data' in command && 'execute' in command) {
-            client.commands.set(command.data.name, command);
-            commands.push(command.data.toJSON());
-            continue;
-        }
-        console.log(`The command at ${filePath} is missing a required "data" or "execute" property.`);
+        if (!'data' in command || !'execute' in command) console.log(`The command at ${filePath} is missing a required "data" or "execute" property.`);
+
+        client.commands.set(command.data.name, command);
+        commands.push(command.data.toJSON());
     }
 
     const rest = new REST().setToken(process.env.CLIENT_TOKEN);
 
-    (async () => {
-        try {
-            console.log(`Refreshing ${commands.length} application (/) commands.`);
-    
-            const data = await rest.put(
-                Routes.applicationCommands(process.env.CLIENT_ID),
-                { body: commands },
-            );
-    
-            console.log(`Successfully reloaded ${data.length} application (/) commands.`);
-        } catch (error) {
-            console.error(error);
-        }
-    })();
+    refreshCommands(commands, rest);
+
 }

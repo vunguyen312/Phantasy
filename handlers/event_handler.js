@@ -1,23 +1,21 @@
 const fs = require('fs');
 const path = require('path');
 
-module.exports = (client, Discord) =>{
-    
-    const load_directory = (dirs) => {
-        const event_folder_path = path.join(__dirname, `../events/${dirs}`);
-        const event_files = fs.readdirSync(`./events/${dirs}`).filter(file => file.endsWith('.js'));
+const attachEvent = (client, Discord, file, folderPath) => {
+    const event = require(path.join(folderPath, file));
+    const eventName = file.split('.')[0];
 
-        for(const file of event_files){
-            const event = require(path.join(event_folder_path, file));
-            const event_name = file.split('.')[0];
-
-            client.on(event_name, event.bind(null, client, Discord));
-        }
-    }
-
-    ['client', 'guild'].forEach(e => {
-        load_directory(e);
-        console.log(`${e} has been loaded.`);
-    });
-
+    client.on(eventName, event.bind(null, client, Discord));
 }
+
+const loadDirectory = (client, Discord, dirs) => {
+    const folderPath = path.join(__dirname, `../events/${dirs}`);
+    const eventFiles = fs.readdirSync(`./events/${dirs}`).filter(file => file.endsWith('.js'));
+
+    eventFiles.forEach(file => attachEvent(client, Discord, file, folderPath));
+}
+
+module.exports = (client, Discord) => ['client', 'guild'].forEach(dir => {
+    loadDirectory(client, Discord, dir);
+    console.log(`✓ ${dir} has been loaded.`);
+});

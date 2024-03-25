@@ -4,7 +4,8 @@ module.exports = {
     cooldown: 5,
     data: new SlashCommandBuilder()
         .setName('ping')
-        .setDescription('Test Speed'),
+        .setDescription('Test current connection speed of the bot.'),
+    syntax: '/ping',
     conditions: [],
     async execute(interaction){
         const embed = new EmbedBuilder()

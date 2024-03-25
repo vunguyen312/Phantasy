@@ -6,12 +6,13 @@ module.exports = {
     cooldown: 5,
     data: new SlashCommandBuilder()
         .setName('deposit')
-        .setDescription(`Deposit your coins into your bank!`)
+        .setDescription(`Deposit your coins into the bank.`)
         .addNumberOption(option =>
             option
             .setName('amount')
             .setDescription('The amount of coins to despoit.')
             .setRequired(true)),
+    syntax: '/deposit <amount>',
     conditions: [
         {check: (interaction, profileData) => {const amount = interaction.options.getNumber('amount'); return amount <= 0 || amount > profileData.gold || amount % 1 != 0;}, msg: ` Please deposit a real amount of gold.`}
     ],

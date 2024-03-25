@@ -7,7 +7,8 @@ module.exports = {
     cooldown: 30,
     data: new SlashCommandBuilder()
         .setName('explore')
-        .setDescription(`Explore and bring back some loot!`),
+        .setDescription(`Explore and bring back some loot.`),
+    syntax: '/explore',
     conditions: [],
     async execute(interaction, profileData) {
 

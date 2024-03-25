@@ -31,8 +31,7 @@ const showDeity = async (interaction, response, confirm, embed, index) => {
     const rightArrow = createButton("rightArrow", "➡️", ButtonStyle.Secondary);
     const oathButton = createButton("oath", "Oath 🙏", ButtonStyle.Primary);
 
-    const row = new ActionRowBuilder()
-        .setComponents(leftArrow, oathButton, rightArrow);
+    const row = new ActionRowBuilder().setComponents(leftArrow, oathButton, rightArrow);
 
     if(index - 1 < 0) row.components[0].setDisabled(true);
     else if(index + 1 > jsonMap.deities.deityTable.length - 1) row.components[2].setDisabled(true);
@@ -54,7 +53,8 @@ module.exports = {
     cooldown: 20,
     data: new SlashCommandBuilder()
         .setName('deity')
-        .setDescription(`Found a deity for your people to worship!`),
+        .setDescription(`Found a deity for your people to worship.`),
+    syntax: '/deity',
     conditions: [
         {check: (interaction, profileData) => profileData.gold < 10_000, msg: `You need 🧈 10,000 gold to found a deity!`},
         {check: (interaction, profileData) => profileData.oath !== "Wanderer", msg: `The path you've chosen is set in stone...`}
@@ -66,6 +66,7 @@ module.exports = {
         .setDescription("`Dost thou wish to proceed?`")
         .setImage('https://cdn.discordapp.com/attachments/769659795740688424/1210771403108777985/image.png?ex=65ebc5bd&is=65d950bd&hm=287e92f051136266113aa8df6ba3c9827f05b4427db95f6a0e0aab8686569663&');
 
+        await interaction.reply({ content: 'Sent to Direct Messages', ephemeral: true });
         const response = await interaction.user.send({ 
             embeds: [embed],
             components: [createConfirmation()]
