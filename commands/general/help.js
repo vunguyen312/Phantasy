@@ -26,8 +26,11 @@ const getCommands = () => {
     return { commandList, commandMap };
 }
 
-const getCommandDetails = async (interaction, embed, commandMap, inputtedCommand) => {
-    const command = require(commandMap[inputtedCommand]);
+//One and done function call because the list of commands never changes if the bot doesn't restart.
+const commandsInfo = getCommands();
+
+const getCommandDetails = async (interaction, embed, inputtedCommand) => {
+    const command = require(commandsInfo.commandMap[inputtedCommand]);
 
     const commandOptions = command.data.options.map(option => ({ name: `<${option.name}>`, value: `\`Required: ${option.required}\`\n${option.description}`, inline: true }));
     
@@ -58,9 +61,8 @@ module.exports = {
         .setColor('Purple');
 
         const inputtedCommand = interaction.options.getString('command');
-        const commandsInfo = getCommands();
         
-        if(inputtedCommand) return await getCommandDetails(interaction, embed, commandsInfo.commandMap, inputtedCommand);
+        if(inputtedCommand) return await getCommandDetails(interaction, embed, inputtedCommand);
 
         embed
         .setTitle('📋 Command List')
