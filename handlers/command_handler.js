@@ -5,14 +5,16 @@ const path = require('path');
 
 const refreshCommands = async (commands, rest) => {
     try {
-        console.log(`✓ Refreshing ${commands.length} application (/) commands.`);
+
+        console.log(`${commands.length > 0 ? '✓' : 'X'} Refreshing ${commands.length} application (/) commands.`);
 
         const data = await rest.put(
             Routes.applicationCommands(process.env.CLIENT_ID),
             { body: commands },
         );
 
-        console.log(`✓ Successfully reloaded ${data.length} application (/) commands.`);
+        console.log(`${data.length > 0 ? '✓' : 'X'} Successfully reloaded ${data.length} application (/) commands.`);
+
     } catch (error) {
         console.error(error);
     }
@@ -27,7 +29,8 @@ module.exports = (client, Discord) => {
 
     for (const folder of commandFolders) {
 	    const commandsPath = path.join(foldersPath, folder);
-	    fs.readdirSync(commandsPath).forEach(file => file.endsWith('.js') ? commandFiles.set(file, commandsPath) : undefined);
+        //&& returns second operand if the first is false.
+	    fs.readdirSync(commandsPath).forEach(file => file.endsWith('.js') && commandFiles.set(file, commandsPath));
     }
 
     for (const [file, commandsPath] of commandFiles) {

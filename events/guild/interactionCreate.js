@@ -10,7 +10,7 @@ const checkConditions = async (conditions, interaction, profileData) => {
       return { result, msg: condition.msg };
     }));
   
-    return conditionResults.find((condition) => condition.result);
+    return conditionResults.find(condition => condition.result);
 }
 
 const getPlayerData = async (interaction) => {
@@ -33,8 +33,8 @@ const getPlayerData = async (interaction) => {
     
     try {
 
-        const profileData = await profileModel.findOne({ userID: interaction.user.id }) || 
-        await profileModel
+        const profileData = await profileModel.findOne({ userID: interaction.user.id }) 
+        || await profileModel
         .create(playerStats)
         .save();
 
@@ -63,9 +63,7 @@ module.exports = async (client, Discord, interaction) => {
     const timestamps = cooldowns.get(command.data.name);
     const cd = command.cooldown * 1000;
 
-    const expireTime = timestamps.has(interaction.user.id)
-    ? timestamps.get(interaction.user.id) + cd
-    : 0;
+    const expireTime = timestamps.get(interaction.user.id) + cd || 0;
 
     if (currTime < expireTime){
         const expiredTimestamp = Math.round(expireTime / 1000);
@@ -80,9 +78,7 @@ module.exports = async (client, Discord, interaction) => {
 
     //Conditions checking
 
-    const failedCondition = command.conditions
-    ? await checkConditions(command.conditions, interaction, profileData)
-    : false;
+    const failedCondition = await checkConditions(command.conditions, interaction, profileData);
 
     if(failedCondition) return interaction.reply({ content: failedCondition.msg, ephemeral: true });
 
@@ -91,7 +87,7 @@ module.exports = async (client, Discord, interaction) => {
         await command.execute(interaction, profileData, clanData, jsonMap.items);
         
     } catch (error) {
-        (interaction.replied || interaction.deferred) 
+        interaction.replied || interaction.deferred 
         ? await interaction.followUp({ content:'Error while executing command.', ephemeral: true })
         : await interaction.reply({ content:'Error while executing command.', ephemeral: true });
         console.error(error);
