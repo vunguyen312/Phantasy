@@ -3,10 +3,10 @@ const clanModel = require('../../models/clanSchema');
 const fs = require('fs');
 const { jsonMap } = require('../../utilities/jsonParse');
 
-const checkConditions = async (conditions, interaction, profileData) => {
+const checkConditions = async (conditions, interaction, profileData, clanData, itemsList) => {
     //Wrap the conditions in a promise because of the async conditions
     const conditionResults = await Promise.all(conditions.map(async condition => {
-      const result = await condition.check(interaction, profileData);
+      const result = await condition.check(interaction, profileData, clanData, itemsList);
       return { result, msg: condition.msg };
     }));
   
@@ -34,8 +34,8 @@ const getPlayerData = async (interaction) => {
     try {
 
         const profileData = await profileModel.findOne({ userID: interaction.user.id }) 
-        || await profileModel
-        .create(playerStats)
+        || (await profileModel
+        .create(playerStats))
         .save();
 
         return profileData;
@@ -75,16 +75,17 @@ module.exports = async (client, Discord, interaction) => {
 
     const profileData = await getPlayerData(interaction);
     const clanData = await clanModel.findOne({ clanName: profileData.allegiance });
+    const itemsList = jsonMap.items.data;
 
     //Conditions checking
 
-    const failedCondition = await checkConditions(command.conditions, interaction, profileData);
+    const failedCondition = await checkConditions(command.conditions, interaction, profileData, clanData, itemsList);
 
     if(failedCondition) return interaction.reply({ content: failedCondition.msg, ephemeral: true });
 
     try {
 
-        await command.execute(interaction, profileData, clanData, jsonMap.items);
+        await command.execute(interaction, profileData, clanData, itemsList);
         
     } catch (error) {
         interaction.replied || interaction.deferred 

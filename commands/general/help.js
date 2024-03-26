@@ -1,6 +1,7 @@
-const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
+const { SlashCommandBuilder, EmbedBuilder, TeamMemberMembershipState } = require("discord.js");
 const fs = require('fs');
 const path = require('path');
+const { jsonMap } = require("../../utilities/jsonParse");
 
 const getCommands = () => {
     let commandList = [];

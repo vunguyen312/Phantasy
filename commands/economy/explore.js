@@ -12,7 +12,7 @@ module.exports = {
     conditions: [],
     async execute(interaction, profileData) {
 
-        const lootTable = jsonMap.loot.lootTable;
+        const lootTable = jsonMap.loot.data.lootTable;
 
         const randomLoot = lootTable[Math.floor(Math.random() * (lootTable.length - 1))];
         
