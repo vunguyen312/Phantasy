@@ -7,6 +7,8 @@ const foldersPath = path.join(__dirname, './JSON');
 
 let jsonMap = {};
 
+//Considering moving all the JSON files to MongoDB itself
+
 const updateDB = async (fileName, dataToStore) => {
     try {
 
