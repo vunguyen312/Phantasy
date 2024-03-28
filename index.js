@@ -15,12 +15,8 @@ client.cooldowns = new Discord.Collection();
 mongoose.connect(process.env.MONGODB_SRV, {
     useNewUrlParser: true,
     useUnifiedTopology: true
-}).then(() =>{
+}).then(() => {
     console.log('✓ Connected to database.');
-}).catch(error =>{
-    console.log(error);
-});
-
-
+}).catch(error => console.error(error));
 
 client.login(process.env.CLIENT_TOKEN);

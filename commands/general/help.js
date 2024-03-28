@@ -1,34 +1,40 @@
-const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
+const { SlashCommandBuilder, EmbedBuilder, TeamMemberMembershipState } = require("discord.js");
 const fs = require('fs');
 const path = require('path');
+const { jsonMap } = require("../../utilities/jsonParse");
 
-const getCommands = () => {
-    let commandList = [];
-    let commandMap = {};
+//Might push the command list to MongoDB later...
 
+const getCommand = (folder, commandMap, commandList) => {
+    if(folder === "dev") return;
+
+    const categoryFolderPath = path.join(__dirname, `../${folder}`);
+    const textList = fs.readdirSync(categoryFolderPath).map(file => {
+        const commandName = file.split('.')[0];
+        commandMap[commandName] = path.join(categoryFolderPath, file);
+
+        return commandName;
+    });
+
+    commandList.push({ name: folder, value: `\`${textList.join(', ')}\``, inline: true });
+}
+
+const createCommandList = () => {
+    const commandList = [];
+    const commandMap = {};
     const commandsFolderPath = path.join(__dirname, `../`);
     const commandFolders = fs.readdirSync(commandsFolderPath);
 
-    for(const folder of commandFolders){
-        if(folder === "dev") continue;
-
-        const categoryFolderPath = path.join(__dirname, `../${folder}`);
-        const textList = fs.readdirSync(categoryFolderPath).map(file => {
-            const commandName = file.split('.')[0];
-            commandMap[commandName] = path.join(categoryFolderPath, file);
-
-            return commandName;
-        });
-
-        commandList.push({ name: folder, value: `\`${textList.join(', ')}\``, inline: true });
-    }
+    commandFolders.forEach(folder => getCommand(folder, commandMap, commandList));
 
     return { commandList, commandMap };
 }
 
-const getCommandDetails = async (interaction, embed, commandMap, inputtedCommand) => {
-    const command = require(commandMap[inputtedCommand]);
+//One and done function call because the list of commands never changes if the bot doesn't restart.
+const commandsInfo = createCommandList();
 
+const getCommandDetails = async (interaction, embed, inputtedCommand) => {
+    const command = require(commandsInfo.commandMap[inputtedCommand]);
     const commandOptions = command.data.options.map(option => ({ name: `<${option.name}>`, value: `\`Required: ${option.required}\`\n${option.description}`, inline: true }));
     
     embed
@@ -58,9 +64,8 @@ module.exports = {
         .setColor('Purple');
 
         const inputtedCommand = interaction.options.getString('command');
-        const commandsInfo = getCommands();
         
-        if(inputtedCommand) return await getCommandDetails(interaction, embed, commandsInfo.commandMap, inputtedCommand);
+        if(inputtedCommand) return await getCommandDetails(interaction, embed, inputtedCommand);
 
         embed
         .setTitle('📋 Command List')

@@ -10,7 +10,7 @@ module.exports = {
         .setDescription(`Reset the command user's profile.`),
     syntax: '/reset',
     conditions: [
-        {check: (interaction) => !jsonMap.permissions.hierarchy[interaction.user.id], msg: `L + not a tester lololol`}
+        {check: (interaction) => !jsonMap.permissions[interaction.user.id], msg: `L + not a tester lololol`}
     ],
     async execute(interaction, profileData, clanData){
         const playerStats = {

@@ -1,48 +1,46 @@
-{
-    "deityTable": [
-        {
-            "name": "Vinaria",
-            "modifier": "Lady Of The Harvest",
-            "religionName": "Harvest",
-            "img": "https://cdn.discordapp.com/attachments/479016692501184514/1214045874934779934/image.png?ex=65f7af54&is=65e53a54&hm=204189df41541c8c3890493f52802bfe52388e1fcff3a1dfe01df984bc4672c5&",
-            "description": "\u200B\n```Thine people art destined for hunger. Permit me to aid thee.\n```\u200B",
-            "blessing": "```Food Production is increased by 6% for each Worship Level```",
-            "curse": "```Exploration Food Yields are decreased by 75%```",
-            "stats": {
-                "growthRate": 100
-            }
-        },
-        {
-            "name": "Agares",
-            "modifier": "Tower Bibliothecary",
-            "religionName": "Wisdom",
-            "img": "https://cdn.discordapp.com/attachments/956731900855214120/1214043926068199474/2024-03-03_21-52-25_5178.png?ex=65f7ad83&is=65e53883&hm=da140a229a978842a2313f521fc263e58e7d6e58e061fd1ed6c6dd819b1bb489&",
-            "description": "\u200B\n```Hark, curious one, dost thou pursue knowledge, though it curses misfortune unto thy kin? If such be thy quest, then I proffer thee my library.\n```\u200B",
-            "blessing": "```Production Score is increased by 2% for each Worship Level```",
-            "curse": "```Base Death Rate is increased by 25%```",
-            "stats": {}
-        },
-        {
-            "name": "Befinex",
-            "modifier": "Misfortune's Shackled Prisoner",
-            "religionName": "Adversity",
-            "img": "https://cdn.discordapp.com/attachments/479016692501184514/1214053868519038976/2024-03-03_22-35-32_9655.png?ex=65f7b6c6&is=65e541c6&hm=6903f86053268ff66a3abd02a702a864c25c17347b5bfe7118cc160a0d95ee58&",
-            "description": "\u200B\n```Come forth, child... Even thou may grasp destiny. In what manner does reward manifest without adversity?\n```\u200B",
-            "blessing": "```Exploration Yield Rate is increased by 30%```",
-            "curse": "```Exploration Base Fail Rate is increased by 100%```",
-            "stats": {
-                "taxRate": 0.05
-            }
-        },
-        {
-            "name": "Faithless",
-            "modifier": "A World Without Gods",
-            "religionName": "Faithless",
-            "img": "https://cdn.discordapp.com/attachments/479016692501184514/1214051378343841882/2024-03-03_22-26-25_9752.png?ex=65f7b474&is=65e53f74&hm=d1edd210190119be743affe823caf3f35a2a7dc493df9bb02bd4fcc53ad6f20c&",
-            "description": "\u200B\n```Fools... I applaud thy bravery in defiance of the tower. O' lords of the tower, I beseech thee, grant these heretics a merciful death, though they deny your blessings.\n```\u200B",
-            "blessing": "```There art no blessings reserved for fools```",
-            "curse": "```The lords of the tower keep a vigilant gaze upon thee```",
-            "stats": {}
+[
+    {
+        "name": "Vinaria",
+        "modifier": "Lady Of The Harvest",
+        "religionName": "Harvest",
+        "img": "https://cdn.discordapp.com/attachments/479016692501184514/1214045874934779934/image.png?ex=65f7af54&is=65e53a54&hm=204189df41541c8c3890493f52802bfe52388e1fcff3a1dfe01df984bc4672c5&",
+        "description": "\u200B\n```Thine people art destined for hunger. Permit me to aid thee.\n```\u200B",
+        "blessing": "```Food Production is increased by 6% for each Worship Level```",
+        "curse": "```Exploration Food Yields are decreased by 75%```",
+        "stats": {
+            "growthRate": 100
         }
-    ]
-}
+    },
+    {
+        "name": "Agares",
+        "modifier": "Tower Bibliothecary",
+        "religionName": "Wisdom",
+        "img": "https://cdn.discordapp.com/attachments/956731900855214120/1214043926068199474/2024-03-03_21-52-25_5178.png?ex=65f7ad83&is=65e53883&hm=da140a229a978842a2313f521fc263e58e7d6e58e061fd1ed6c6dd819b1bb489&",
+        "description": "\u200B\n```Hark, curious one, dost thou pursue knowledge, though it curses misfortune unto thy kin? If such be thy quest, then I proffer thee my library.\n```\u200B",
+        "blessing": "```Production Score is increased by 2% for each Worship Level```",
+        "curse": "```Base Death Rate is increased by 25%```",
+        "stats": {}
+    },
+    {
+        "name": "Befinex",
+        "modifier": "Misfortune's Shackled Prisoner",
+        "religionName": "Adversity",
+        "img": "https://cdn.discordapp.com/attachments/479016692501184514/1214053868519038976/2024-03-03_22-35-32_9655.png?ex=65f7b6c6&is=65e541c6&hm=6903f86053268ff66a3abd02a702a864c25c17347b5bfe7118cc160a0d95ee58&",
+        "description": "\u200B\n```Come forth, child... Even thou may grasp destiny. In what manner does reward manifest without adversity?\n```\u200B",
+        "blessing": "```Exploration Yield Rate is increased by 30%```",
+        "curse": "```Exploration Base Fail Rate is increased by 100%```",
+        "stats": {
+            "taxRate": 0.05
+        }
+    },
+    {
+        "name": "Faithless",
+        "modifier": "A World Without Gods",
+        "religionName": "Faithless",
+        "img": "https://cdn.discordapp.com/attachments/479016692501184514/1214051378343841882/2024-03-03_22-26-25_9752.png?ex=65f7b474&is=65e53f74&hm=d1edd210190119be743affe823caf3f35a2a7dc493df9bb02bd4fcc53ad6f20c&",
+        "description": "\u200B\n```Fools... I applaud thy bravery in defiance of the tower. O' lords of the tower, I beseech thee, grant these heretics a merciful death, though they deny your blessings.\n```\u200B",
+        "blessing": "```There art no blessings reserved for fools```",
+        "curse": "```The lords of the tower keep a vigilant gaze upon thee```",
+        "stats": {}
+    }
+]

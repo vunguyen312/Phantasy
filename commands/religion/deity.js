@@ -15,7 +15,7 @@ const changeOath = async (interaction, confirm, deity) => {
 }
 
 const showDeity = async (interaction, response, confirm, embed, index) => {
-    const deity = jsonMap.deities.deityTable[index];
+    const deity = jsonMap.deities.data[index];
 
     embed
     .setTitle(`${deity.name} - ${deity.modifier}`)
@@ -34,7 +34,7 @@ const showDeity = async (interaction, response, confirm, embed, index) => {
     const row = new ActionRowBuilder().setComponents(leftArrow, oathButton, rightArrow);
 
     if(index - 1 < 0) row.components[0].setDisabled(true);
-    else if(index + 1 > jsonMap.deities.deityTable.length - 1) row.components[2].setDisabled(true);
+    else if(index + 1 > jsonMap.deities.data.length - 1) row.components[2].setDisabled(true);
 
     await confirm.update({ embeds: [embed], components: [row] });
 

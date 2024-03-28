@@ -15,7 +15,9 @@ const loadDirectory = (client, Discord, dirs) => {
     eventFiles.forEach(file => attachEvent(client, Discord, file, folderPath));
 }
 
-module.exports = (client, Discord) => ['client', 'guild'].forEach(dir => {
+const dirs = ['client', 'guild'];
+
+module.exports = (client, Discord) => dirs.forEach(dir => {
     loadDirectory(client, Discord, dir);
     console.log(`✓ ${dir} has been loaded.`);
 });

@@ -1,0 +1,22 @@
+{
+    "test": {
+        "name": "Test",
+        "description": "Hello this is a test item",
+        "amount": 0
+    },
+    "test2": {
+        "name": "Test2",
+        "description": "Hello this is a test2 item",
+        "amount": 0
+    },
+    "test3": {
+        "name": "Test3",
+        "description": "Hello this is a test3 item",
+        "amount": 0
+    },
+    "test4": {
+        "name": "Test4",
+        "description": "Hello this is a test4 item",
+        "amount": 0
+    }
+}

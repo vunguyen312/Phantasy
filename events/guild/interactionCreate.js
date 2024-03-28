@@ -3,14 +3,14 @@ const clanModel = require('../../models/clanSchema');
 const fs = require('fs');
 const { jsonMap } = require('../../utilities/jsonParse');
 
-const checkConditions = async (conditions, interaction, profileData) => {
+const checkConditions = async (conditions, interaction, profileData, clanData, itemsList) => {
     //Wrap the conditions in a promise because of the async conditions
     const conditionResults = await Promise.all(conditions.map(async condition => {
-      const result = await condition.check(interaction, profileData);
+      const result = await condition.check(interaction, profileData, clanData, itemsList);
       return { result, msg: condition.msg };
     }));
   
-    return conditionResults.find((condition) => condition.result);
+    return conditionResults.find(condition => condition.result);
 }
 
 const getPlayerData = async (interaction) => {
@@ -33,9 +33,9 @@ const getPlayerData = async (interaction) => {
     
     try {
 
-        const profileData = await profileModel.findOne({ userID: interaction.user.id }) || 
-        await profileModel
-        .create(playerStats)
+        const profileData = await profileModel.findOne({ userID: interaction.user.id }) 
+        || (await profileModel
+        .create(playerStats))
         .save();
 
         return profileData;
@@ -63,9 +63,7 @@ module.exports = async (client, Discord, interaction) => {
     const timestamps = cooldowns.get(command.data.name);
     const cd = command.cooldown * 1000;
 
-    const expireTime = timestamps.has(interaction.user.id)
-    ? timestamps.get(interaction.user.id) + cd
-    : 0;
+    const expireTime = timestamps.get(interaction.user.id) + cd || 0;
 
     if (currTime < expireTime){
         const expiredTimestamp = Math.round(expireTime / 1000);
@@ -77,21 +75,20 @@ module.exports = async (client, Discord, interaction) => {
 
     const profileData = await getPlayerData(interaction);
     const clanData = await clanModel.findOne({ clanName: profileData.allegiance });
+    const itemsList = jsonMap.items.data;
 
     //Conditions checking
 
-    const failedCondition = command.conditions
-    ? await checkConditions(command.conditions, interaction, profileData)
-    : false;
+    const failedCondition = await checkConditions(command.conditions, interaction, profileData, clanData, itemsList);
 
     if(failedCondition) return interaction.reply({ content: failedCondition.msg, ephemeral: true });
 
     try {
 
-        await command.execute(interaction, profileData, clanData, jsonMap.items);
+        await command.execute(interaction, profileData, clanData, itemsList);
         
     } catch (error) {
-        (interaction.replied || interaction.deferred) 
+        interaction.replied || interaction.deferred 
         ? await interaction.followUp({ content:'Error while executing command.', ephemeral: true })
         : await interaction.reply({ content:'Error while executing command.', ephemeral: true });
         console.error(error);
