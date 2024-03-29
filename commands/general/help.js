@@ -1,7 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, TeamMemberMembershipState } = require("discord.js");
 const fs = require('fs');
 const path = require('path');
-const { jsonMap } = require("../../utilities/jsonParse");
 
 //Might push the command list to MongoDB later...
 

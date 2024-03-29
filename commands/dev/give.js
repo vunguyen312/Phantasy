@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const profileModel = require('../../models/profileSchema');
 const { modifyValue } = require('../../utilities/dbQuery');
-const { jsonMap } = require("../../utilities/jsonParse");
+const { getObjectData } = require('../../utilities/dbQuery');
 
 module.exports = {
     cooldown: 5,
@@ -20,7 +20,7 @@ module.exports = {
             .setRequired(true)),
     syntax: '/give <item> <user>',
     conditions: [
-        {check: (interaction) => !jsonMap.permissions.hierarchy[interaction.user.id], msg: `L + not a tester lololol`},
+        {check: async (interaction) => !(await getObjectData("permissions"))[interaction.user.id], msg: `L + not a tester lololol`},
         {check: (interaction) => interaction.options.getUser('user').bot, msg: `You can't give items to bots!`},
         {check: (interaction, profileData, clanData, itemsList) => !itemsList[interaction.options.getString('item')], msg: `Please enter a valid item.`},
         {check: async (interaction) => !await profileModel.findOne({ userID: interaction.options.getUser('user').id }), msg: `User isn't logged in the database. Get them to run any command.`}

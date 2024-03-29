@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
 const { createButton, createConfirmation, waitForResponse, checkResponse, updateDeclined } = require('../../utilities/embedUtils');
 const { modifyValue } = require('../../utilities/dbQuery');
-const { jsonMap } = require('../../utilities/jsonParse');
+const { getObjectData } = require('../../utilities/dbQuery');
 
 const changeOath = async (interaction, confirm, deity) => {
     await modifyValue(
@@ -15,7 +15,8 @@ const changeOath = async (interaction, confirm, deity) => {
 }
 
 const showDeity = async (interaction, response, confirm, embed, index) => {
-    const deity = jsonMap.deities.data[index];
+    const deityTable = await getObjectData("deities");
+    const deity = deityTable[index];
 
     embed
     .setTitle(`${deity.name} - ${deity.modifier}`)
@@ -34,7 +35,7 @@ const showDeity = async (interaction, response, confirm, embed, index) => {
     const row = new ActionRowBuilder().setComponents(leftArrow, oathButton, rightArrow);
 
     if(index - 1 < 0) row.components[0].setDisabled(true);
-    else if(index + 1 > jsonMap.deities.data.length - 1) row.components[2].setDisabled(true);
+    else if(index + 1 > deityTable.length - 1) row.components[2].setDisabled(true);
 
     await confirm.update({ embeds: [embed], components: [row] });
 

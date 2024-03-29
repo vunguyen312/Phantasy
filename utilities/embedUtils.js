@@ -54,6 +54,7 @@ const checkResponse = async (response, actions, confirm) => {
         const failEmbed = new EmbedBuilder()
         .setTitle('❌ Window has expired.')
         .setColor('Red');
+        console.log(error);
         return await response.edit({ embeds: [failEmbed], components: [] });
     }
 }

@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const profileModel = require("../../models/profileSchema");
 const clanModel = require("../../models/clanSchema");
-const { jsonMap } = require("../../utilities/jsonParse");
+const { getObjectData } = require('../../utilities/dbQuery');
 
 module.exports = {
     cooldown: 5,
@@ -10,7 +10,7 @@ module.exports = {
         .setDescription(`Reset the command user's profile.`),
     syntax: '/reset',
     conditions: [
-        {check: (interaction) => !jsonMap.permissions[interaction.user.id], msg: `L + not a tester lololol`}
+        {check: async (interaction) => !(await getObjectData("permissions"))[interaction.user.id], msg: `L + not a tester lololol`}
     ],
     async execute(interaction, profileData, clanData){
         const playerStats = {

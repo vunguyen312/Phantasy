@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const profileModel = require('../../models/profileSchema');
 const { modifyValue } = require('../../utilities/dbQuery');
-const { jsonMap } = require('../../utilities/jsonParse');
+const { getObjectData } = require('../../utilities/dbQuery');
 
 module.exports = {
     cooldown: 30,
@@ -12,7 +12,7 @@ module.exports = {
     conditions: [],
     async execute(interaction, profileData) {
 
-        const lootTable = jsonMap.loot.data.lootTable;
+        const lootTable = await getObjectData("loot");
 
         const randomLoot = lootTable[Math.floor(Math.random() * (lootTable.length - 1))];
         

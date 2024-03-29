@@ -1,7 +1,7 @@
 const profileModel = require('../../models/profileSchema');
 const clanModel = require('../../models/clanSchema');
 const fs = require('fs');
-const { jsonMap } = require('../../utilities/jsonParse');
+const { getObjectData } = require('../../utilities/dbQuery');
 
 const checkConditions = async (conditions, interaction, profileData, clanData, itemsList) => {
     //Wrap the conditions in a promise because of the async conditions
@@ -75,7 +75,7 @@ module.exports = async (client, Discord, interaction) => {
 
     const profileData = await getPlayerData(interaction);
     const clanData = await clanModel.findOne({ clanName: profileData.allegiance });
-    const itemsList = jsonMap.items.data;
+    const itemsList = await getObjectData("items");
 
     //Conditions checking
 
