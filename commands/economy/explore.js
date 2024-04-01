@@ -12,28 +12,27 @@ module.exports = {
     conditions: [],
     async execute(interaction, profileData) {
 
-        const lootTable = await getObjectData("loot");
+        const scenarioTable = await getObjectData("loot");
 
-        const randomLoot = lootTable[Math.floor(Math.random() * (lootTable.length - 1))];
+        const randomScenario = scenarioTable[Math.floor(Math.random() * (scenarioTable.length - 1))];
         
-        //TODO:
-        //Add exploration paths to this command
+        console.log(randomScenario);
 
         const embed = new EmbedBuilder()
-        .setColor(randomLoot.amount > 0 ? "Green" : "Red")
-        .setTitle(`📝 Exploration Results`)
-        .setDescription(randomLoot.msg)
-        .setFields(
+        .setColor(randomScenario.hex)
+        .setTitle(`🗺️  ${interaction.user.tag}'s Adventure`)
+        .setDescription(randomScenario.msg)
+        .setImage(randomScenario.img);
+        /*.setFields(
             { name: randomLoot.amount > 0 ? '🧈 Gold Deposited:' : '🧈 Gold Taken:', value: `${ randomLoot.amount }`, inline: true},
             { name: '\u200B', value: '\u200B', inline: true },
             { name: '💰 New Balance:', value: `${ profileData.gold + randomLoot.amount }`, inline: true }
-        )
-        .setThumbnail(interaction.user.displayAvatarURL());
+        )*/
 
-        await modifyValue(
+        /*await modifyValue(
             { userID: interaction.user.id },
             { $inc: { gold: randomLoot.amount } }
-        );
+        );*/
 
         await interaction.reply({ embeds: [embed] });
     }

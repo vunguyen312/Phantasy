@@ -1,4 +1,4 @@
-const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
+const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, UserSelectMenuBuilder } = require("discord.js");
 
 const createButton = (id, label, style) => {
     return new ButtonBuilder()
