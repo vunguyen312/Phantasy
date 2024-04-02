@@ -1,5 +1,4 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const profileModel = require('../../models/profileSchema');
 const { modifyValue } = require('../../utilities/dbQuery');
 const { getObjectData } = require('../../utilities/dbQuery');
 

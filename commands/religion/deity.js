@@ -5,6 +5,7 @@ const { getObjectData } = require('../../utilities/dbQuery');
 
 const changeOath = async (interaction, confirm, deity) => {
     await modifyValue(
+        "profile",
         { userID: interaction.user.id },
         { oath: deity.religionName, $inc: { gold: -10_000 } }
     );

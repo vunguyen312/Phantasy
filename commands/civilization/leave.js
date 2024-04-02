@@ -1,6 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const clanModel = require('../../models/clanSchema');
-const profileModel = require('../../models/profileSchema');
+const { modifyValue } = require('../../utilities/dbQuery');
 
 module.exports = {
     cooldown: 43200,
@@ -23,19 +22,16 @@ module.exports = {
 
         //Update the database    
 
-        try{
-            await profileModel.findOneAndUpdate(
-                { userID: interaction.user.id },
-                { allegiance: null, rank: 'Lord' }
-            );
-            await clanModel.findOneAndUpdate(
-                { serverID: interaction.options.getString('id') ?? interaction.guild.id },
-                { $unset: { [`members.${interaction.user.id}`]: profileData.rank } }
-            );
-        } catch (error) {
-            console.log(error);
-            return interaction.reply({ content: 'Uh oh! Something went wrong while leaving this civilization!', ephemeral:true });
-        }
+        await modifyValue(
+            "profile",
+            { userID: interaction.user.id },
+            { allegiance: null, rank: 'Lord' }
+        );
+        await modifyValue(
+            "clan",
+            { serverID: interaction.options.getString('id') ?? interaction.guild.id },
+            { $unset: { [`members.${interaction.user.id}`]: profileData.rank } }
+        );
 
         await interaction.reply({ embeds: [embed] });
     }

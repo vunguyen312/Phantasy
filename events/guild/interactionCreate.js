@@ -1,10 +1,12 @@
 const profileModel = require('../../models/profileSchema');
 const clanModel = require('../../models/clanSchema');
-const fs = require('fs');
-const { getObjectData } = require('../../utilities/dbQuery');
+const { createNewPlayer, getObjectData } = require('../../utilities/dbQuery');
 
 const checkConditions = async (conditions, interaction, profileData, clanData, itemsList) => {
     //Wrap the conditions in a promise because of the async conditions
+    
+    //Make a huge list of error codes and have the list of conditions call those codes -> TODO
+
     const conditionResults = await Promise.all(conditions.map(async condition => {
       const result = await condition.check(interaction, profileData, clanData, itemsList);
       return { result, msg: condition.msg };
@@ -14,29 +16,10 @@ const checkConditions = async (conditions, interaction, profileData, clanData, i
 }
 
 const getPlayerData = async (interaction) => {
-    const playerStats = {
-        userID: interaction.user.id,
-        rank: 'Lord',
-        gold: 0,
-        bank: 0,
-        productionScore: 1,
-        citizens: 1,
-        growthRate: 1,
-        earnRate: 10,
-        taxRate: .1,
-        jobs: new Map(),
-        structures: new Map(),
-        notifications: true,
-        oath: 'Wanderer',
-        inventory: new Map()
-    }
-    
     try {
 
         const profileData = await profileModel.findOne({ userID: interaction.user.id }) 
-        || (await profileModel
-        .create(playerStats))
-        .save();
+        || createNewPlayer(interaction);
 
         return profileData;
 

@@ -1,5 +1,4 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const profileModel = require('../../models/profileSchema');
 const { modifyValue } = require('../../utilities/dbQuery');
 
 module.exports = {
@@ -30,6 +29,7 @@ module.exports = {
         .setThumbnail(interaction.user.displayAvatarURL());
 
         await modifyValue(
+            "profile",
             { userID: interaction.user.id },
             { $inc: { gold: amount, bank: -amount } }
         );

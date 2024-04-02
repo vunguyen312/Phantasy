@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const profileModel = require("../../models/profileSchema");
-const clanModel = require("../../models/clanSchema");
 const { getObjectData } = require('../../utilities/dbQuery');
+const { modifyValue } = require('../../utilities/dbQuery');
 
 module.exports = {
     cooldown: 5,
@@ -28,14 +28,16 @@ module.exports = {
             notifications: true,
             oath: 'Wanderer',
             inventory: new Map()
-        }        
+        }
+        
+        if(clanData) await modifyValue(
+            "clan",
+            { clanName: clanData.clanName },
+            { $unset: { [`members.${profileData.rank}.${interaction.user.id}`]: "" } }
+        );
+        
 
         try{
-            
-            await clanModel.findOneAndUpdate(
-                { clanName: clanData.clanName },
-                { $unset: { [`members.${profileData.rank}.${interaction.user.id}`]: "" } }
-            );
 
             await profileModel.findOneAndDelete({ userID: interaction.user.id });
 

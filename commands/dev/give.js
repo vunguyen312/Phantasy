@@ -36,11 +36,13 @@ module.exports = {
         .setThumbnail(interaction.user.displayAvatarURL());
 
         await modifyValue(
+            "profile",
             { userID: targetData.userID },
             { $set: { [`inventory.${itemToGive}`]: itemsList[itemToGive] } }
         );
 
         await modifyValue(
+            "profile",
             { userID: targetData.userID },
             { $inc: { [`inventory.${itemToGive}.amount`]: 1 } }
         );        

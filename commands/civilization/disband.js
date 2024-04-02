@@ -1,6 +1,23 @@
 const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
-const clanModel = require('../../models/clanSchema');
 const profileModel = require('../../models/profileSchema');
+const { createConfirmation, waitForResponse, checkResponse, updateDeclined } = require("../../utilities/embedUtils");
+
+const updateAccepted = async (interaction, profileData, clanData, embed, confirm) => {
+    const clan = clanData.clanName;
+
+    await profileModel.updateMany(
+        { allegiance: clan },
+        { $set: { allegiance: null, rank: 'Lord' } }
+    );
+
+    await clanData.deleteOne(
+        { clanName: clan}
+    );
+
+    embed
+    .setTitle(`✔️ ${interaction.user.tag} has disbanded ${clan}!`);
+    await confirm.update({ embeds: [embed], components: [] });
+}
 
 module.exports = {
     cooldown: 120,
@@ -24,57 +41,20 @@ module.exports = {
         .setTitle(`Are you sure you want to disband your civilization? Doing so is irreversible.`)
         .setThumbnail(interaction.user.displayAvatarURL());
 
-        const accept = new ButtonBuilder()
-			.setCustomId('accept')
-			.setLabel('Confirm ✔️')
-			.setStyle(ButtonStyle.Success);
-
-		const decline = new ButtonBuilder()
-			.setCustomId('decline')
-			.setLabel('Cancel ❌')
-			.setStyle(ButtonStyle.Danger);
-
-        const row = new ActionRowBuilder()
-            .addComponents(decline, accept);
+        const row = createConfirmation();
 
         const response = await interaction.reply({ 
             embeds: [embed],
             components: [row]
         });
 
-        const userFilter = i => i.user.id === interaction.user.id
+        const confirm = await waitForResponse(interaction, response, "user");
 
-        try{
-
-            const confirm = await response.awaitMessageComponent({ filter: userFilter, time: 60_000 });
-
-            if (confirm.customId === 'accept') {
-                
-            await profileModel.updateMany(
-                { allegiance: clanData.clanName },
-                { $set: { allegiance: null, rank: 'Lord' } }
-            );
-
-            await clanData.deleteOne(
-                { clanName: profileData.allegiance }
-            );
-
-            embed
-            .setTitle(`✔️ ${interaction.user.tag} has disbanded ${clanName}!`);
-            await confirm.update({ embeds: [embed], components: [] });
-
-            } else if (confirm.customId === 'decline') {
-
-                embed.setTitle('❌ Deletion cancelled.');
-                await confirm.update({ embeds: [embed], components: [] });
-
-            }
-        } catch (error) {
-            console.log(error);
-            embed.setTitle('❌ Window has expired.');
-            return await interaction.editReply({ embeds: [embed], components: [] });
+        const actions = {
+            "accept": updateAccepted.bind(null, interaction, profileData, clanData, embed, confirm),
+            "decline": updateDeclined.bind(null, confirm)
         }
 
-
+        await checkResponse(response, actions, confirm);
     }
 }

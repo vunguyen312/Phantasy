@@ -1,5 +1,4 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const clanModel = require('../../models/clanSchema');
 
 module.exports = {
     cooldown: 5,

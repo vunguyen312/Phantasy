@@ -1,5 +1,4 @@
 const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
-const clanModel = require('../../models/clanSchema');
 const profileModel = require('../../models/profileSchema');
 const { createConfirmation, waitForResponse, checkResponse, updateDeclined } = require("../../utilities/embedUtils");
 const { modifyValue } = require('../../utilities/dbQuery');
@@ -7,10 +6,12 @@ const { modifyValue } = require('../../utilities/dbQuery');
 const updateAccepted = async (interaction, targetData, profileData, clanData, embed, confirm) => {
 
     await modifyValue(
+        "profile",
         { userID: interaction.options.getUser('user').id },
         { allegiance: clanData.clanName, rank: 'Baron' }
     );
-    await clanModel.findOneAndUpdate(
+    await modifyValue(
+        "clan",
         { clanName: profileData.allegiance },
         { $set: { [`members.Baron.${targetData.userID}`]: targetData.userID } }
     );

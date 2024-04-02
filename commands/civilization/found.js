@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require("discord.js");
 const clanModel = require('../../models/clanSchema');
-const profileModel = require('../../models/profileSchema');
+const { modifyValue } = require('../../utilities/dbQuery');
 
 module.exports = {
     cooldown: 5,
@@ -37,35 +37,36 @@ module.exports = {
         )
         .setThumbnail(interaction.user.displayAvatarURL());
 
+        const clanData = {
+            clanName: interaction.options.getString('name'),
+            leaderID: interaction.user.id,
+            serverID: interaction.guild.id,
+            public: interaction.options.getBoolean('public'),
+            members: {
+                King: new Map([[interaction.user.id, interaction.user.id]]),
+                Duke: new Map(),
+                Baron: new Map()
+            },
+
+            //Inventory
+
+            inventory: new Map()
+        }
+
         try{
             
-            const clan = await clanModel.create(
-                {
-                    clanName: interaction.options.getString('name'),
-                    leaderID: interaction.user.id,
-                    serverID: interaction.guild.id,
-                    public: interaction.options.getBoolean('public'),
-                    members: {
-                        King: new Map([[interaction.user.id, interaction.user.id]]),
-                        Duke: new Map(),
-                        Baron: new Map()
-                    },
-
-                    //Inventory
-
-                    inventory: new Map()
-                }
-            );
+            const clan = await clanModel.create(clanData);
             clan.save();
-
-            await profileModel.findOneAndUpdate(
-                { userID: interaction.user.id },
-                { allegiance: interaction.options.getString('name'), rank: 'King' }
-            );
 
         }catch(error){
             return interaction.reply(`Uh oh! Something went wrong while setting up your Clan!`), console.log(error);
         }
+
+        await modifyValue(
+            "profile",
+            { userID: interaction.user.id },
+            { allegiance: interaction.options.getString('name'), rank: 'King' }
+        );
 
         await interaction.reply({ embeds: [embed] });
     }
