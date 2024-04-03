@@ -18,7 +18,7 @@ module.exports = {
     async execute(interaction, profileData){
 
         const amount = interaction.options.getNumber('amount'); 
-
+        
         const embed = new EmbedBuilder()
         .setColor('Blue')
         .setTitle(`💰 ${interaction.user.tag} has deposited gold`)

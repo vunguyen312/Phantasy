@@ -17,12 +17,12 @@ module.exports = {
         {check: (interaction, profileData) => profileData.allegiance, msg: `Hm... It appears you're already in a civilization.`},
     ],
     async execute(interaction, profileData){
+
         const clanData = await clanModel.findOne({ serverID: interaction.options.getString('id') }) || await clanModel.findOne({ serverID: interaction.guild.id });
 
         if(!clanData) return interaction.reply({ content: 'Invalid Civilization ID (Server ID)', ephemeral:true });
         if(clanData.public === false) return interaction.reply({ content: 'This civilization is private and invite only!'});
     
-
         const embed = new EmbedBuilder()
         .setColor('Blue')
         .setTitle(`${interaction.user.tag} has joined ${clanData.clanName}!`)

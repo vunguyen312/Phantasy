@@ -1,4 +1,4 @@
-const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, UserSelectMenuBuilder } = require("discord.js");
+const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require("discord.js");
 
 const createButton = (id, label, style) => {
     return new ButtonBuilder()
@@ -11,10 +11,22 @@ const createConfirmation = () => {
     const accept = createButton('accept', 'Accept ✔️', ButtonStyle.Success);
     const decline = createButton('decline', 'Decline ❌', ButtonStyle.Danger);
 
-    const row = new ActionRowBuilder()
-        .addComponents(decline, accept);
+    return new ActionRowBuilder().addComponents(decline, accept);
+}
 
-    return row;
+const createSelectMenu = (id, placeholder, options) => {
+    const selectMenu = new StringSelectMenuBuilder()
+    .setCustomId(id)
+    .setPlaceholder(placeholder)
+    .setOptions(options);
+
+    return new ActionRowBuilder().addComponents(selectMenu);
+}
+
+const createSelectOption = (id, label) => {
+    return new StringSelectMenuOptionBuilder()
+    .setValue(id)
+    .setLabel(label);
 }
 
 const updateDeclined = async (confirm) => {
@@ -59,4 +71,4 @@ const checkResponse = async (response, actions, confirm) => {
     }
 }
 
-module.exports = {createButton, createConfirmation, waitForResponse, checkResponse, updateDeclined};
+module.exports = {createButton, createConfirmation, createSelectMenu, createSelectOption, waitForResponse, checkResponse, updateDeclined};

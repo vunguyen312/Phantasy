@@ -8,6 +8,7 @@ module.exports = {
     syntax: '/stats',
     conditions: [],
     async execute(interaction, profileData, clanData){
+        
         const embedSpace = { name: '\u200B', value: '\u200B', inline: true };
         const embed = new EmbedBuilder()
         .setColor('Blue')

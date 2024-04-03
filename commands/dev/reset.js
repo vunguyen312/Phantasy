@@ -13,6 +13,7 @@ module.exports = {
         {check: async (interaction) => !(await getObjectData("permissions"))[interaction.user.id], msg: `L + not a tester lololol`}
     ],
     async execute(interaction, profileData, clanData){
+        
         const playerStats = {
             userID: interaction.user.id,
             rank: 'Lord',

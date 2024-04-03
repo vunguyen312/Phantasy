@@ -57,6 +57,7 @@ module.exports = {
     syntax: '/help <command>',
     conditions: [],
     async execute(interaction){
+        
         await interaction.reply({ content: 'Sent to Direct Messages', ephemeral: true });
 
         const embed = new EmbedBuilder()

@@ -69,6 +69,7 @@ module.exports = {
         .setImage('https://cdn.discordapp.com/attachments/769659795740688424/1210771403108777985/image.png?ex=65ebc5bd&is=65d950bd&hm=287e92f051136266113aa8df6ba3c9827f05b4427db95f6a0e0aab8686569663&');
 
         await interaction.reply({ content: 'Sent to Direct Messages', ephemeral: true });
+        
         const response = await interaction.user.send({ 
             embeds: [embed],
             components: [createConfirmation()]
