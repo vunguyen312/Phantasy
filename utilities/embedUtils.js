@@ -1,20 +1,39 @@
-const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
+const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRow } = require("discord.js");
 
-const createButton = (id, label, style) => {
-    return new ButtonBuilder()
-    .setCustomId(id)
-	.setLabel(label)
-	.setStyle(style);
-}
+class EmbedRow {
+    constructor(embed){
+        this.embed = embed;
+    }
 
-const createConfirmation = () => {
-    const accept = createButton('accept', 'Accept ✔️', ButtonStyle.Success);
-    const decline = createButton('decline', 'Decline ❌', ButtonStyle.Danger);
+    createButton(id, label, style){
+        return new ButtonBuilder()
+        .setCustomId(id)
+        .setLabel(label)
+        .setStyle(style);
+    }
 
-    const row = new ActionRowBuilder()
-        .addComponents(decline, accept);
+    createConfirmation(){
+        const accept = this.createButton('accept', 'Accept ✔️', ButtonStyle.Success);
+        const decline = this.createButton('decline', 'Decline ❌', ButtonStyle.Danger);
+    
+        return new ActionRowBuilder().addComponents(decline, accept);
+    }
 
-    return row;
+    createSelectOption(id, label){
+        return new StringSelectMenuOptionBuilder()
+        .setValue(id)
+        .setLabel(label);
+    }
+
+    createSelectMenu(id, placeholder, options){
+        const selectMenu = new StringSelectMenuBuilder()
+        .setCustomId(id)
+        .setPlaceholder(placeholder)
+        .setOptions(options);
+    
+        return new ActionRowBuilder().addComponents(selectMenu);
+    }
+
 }
 
 const updateDeclined = async (confirm) => {
@@ -58,4 +77,4 @@ const checkResponse = async (response, actions, confirm) => {
     }
 }
 
-module.exports = {createButton, createConfirmation, waitForResponse, checkResponse, updateDeclined};
+module.exports = {EmbedRow, waitForResponse, checkResponse, updateDeclined};

@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const profileModel = require("../../models/profileSchema");
-const clanModel = require("../../models/clanSchema");
-const { jsonMap } = require("../../utilities/jsonParse");
+const { getObjectData } = require('../../utilities/dbQuery');
+const { modifyValue } = require('../../utilities/dbQuery');
 
 module.exports = {
     cooldown: 5,
@@ -9,10 +9,9 @@ module.exports = {
         .setName('reset')
         .setDescription(`Reset the command user's profile.`),
     syntax: '/reset',
-    conditions: [
-        {check: (interaction) => !jsonMap.permissions[interaction.user.id], msg: `L + not a tester lololol`}
-    ],
+    conditions: ["0005"],
     async execute(interaction, profileData, clanData){
+        
         const playerStats = {
             userID: interaction.user.id,
             rank: 'Lord',
@@ -28,14 +27,16 @@ module.exports = {
             notifications: true,
             oath: 'Wanderer',
             inventory: new Map()
-        }        
+        }
+        
+        if(clanData) await modifyValue(
+            "clan",
+            { clanName: clanData.clanName },
+            { $unset: { [`members.${profileData.rank}.${interaction.user.id}`]: "" } }
+        );
+        
 
         try{
-            
-            await clanModel.findOneAndUpdate(
-                { clanName: clanData.clanName },
-                { $unset: { [`members.${profileData.rank}.${interaction.user.id}`]: "" } }
-            );
 
             await profileModel.findOneAndDelete({ userID: interaction.user.id });
 

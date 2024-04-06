@@ -1,5 +1,4 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const profileModel = require('../../models/profileSchema');
 const { modifyValue } = require('../../utilities/dbQuery');
 
 module.exports = {
@@ -13,13 +12,11 @@ module.exports = {
             .setDescription('The amount of coins to despoit.')
             .setRequired(true)),
     syntax: '/deposit <amount>',
-    conditions: [
-        {check: (interaction, profileData) => {const amount = interaction.options.getNumber('amount'); return amount <= 0 || amount > profileData.gold || amount % 1 != 0;}, msg: ` Please deposit a real amount of gold.`}
-    ],
+    conditions: ["0002"],
     async execute(interaction, profileData){
 
         const amount = interaction.options.getNumber('amount'); 
-
+        
         const embed = new EmbedBuilder()
         .setColor('Blue')
         .setTitle(`💰 ${interaction.user.tag} has deposited gold`)
@@ -30,6 +27,7 @@ module.exports = {
         .setThumbnail(interaction.user.displayAvatarURL());
 
         await modifyValue(
+            "profile",
             { userID: interaction.user.id },
             { $inc: { gold: -amount, bank: amount } }
         );

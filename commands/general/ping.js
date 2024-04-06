@@ -8,6 +8,7 @@ module.exports = {
     syntax: '/ping',
     conditions: [],
     async execute(interaction){
+        
         const embed = new EmbedBuilder()
         .setColor('Blue')
         .setTitle('🏓 Pong')

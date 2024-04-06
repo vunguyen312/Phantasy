@@ -1,7 +1,18 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const profileModel = require('../../models/profileSchema');
-const { modifyValue } = require('../../utilities/dbQuery');
-const { jsonMap } = require('../../utilities/jsonParse');
+const { modifyValue, getObjectData } = require('../../utilities/dbQuery');
+const { EmbedRow, waitForResponse, checkResponse } = require('../../utilities/embedUtils');
+
+const selectedOption = async (interaction, embed, path) => {
+
+    const rewardMinMax = path.success.reward;
+    const randomizedReward = Math.round(Math.random() * rewardMinMax[1]);
+
+    await modifyValue(
+        "profile",
+        { userID: interaction.user.id },
+        { $inc: { gold: randomizedReward } }
+    );
+}
 
 module.exports = {
     cooldown: 30,
@@ -12,29 +23,40 @@ module.exports = {
     conditions: [],
     async execute(interaction, profileData) {
 
-        const lootTable = jsonMap.loot.data.lootTable;
-
-        const randomLoot = lootTable[Math.floor(Math.random() * (lootTable.length - 1))];
-        
-        //TODO:
-        //Add exploration paths to this command
+        const scenarioTable = await getObjectData("loot");
+        const randomScenario = scenarioTable[Math.floor(Math.random() * (scenarioTable.length - 1))];
 
         const embed = new EmbedBuilder()
-        .setColor(randomLoot.amount > 0 ? "Green" : "Red")
-        .setTitle(`📝 Exploration Results`)
-        .setDescription(randomLoot.msg)
+        .setColor(randomScenario.hex)
+        .setTitle(`🗺️  ${interaction.user.tag}'s Adventure`)
+        .setDescription(`${randomScenario.msg}\n\u200B`)
+        .setImage(randomScenario.img)
         .setFields(
-            { name: randomLoot.amount > 0 ? '🧈 Gold Deposited:' : '🧈 Gold Taken:', value: `${ randomLoot.amount }`, inline: true},
-            { name: '\u200B', value: '\u200B', inline: true },
-            { name: '💰 New Balance:', value: `${ profileData.gold + randomLoot.amount }`, inline: true }
-        )
-        .setThumbnail(interaction.user.displayAvatarURL());
-
-        await modifyValue(
-            { userID: interaction.user.id },
-            { $inc: { gold: randomLoot.amount } }
+            { name: 'OPTION A', value: `\`Success Rate: ${randomScenario.paths.A.baseSuccessRate * 100}%\`\n${randomScenario.paths.A.msg}` },
+            { name: 'OPTION B', value: `\`Success Rate: ${randomScenario.paths.B.baseSuccessRate * 100}%\`\n${randomScenario.paths.B.msg}` }
         );
 
-        await interaction.reply({ embeds: [embed] });
+        const embedRow = new EmbedRow();
+
+        const selectOptions = [
+            embedRow.createSelectOption('a', 'OPTION A'),
+            embedRow.createSelectOption('b', 'OPTION B')
+        ];
+    
+        const row = embedRow.createSelectMenu('paths', 'Pick an option', selectOptions);
+
+        const response = await interaction.reply({ 
+            embeds: [embed], 
+            components: [row]
+        });
+
+        const confirm = await waitForResponse(interaction, response, "user");
+
+        const actions = {
+            "paths": await selectedOption.bind(null, interaction, embed, randomScenario.paths.A),
+            "paths": await selectedOption.bind(null, interaction, embed, randomScenario.paths.B)
+        };
+
+        await checkResponse(response, actions, confirm);
     }
 }

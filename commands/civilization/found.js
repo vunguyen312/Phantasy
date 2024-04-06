@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require("discord.js");
 const clanModel = require('../../models/clanSchema');
-const profileModel = require('../../models/profileSchema');
+const { modifyValue } = require('../../utilities/dbQuery');
 
 module.exports = {
     cooldown: 5,
@@ -20,13 +20,7 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .setDMPermission(false),
     syntax: '/found <name> <public>',
-    conditions: [
-        {check: (interaction, profileData) => profileData.allegiance, msg: `Hm... It appears you're already in a civilization.`},
-        {check: (interaction) => interaction.options.getString('name').length > 20, msg: `Max Character Limit: 20`},
-        {check: (interaction) => !/^[a-zA-Z]+$/.test(interaction.options.getString('name')), msg: `Non-alphabetical characters cannot be used in your civilization name.`},
-        {check: async (interaction) => await clanModel.findOne({ clanName: interaction.options.getString('name') }), msg: `A civilization with this name already exists!`},
-        {check: async (interaction) => await clanModel.findOne({ serverID: interaction.guild.id }), msg: `A civilization has already been founded in this server!`},
-    ],
+    conditions: ["0008", "0012", "0013", "0014", "0015"],
     async execute(interaction, profileData){
 
         const embed = new EmbedBuilder()
@@ -37,35 +31,36 @@ module.exports = {
         )
         .setThumbnail(interaction.user.displayAvatarURL());
 
+        const clanData = {
+            clanName: interaction.options.getString('name'),
+            leaderID: interaction.user.id,
+            serverID: interaction.guild.id,
+            public: interaction.options.getBoolean('public'),
+            members: {
+                King: new Map([[interaction.user.id, interaction.user.id]]),
+                Duke: new Map(),
+                Baron: new Map()
+            },
+
+            //Inventory
+
+            inventory: new Map()
+        }
+
         try{
             
-            const clan = await clanModel.create(
-                {
-                    clanName: interaction.options.getString('name'),
-                    leaderID: interaction.user.id,
-                    serverID: interaction.guild.id,
-                    public: interaction.options.getBoolean('public'),
-                    members: {
-                        King: new Map([[interaction.user.id, interaction.user.id]]),
-                        Duke: new Map(),
-                        Baron: new Map()
-                    },
-
-                    //Inventory
-
-                    inventory: new Map()
-                }
-            );
+            const clan = await clanModel.create(clanData);
             clan.save();
-
-            await profileModel.findOneAndUpdate(
-                { userID: interaction.user.id },
-                { allegiance: interaction.options.getString('name'), rank: 'King' }
-            );
 
         }catch(error){
             return interaction.reply(`Uh oh! Something went wrong while setting up your Clan!`), console.log(error);
         }
+
+        await modifyValue(
+            "profile",
+            { userID: interaction.user.id },
+            { allegiance: interaction.options.getString('name'), rank: 'King' }
+        );
 
         await interaction.reply({ embeds: [embed] });
     }

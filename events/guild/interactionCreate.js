@@ -1,42 +1,24 @@
 const profileModel = require('../../models/profileSchema');
 const clanModel = require('../../models/clanSchema');
-const fs = require('fs');
-const { jsonMap } = require('../../utilities/jsonParse');
+const { createNewPlayer, getObjectData } = require('../../utilities/dbQuery');
+const conditionsMap = require('../../utilities/conditions');
 
 const checkConditions = async (conditions, interaction, profileData, clanData, itemsList) => {
-    //Wrap the conditions in a promise because of the async conditions
-    const conditionResults = await Promise.all(conditions.map(async condition => {
-      const result = await condition.check(interaction, profileData, clanData, itemsList);
-      return { result, msg: condition.msg };
+    
+    const conditionResults = await Promise.all(conditions.map(async code => {
+        const condition = conditionsMap[code];
+        const result = await condition.check(interaction, profileData, clanData, itemsList);
+        return { result, msg: condition.msg };
     }));
   
     return conditionResults.find(condition => condition.result);
 }
 
 const getPlayerData = async (interaction) => {
-    const playerStats = {
-        userID: interaction.user.id,
-        rank: 'Lord',
-        gold: 0,
-        bank: 0,
-        productionScore: 1,
-        citizens: 1,
-        growthRate: 1,
-        earnRate: 10,
-        taxRate: .1,
-        jobs: new Map(),
-        structures: new Map(),
-        notifications: true,
-        oath: 'Wanderer',
-        inventory: new Map()
-    }
-    
     try {
 
         const profileData = await profileModel.findOne({ userID: interaction.user.id }) 
-        || (await profileModel
-        .create(playerStats))
-        .save();
+        || await createNewPlayer(interaction);
 
         return profileData;
 
@@ -75,7 +57,7 @@ module.exports = async (client, Discord, interaction) => {
 
     const profileData = await getPlayerData(interaction);
     const clanData = await clanModel.findOne({ clanName: profileData.allegiance });
-    const itemsList = jsonMap.items.data;
+    const itemsList = await getObjectData("items");
 
     //Conditions checking
 
