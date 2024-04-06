@@ -12,9 +12,7 @@ module.exports = {
             .setDescription('The amount of coins to despoit.')
             .setRequired(true)),
     syntax: '/deposit <amount>',
-    conditions: [
-        {check: (interaction, profileData) => {const amount = interaction.options.getNumber('amount'); return amount <= 0 || amount > profileData.gold || amount % 1 != 0;}, msg: ` Please deposit a real amount of gold.`}
-    ],
+    conditions: ["0002"],
     async execute(interaction, profileData){
 
         const amount = interaction.options.getNumber('amount'); 

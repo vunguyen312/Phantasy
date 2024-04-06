@@ -26,10 +26,7 @@ module.exports = {
         .setDescription(`Disband the current civilization you're in if you're the leader.`)
         .setDMPermission(false),
     syntax: '/disband',
-    conditions: [
-        {check: (interaction, profileData) => !profileData.allegiance, msg: `You're not in a civilization.` },
-        {check: (interaction, profileData, clanData) => clanData.leaderID !== interaction.user.id, msg: `You're not the leader of this civilization.` },
-    ],
+    conditions: ["0008", "0010"],
     async execute(interaction, profileData, clanData){
 
         const clanName = clanData.clanName;

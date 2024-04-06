@@ -9,9 +9,7 @@ module.exports = {
         .setName('reset')
         .setDescription(`Reset the command user's profile.`),
     syntax: '/reset',
-    conditions: [
-        {check: async (interaction) => !(await getObjectData("permissions"))[interaction.user.id], msg: `L + not a tester lololol`}
-    ],
+    conditions: ["0005"],
     async execute(interaction, profileData, clanData){
         
         const playerStats = {

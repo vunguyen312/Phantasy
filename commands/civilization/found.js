@@ -20,13 +20,7 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .setDMPermission(false),
     syntax: '/found <name> <public>',
-    conditions: [
-        {check: (interaction, profileData) => profileData.allegiance, msg: `Hm... It appears you're already in a civilization.`},
-        {check: (interaction) => interaction.options.getString('name').length > 20, msg: `Max Character Limit: 20`},
-        {check: (interaction) => !/^[a-zA-Z]+$/.test(interaction.options.getString('name')), msg: `Non-alphabetical characters cannot be used in your civilization name.`},
-        {check: async (interaction) => await clanModel.findOne({ clanName: interaction.options.getString('name') }), msg: `A civilization with this name already exists!`},
-        {check: async (interaction) => await clanModel.findOne({ serverID: interaction.guild.id }), msg: `A civilization has already been founded in this server!`},
-    ],
+    conditions: ["0008", "0012", "0013", "0014", "0015"],
     async execute(interaction, profileData){
 
         const embed = new EmbedBuilder()

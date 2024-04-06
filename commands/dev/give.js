@@ -19,12 +19,7 @@ module.exports = {
             .setDescription('The user to give the item to.')
             .setRequired(true)),
     syntax: '/give <item> <user>',
-    conditions: [
-        {check: async (interaction) => !(await getObjectData("permissions"))[interaction.user.id], msg: `L + not a tester lololol`},
-        {check: (interaction) => interaction.options.getUser('user').bot, msg: `You can't give items to bots!`},
-        {check: (interaction, profileData, clanData, itemsList) => !itemsList[interaction.options.getString('item')], msg: `Please enter a valid item.`},
-        {check: async (interaction) => !await profileModel.findOne({ userID: interaction.options.getUser('user').id }), msg: `User isn't logged in the database. Get them to run any command.`}
-    ],
+    conditions: ["0005", "0001", "0006", "0003"],
     async execute(interaction, profileData, clanData, itemsList){
 
         const itemToGive = interaction.options.getString('item');

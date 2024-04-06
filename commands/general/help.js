@@ -2,8 +2,6 @@ const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const fs = require('fs');
 const path = require('path');
 
-//Might push the command list to MongoDB later...
-
 const getCommand = (folder, commandMap, commandList) => {
     if(folder === "dev") return;
 

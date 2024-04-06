@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const { modifyValue, getObjectData } = require('../../utilities/dbQuery');
-const { createSelectMenu, createSelectOption, waitForResponse, checkResponse } = require('../../utilities/embedUtils');
+const { EmbedRow, waitForResponse, checkResponse } = require('../../utilities/embedUtils');
 
 const selectedOption = async (interaction, embed, path) => {
 
@@ -36,12 +36,14 @@ module.exports = {
             { name: 'OPTION B', value: `\`Success Rate: ${randomScenario.paths.B.baseSuccessRate * 100}%\`\n${randomScenario.paths.B.msg}` }
         );
 
+        const embedRow = new EmbedRow();
+
         const selectOptions = [
-            createSelectOption('a', 'OPTION A'),
-            createSelectOption('b', 'OPTION B')
+            embedRow.createSelectOption('a', 'OPTION A'),
+            embedRow.createSelectOption('b', 'OPTION B')
         ];
     
-        const row = createSelectMenu('paths', 'Pick an option', selectOptions);
+        const row = embedRow.createSelectMenu('paths', 'Pick an option', selectOptions);
 
         const response = await interaction.reply({ 
             embeds: [embed], 

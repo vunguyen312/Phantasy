@@ -13,9 +13,7 @@ module.exports = {
             .setDescription('ID of the Server/Civilization'))
         .setDMPermission(false),
     syntax: '/join <id>',
-    conditions: [
-        {check: (interaction, profileData) => profileData.allegiance, msg: `Hm... It appears you're already in a civilization.`},
-    ],
+    conditions: ["0009"],
     async execute(interaction, profileData){
 
         const clanData = await clanModel.findOne({ serverID: interaction.options.getString('id') }) || await clanModel.findOne({ serverID: interaction.guild.id });

@@ -8,11 +8,7 @@ module.exports = {
         .setDescription('Leave your current civilization.')
         .setDMPermission(false),
     syntax: '/leave',
-    conditions: [
-        {check: (interaction, profileData) => !profileData.allegiance, msg: `Hm... It appears you're not in a civilization.`},
-        {check: (interaction, profileData, clanData) => !clanData, msg: `Could not retrieve your clan information.`},
-        {check: (interaction, profileData, clanData) => clanData.leaderID === interaction.user.id, msg: `The leader of the civilization cannot leave. You must do /disband to disintegrate the civilization.`},
-    ],
+    conditions: ["0008", "0007", "0016"],
     async execute(interaction, profileData, clanData){
 
         const embed = new EmbedBuilder()

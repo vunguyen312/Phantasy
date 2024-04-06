@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const profileModel = require('../../models/profileSchema');
-const { createNewPlayer, modifyValue } = require('../../utilities/dbQuery');
+const { modifyValue } = require('../../utilities/dbQuery');
 
 module.exports = {
     cooldown: 5,
@@ -18,12 +18,7 @@ module.exports = {
             .setDescription('Specify the user to pay.')
             .setRequired(true)),
     syntax: '/pay <amount> <user>',
-    conditions: [
-        {check: (interaction) => interaction.options.getUser('user').bot, msg: `You can't pay bots!`},
-        {check: (interaction) => interaction.options.getUser('user').id === interaction.user.id, msg: `You can't pay yourself!`},
-        {check: (interaction, profileData) => {const amount = interaction.options.getNumber('amount'); return amount <= 0 || amount > profileData.gold || amount % 1 != 0;}, msg: `Please enter a real amount of gold.`},
-        {check: async (interaction) => !await profileModel.findOne({ userID: interaction.options.getUser('user').id }), msg: `User isn't logged in the database. Get them to run any command.`}
-    ],
+    conditions: ["0001", "0004", "0002", "0003"],
     async execute(interaction, profileData){
 
         const amount = interaction.options.getNumber('amount');
