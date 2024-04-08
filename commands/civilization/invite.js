@@ -60,6 +60,6 @@ module.exports = {
             "decline": updateDeclined.bind(null, confirm)
         }
 
-        await checkResponse(response, actions, confirm);
+        await checkResponse(response, actions, confirm, "button");
     }
 }

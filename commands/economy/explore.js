@@ -2,16 +2,55 @@ const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const { modifyValue, getObjectData } = require('../../utilities/dbQuery');
 const { EmbedRow, waitForResponse, checkResponse } = require('../../utilities/embedUtils');
 
-const selectedOption = async (interaction, embed, path) => {
+const success = async (interaction, confirm, path) => {
 
     const rewardMinMax = path.success.reward;
-    const randomizedReward = Math.round(Math.random() * rewardMinMax[1]);
+    const randomizedReward = Math.round(Math.random() * rewardMinMax[0]);
 
     await modifyValue(
         "profile",
         { userID: interaction.user.id },
         { $inc: { gold: randomizedReward } }
     );
+
+    const embed = new EmbedBuilder()
+    .setTitle("🗺️ Successful Exploration!")
+    .setColor("Green")
+    .setDescription(path.success.msg)
+    .setFields({ name: "Rewards: ", value: `🧈 ${randomizedReward} Gold` });
+
+    await confirm.update({ embeds: [embed], components: [] });
+}
+
+const fail = async (interaction, confirm, path) => {
+
+    const rewardMinMax = path.fail.reward;
+    const randomizedReward = Math.round(Math.random() / rewardMinMax);
+
+    await modifyValue(
+        "profile",
+        { userID: interaction.user.id },
+        { $inc: { gold: -randomizedReward } }
+    );
+
+    const embed = new EmbedBuilder()
+    .setTitle("🗺️ Failed Exploration!")
+    .setColor("Red")
+    .setDescription(path.fail.msg)
+    .setFields({ name: "Gold Lost: ", value: `🧈 ${randomizedReward} Gold` });
+
+    await confirm.update({ embeds: [embed], components: [] });
+}
+
+const selectedOption = async (interaction, confirm, path) => {
+
+    const successRate = path.baseSuccessRate;
+    const randomRoll = Math.random();
+
+    randomRoll <= successRate 
+    ? await success(interaction, confirm, path) 
+    : await fail(interaction, confirm, path);
+    
 }
 
 module.exports = {
@@ -53,10 +92,10 @@ module.exports = {
         const confirm = await waitForResponse(interaction, response, "user");
 
         const actions = {
-            "paths": await selectedOption.bind(null, interaction, embed, randomScenario.paths.A),
-            "paths": await selectedOption.bind(null, interaction, embed, randomScenario.paths.B)
+            "a": await selectedOption.bind(null, interaction, confirm, randomScenario.paths.A),
+            "b": await selectedOption.bind(null, interaction, confirm, randomScenario.paths.B)
         };
 
-        await checkResponse(response, actions, confirm);
+        await checkResponse(response, actions, confirm, "select");
     }
 }

@@ -1,4 +1,4 @@
-const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRow } = require("discord.js");
+const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRow, ComponentType } = require("discord.js");
 
 class EmbedRow {
     constructor(embed){
@@ -60,10 +60,15 @@ const waitForResponse = async (interaction, response, target) => {
     }
 }
 
-const checkResponse = async (response, actions, confirm) => {
+const checkResponse = async (response, actions, confirm, type) => {
     try {
 
-        const { customId } = confirm;
+        const types = {
+            "button": confirm.customId,
+            "select": confirm.values[0]
+        };
+
+        const customId = types[type];
 
         //actions = [{id: function},{id: function},...];
 
