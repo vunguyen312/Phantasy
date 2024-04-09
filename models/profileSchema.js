@@ -11,18 +11,18 @@ const profileSchema = new mongoose.Schema({
     growthRate: { type: Number, require: true },
     earnRate: { type: Number, require: true },
     taxRate: { type: Number, require: true },
-    jobs: { type: Map, require: true },
+    class: { type: Map, require: true },
     structures: { type: Map, require: true },
     notifications: { type: Boolean, require: true },
     oath: { type: String, require: true},
 
     //Inventory
 
-    inventory: { type: Map, require: true }
+    inventory: { type: Map, require: true },
 
     //Hidden Stats
 
-    
+    battleStats: { type: Map, require: true }
 
 });
 

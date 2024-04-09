@@ -3,6 +3,19 @@ const clanModel = require('../models/clanSchema');
 const objectModel = require('../models/objectSchema');
 
 const createNewPlayer = async (interaction) => {
+
+    const battleStats = {
+        health: 100,
+        ichor: 100,
+        defense: 10,
+        speed: 50,
+        physRes: 0,
+        ichorRes: 0,
+        physAtk: 10,
+        ichorAtk: 10,
+        willpower: 5
+    };
+
     const playerStats = {
         userID: interaction.user.id,
         rank: 'Lord',
@@ -17,7 +30,8 @@ const createNewPlayer = async (interaction) => {
         structures: new Map(),
         notifications: true,
         oath: 'Wanderer',
-        inventory: new Map()
+        inventory: new Map(),
+        battleStats: battleStats
     }
 
     try{
