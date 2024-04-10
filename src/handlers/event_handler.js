@@ -8,9 +8,9 @@ const attachEvent = (client, Discord, file, folderPath) => {
     client.on(eventName, event.bind(null, client, Discord));
 }
 
-const loadDirectory = (client, Discord, dirs) => {
-    const folderPath = path.join(__dirname, `../events/${dirs}`);
-    const eventFiles = fs.readdirSync(`./events/${dirs}`).filter(file => file.endsWith('.js'));
+const loadDirectory = (client, Discord, dir) => {
+    const folderPath = path.join(__dirname, `../events/${dir}`);
+    const eventFiles = fs.readdirSync(`./src/events/${dir}`).filter(file => file.endsWith('.js'));
 
     eventFiles.forEach(file => attachEvent(client, Discord, file, folderPath));
 }

@@ -47,7 +47,6 @@ module.exports = {
             { $unset: { [`members.${profileData.rank}.${interaction.user.id}`]: "" } }
         );
         
-
         try{
 
             await profileModel.findOneAndDelete({ userID: interaction.user.id });
