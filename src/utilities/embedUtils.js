@@ -82,4 +82,22 @@ const checkResponse = async (response, actions, confirm, type) => {
     }
 }
 
-module.exports = {EmbedRow, waitForResponse, checkResponse, updateDeclined};
+const showLevel = async (exp, prevExp, interaction) => {
+    const currLevel = Math.floor(Math.sqrt((exp - 10) / 2));
+    const nextExpReq = 2 * (currLevel + 1)**2 + 10;
+    const prevLevel = Math.floor(Math.sqrt(((prevExp || 10) - 10) / 2));
+    const lvlMsg = `**Level ${currLevel}**\n*${exp} / ${nextExpReq} EXP*`;
+
+    if(currLevel > prevLevel){
+        const embed = new EmbedBuilder()
+        .setTitle("LEVEL UP!")
+        .setColor("Purple")
+        .setDescription(lvlMsg);
+
+        await interaction.channel.send({ embeds: [embed] });
+    }
+
+    return lvlMsg;
+}
+
+module.exports = {EmbedRow, waitForResponse, checkResponse, updateDeclined, showLevel};

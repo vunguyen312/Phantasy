@@ -25,6 +25,7 @@ module.exports = {
         
         const playerStats = {
             userID: interaction.user.id,
+            exp: 0,
             rank: 'Lord',
             gold: 0,
             bank: 0,

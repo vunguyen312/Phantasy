@@ -1,8 +1,8 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const { modifyValue, getObjectData } = require('../../utilities/dbQuery');
+const { modifyValue, getObjectData, updateExp } = require('../../utilities/dbQuery');
 const { EmbedRow, waitForResponse, checkResponse } = require('../../utilities/embedUtils');
 
-const success = async (interaction, confirm, path) => {
+const success = async (interaction, confirm, path, profileData) => {
 
     const rewardMinMax = path.success.reward;
     const randomizedReward = Math.round(Math.random() * rewardMinMax[0]);
@@ -13,6 +13,8 @@ const success = async (interaction, confirm, path) => {
         { $inc: { gold: randomizedReward } }
     );
 
+    await updateExp(profileData, 20, interaction);
+
     const embed = new EmbedBuilder()
     .setTitle("🗺️ Successful Exploration!")
     .setColor("Green")
@@ -22,7 +24,7 @@ const success = async (interaction, confirm, path) => {
     await confirm.update({ embeds: [embed], components: [] });
 }
 
-const fail = async (interaction, confirm, path) => {
+const fail = async (interaction, confirm, path, profileData) => {
 
     const rewardMinMax = path.fail.reward;
     const randomizedReward = Math.round(Math.random() / rewardMinMax);
@@ -33,6 +35,8 @@ const fail = async (interaction, confirm, path) => {
         { $inc: { gold: -randomizedReward } }
     );
 
+    await updateExp(profileData, 5, interaction);
+
     const embed = new EmbedBuilder()
     .setTitle("🗺️ Failed Exploration!")
     .setColor("Red")
@@ -42,14 +46,14 @@ const fail = async (interaction, confirm, path) => {
     await confirm.update({ embeds: [embed], components: [] });
 }
 
-const selectedOption = async (interaction, confirm, path) => {
+const selectedOption = async (interaction, confirm, path, profileData) => {
 
     const successRate = path.baseSuccessRate;
     const randomRoll = Math.random();
 
     randomRoll <= successRate 
-    ? await success(interaction, confirm, path) 
-    : await fail(interaction, confirm, path);
+    ? await success(interaction, confirm, path, profileData) 
+    : await fail(interaction, confirm, path, profileData);
     
 }
 
@@ -63,7 +67,7 @@ module.exports = {
     async execute(interaction, profileData) {
 
         const scenarioTable = await getObjectData("loot");
-        const randomScenario = scenarioTable[Math.floor(Math.random() * (scenarioTable.length - 1))];
+        const randomScenario = scenarioTable[Math.round(Math.random() * (scenarioTable.length - 1))];
 
         const embed = new EmbedBuilder()
         .setColor(randomScenario.hex)
@@ -92,8 +96,8 @@ module.exports = {
         const confirm = await waitForResponse(interaction, response, "user");
 
         const actions = {
-            "a": await selectedOption.bind(null, interaction, confirm, randomScenario.paths.A),
-            "b": await selectedOption.bind(null, interaction, confirm, randomScenario.paths.B)
+            "a": await selectedOption.bind(null, interaction, confirm, randomScenario.paths.A, profileData),
+            "b": await selectedOption.bind(null, interaction, confirm, randomScenario.paths.B, profileData)
         };
 
         await checkResponse(response, actions, confirm, "select");
