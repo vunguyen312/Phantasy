@@ -1,0 +1,26 @@
+const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
+const profileModel = require("../../models/profileSchema");
+const { modifyValue, createNewPlayer } = require('../../utilities/dbQuery');
+
+module.exports = {
+    cooldown: 5,
+    data: new SlashCommandBuilder()
+        .setName('reset')
+        .setDescription(`Reset the command user's profile.`),
+    syntax: '/reset',
+    conditions: ["0005"],
+    async execute(interaction, profileData, clanData){
+
+        if(clanData) await modifyValue(
+            "clan",
+            { clanName: clanData.clanName },
+            { $unset: { [`members.${profileData.rank}.${interaction.user.id}`]: "" } }
+        );
+
+        await profileModel.findOneAndDelete({ userID: interaction.user.id });
+
+        await createNewPlayer(interaction);
+
+        await interaction.reply('Stats reset');
+    }
+}

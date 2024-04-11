@@ -1,4 +1,4 @@
-const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRow } = require("discord.js");
+const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require("discord.js");
 
 class EmbedRow {
     constructor(embed){
@@ -60,10 +60,15 @@ const waitForResponse = async (interaction, response, target) => {
     }
 }
 
-const checkResponse = async (response, actions, confirm) => {
+const checkResponse = async (response, actions, confirm, type) => {
     try {
 
-        const { customId } = confirm;
+        const types = {
+            "button": confirm.customId,
+            "select": confirm.values[0]
+        };
+
+        const customId = types[type];
 
         //actions = [{id: function},{id: function},...];
 
@@ -73,8 +78,30 @@ const checkResponse = async (response, actions, confirm) => {
         const failEmbed = new EmbedBuilder()
         .setTitle('❌ Window has expired.')
         .setColor('Red');
+        console.log(error);
         return await response.edit({ embeds: [failEmbed], components: [] });
     }
 }
 
-module.exports = {EmbedRow, waitForResponse, checkResponse, updateDeclined};
+const showLevel = async (exp, prevExp, interaction) => {
+    const currLevel = Math.floor(Math.sqrt(exp / 3));
+    const prevLevel = Math.floor(Math.sqrt(prevExp / 3));
+    const nextExpReq = 3 *(currLevel + 1)**2;
+    const prevExpReq = 3 * (currLevel)**2;
+    const lvlMsg = `**Level ${prevLevel} -> ${currLevel}**\n*${exp - prevExpReq} / ${nextExpReq - prevExpReq} EXP*`;
+
+    if(currLevel > prevLevel){
+        const embed = new EmbedBuilder()
+        .setTitle("LEVEL UP!")
+        .setColor("Purple")
+        .setDescription(lvlMsg);
+
+        interaction.guildId
+        ? await interaction.channel.send({ embeds: [embed] })
+        : await interaction.user.send({ embeds: [embed] });
+    }
+
+    return `**Level ${prevLevel}**\n*${exp - prevExpReq} / ${nextExpReq - prevExpReq} EXP*`;
+}
+
+module.exports = {EmbedRow, waitForResponse, checkResponse, updateDeclined, showLevel};

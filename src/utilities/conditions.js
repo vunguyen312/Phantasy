@@ -1,6 +1,7 @@
 const profileModel = require('../models/profileSchema');
 const clanModel = require('../models/clanSchema');
 const objectModel = require('../models/objectSchema');
+const { getObjectData } = require('./dbQuery');  
 
 //Condition Codes
 

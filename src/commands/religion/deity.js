@@ -50,7 +50,7 @@ const showDeity = async (interaction, response, confirm, embed, index) => {
         "rightArrow": await showDeity.bind(null, interaction, response, confirm2, embed, index + 1)
     };
 
-    await checkResponse(response, actions, confirm2);
+    await checkResponse(response, actions, confirm2, "button");
 }
 
 module.exports = {
@@ -83,6 +83,6 @@ module.exports = {
             "decline": await updateDeclined.bind(null, confirm)
         }
 
-        await checkResponse(response, actions, confirm);
+        await checkResponse(response, actions, confirm, "button");
     }
 }

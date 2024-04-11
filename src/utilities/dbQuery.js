@@ -1,13 +1,29 @@
 const profileModel = require('../models/profileSchema');
 const clanModel = require('../models/clanSchema');
 const objectModel = require('../models/objectSchema');
+const { showLevel } = require('./embedUtils');
 
 const createNewPlayer = async (interaction) => {
+
+    const battleStats = {
+        health: 100,
+        ichor: 100,
+        defense: 10,
+        speed: 50,
+        physRes: 0,
+        ichorRes: 0,
+        physAtk: 10,
+        ichorAtk: 10,
+        willpower: 5
+    };
+
     const playerStats = {
         userID: interaction.user.id,
+        exp: 0,
         rank: 'Lord',
         gold: 0,
         bank: 0,
+        maxBank: 10000,
         productionScore: 1,
         citizens: 1,
         growthRate: 1,
@@ -17,7 +33,8 @@ const createNewPlayer = async (interaction) => {
         structures: new Map(),
         notifications: true,
         oath: 'Wanderer',
-        inventory: new Map()
+        inventory: new Map(),
+        battleStats: battleStats
     }
 
     try{
@@ -29,6 +46,22 @@ const createNewPlayer = async (interaction) => {
         return newPlayer;
 
     } catch(error) {
+        console.error(error);
+    }
+}
+
+const updateExp = async (profileData, value, interaction) => {
+    
+    try{
+
+        await showLevel(profileData.exp + value, profileData.exp, interaction);
+
+        await profileModel.findOneAndUpdate(
+            { userID: profileData.userID }, 
+            { $inc: { exp: value } }
+        );
+
+    } catch (error) {
         console.error(error);
     }
 }
@@ -62,4 +95,4 @@ const getObjectData = async (table) => {
     }
 }
 
-module.exports = {createNewPlayer, modifyValue, getObjectData}
+module.exports = {createNewPlayer, updateExp, modifyValue, getObjectData}

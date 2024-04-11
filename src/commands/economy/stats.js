@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
+const { showLevel } = require('../../utilities/embedUtils');
 
 module.exports = {
     cooldown: 5,
@@ -10,17 +11,18 @@ module.exports = {
     async execute(interaction, profileData, clanData){
         
         const embedSpace = { name: '\u200B', value: '\u200B', inline: true };
+        const userLevel = await showLevel(profileData.exp, profileData.exp, interaction);
         const embed = new EmbedBuilder()
         .setColor('Blue')
         .setTitle(`📈 ${interaction.user.tag}'s Stats`)
-        .setDescription(`Personal Stat Page of ${interaction.user.tag}`)
+        .setDescription(`\n${userLevel}\n`)
         .setFields(
             { name: '🚩 Allegiance:', value: `\`${ profileData.allegiance ?? 'None' }\``, inline: true },
             embedSpace,
             { name: '🥇 Rank:', value: `\`${ profileData.rank }\``, inline: true },
             { name: '🧈 Gold:', value: `\`${ profileData.gold }\``, inline: true },
             embedSpace,
-            { name: '💰 Bank:', value: `\`${ profileData.bank }\``, inline: true },
+            { name: '💰 Bank:', value: `\`${ profileData.bank } / ${ profileData.maxBank }\``, inline: true },
             { name: '🧑‍🤝‍🧑 Citizens:', value: `\`${ profileData.citizens }\``, inline: true },
             embedSpace,
             { name: '📈 Growth Rate:', value: `\`${ profileData.growthRate } citizens/h\``, inline: true },
