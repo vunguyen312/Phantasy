@@ -78,15 +78,17 @@ const checkResponse = async (response, actions, confirm, type) => {
         const failEmbed = new EmbedBuilder()
         .setTitle('❌ Window has expired.')
         .setColor('Red');
+        console.log(error);
         return await response.edit({ embeds: [failEmbed], components: [] });
     }
 }
 
 const showLevel = async (exp, prevExp, interaction) => {
-    const currLevel = Math.floor(Math.sqrt((exp - 10) / 2));
-    const nextExpReq = 2 * (currLevel + 1)**2 + 10;
-    const prevLevel = Math.floor(Math.sqrt(((prevExp || 10) - 10) / 2));
-    const lvlMsg = `**Level ${currLevel}**\n*${exp} / ${nextExpReq} EXP*`;
+    const currLevel = Math.floor(Math.sqrt(exp / 3));
+    const prevLevel = Math.floor(Math.sqrt(prevExp / 3));
+    const nextExpReq = 3 *(currLevel + 1)**2;
+    const prevExpReq = 3 * (currLevel)**2;
+    const lvlMsg = `**Level ${prevLevel} -> ${currLevel}**\n*${exp - prevExpReq} / ${nextExpReq - prevExpReq} EXP*`;
 
     if(currLevel > prevLevel){
         const embed = new EmbedBuilder()
@@ -94,10 +96,12 @@ const showLevel = async (exp, prevExp, interaction) => {
         .setColor("Purple")
         .setDescription(lvlMsg);
 
-        await interaction.channel.send({ embeds: [embed] });
+        interaction.guildId
+        ? await interaction.channel.send({ embeds: [embed] })
+        : await interaction.user.send({ embeds: [embed] });
     }
 
-    return lvlMsg;
+    return `**Level ${prevLevel}**\n*${exp - prevExpReq} / ${nextExpReq - prevExpReq} EXP*`;
 }
 
 module.exports = {EmbedRow, waitForResponse, checkResponse, updateDeclined, showLevel};

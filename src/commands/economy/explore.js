@@ -13,7 +13,7 @@ const success = async (interaction, confirm, path, profileData) => {
         { $inc: { gold: randomizedReward } }
     );
 
-    await updateExp(profileData, 20, interaction);
+    await updateExp(profileData, 10, interaction);
 
     const embed = new EmbedBuilder()
     .setTitle("🗺️ Successful Exploration!")
@@ -27,7 +27,7 @@ const success = async (interaction, confirm, path, profileData) => {
 const fail = async (interaction, confirm, path, profileData) => {
 
     const rewardMinMax = path.fail.reward;
-    const randomizedReward = Math.round(Math.random() / rewardMinMax);
+    const randomizedReward = Math.round(profileData.gold * rewardMinMax);
 
     await modifyValue(
         "profile",
@@ -58,7 +58,7 @@ const selectedOption = async (interaction, confirm, path, profileData) => {
 }
 
 module.exports = {
-    cooldown: 30,
+    cooldown: 1,
     data: new SlashCommandBuilder()
         .setName('explore')
         .setDescription(`Explore and bring back some loot.`),

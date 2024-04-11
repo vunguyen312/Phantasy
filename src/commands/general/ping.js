@@ -14,6 +14,6 @@ module.exports = {
         .setTitle('🏓 Pong')
         .setDescription(`API Latency is ${Math.abs(Date.now() - interaction.createdTimestamp)}ms.`);
 
-        await interaction.reply({ embeds: [embed], ephemeral: true });
+        await interaction.reply({ embeds: [embed] });
     }
 }

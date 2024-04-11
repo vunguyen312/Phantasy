@@ -22,7 +22,7 @@ module.exports = {
             { name: '🥇 Rank:', value: `\`${ profileData.rank }\``, inline: true },
             { name: '🧈 Gold:', value: `\`${ profileData.gold }\``, inline: true },
             embedSpace,
-            { name: '💰 Bank:', value: `\`${ profileData.bank }\``, inline: true },
+            { name: '💰 Bank:', value: `\`${ profileData.bank } / ${ profileData.maxBank }\``, inline: true },
             { name: '🧑‍🤝‍🧑 Citizens:', value: `\`${ profileData.citizens }\``, inline: true },
             embedSpace,
             { name: '📈 Growth Rate:', value: `\`${ profileData.growthRate } citizens/h\``, inline: true },

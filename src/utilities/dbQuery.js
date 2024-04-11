@@ -23,6 +23,7 @@ const createNewPlayer = async (interaction) => {
         rank: 'Lord',
         gold: 0,
         bank: 0,
+        maxBank: 10000,
         productionScore: 1,
         citizens: 1,
         growthRate: 1,
@@ -52,7 +53,7 @@ const createNewPlayer = async (interaction) => {
 const updateExp = async (profileData, value, interaction) => {
     
     try{
-        console.log(profileData);
+
         await showLevel(profileData.exp + value, profileData.exp, interaction);
 
         await profileModel.findOneAndUpdate(
