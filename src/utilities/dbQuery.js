@@ -34,7 +34,8 @@ const createNewPlayer = async (interaction) => {
         notifications: true,
         oath: 'Wanderer',
         inventory: new Map(),
-        battleStats: battleStats
+        battleStats: battleStats,
+        weapon: 'None'
     }
 
     try{

@@ -29,6 +29,7 @@ const profileSchema = new mongoose.Schema({
     //Combat
 
     class: { type: Map, require: true },
+    weapon: { type: String, require: true },
     battleStats: { type: Map, require: true },
 
     //Inventory
