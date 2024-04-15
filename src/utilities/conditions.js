@@ -98,5 +98,10 @@ module.exports = {
     //Check if the player has already oathed a deity.
         check: (interaction, profileData) => profileData.oath !== "Wanderer", 
         msg: `The path you've chosen is set in stone...`
+    },
+    "0019": {
+    //Check if the item the user is inspecting exists or not.
+        check: (interaction, profileData) => !(profileData.inventory.get(interaction.options.getString('item_code'))),
+        msg: `Please enter an item that exists.` 
     }
 }

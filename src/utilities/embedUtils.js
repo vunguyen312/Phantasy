@@ -62,13 +62,10 @@ const waitForResponse = async (interaction, response, target) => {
 
 const checkResponse = async (response, actions, confirm, type) => {
     try {
-
-        const types = {
-            "button": confirm.customId,
-            "select": confirm.values[0]
-        };
-
-        const customId = types[type];
+        
+        const customId = type === "button" 
+        ? confirm.customId 
+        : confirm.values[0];
 
         //actions = [{id: function},{id: function},...];
 

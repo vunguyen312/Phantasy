@@ -61,6 +61,7 @@ module.exports = {
     syntax: '/deity',
     conditions: ["0017", "0018"],
     async execute(interaction, profileData){
+        
         const embed = new EmbedBuilder()
         .setColor('White')
         .setTitle('A Challenger Approaches The Tower...')
