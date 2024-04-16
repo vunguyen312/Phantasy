@@ -1,6 +1,7 @@
 const profileModel = require('../models/profileSchema');
 const clanModel = require('../models/clanSchema');
 const objectModel = require('../models/objectSchema');
+const itemModel = require('../models/itemSchema');
 const { showLevel } = require('./embedUtils');
 
 const createNewPlayer = async (interaction) => {
@@ -85,6 +86,7 @@ const modifyValue = async (model, query, operation) => {
 }
 
 const getObjectData = async (table) => {
+
     try{
 
         const dataTable = await objectModel.findOne({ identifier: table });
@@ -96,4 +98,41 @@ const getObjectData = async (table) => {
     }
 }
 
-module.exports = {createNewPlayer, updateExp, modifyValue, getObjectData}
+const createID = async () => {
+    
+    const newIdentifier = Math.random().toString(20).substring(2, 8); 
+
+    try{
+
+        const existingData = await itemModel.findOne({ identifier: newIdentifier });
+
+        return existingData ? await createID() : newIdentifier;
+
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+const createItem = async (userID, itemCode, data) => {
+
+    const identifier = await createID();
+
+    const itemData = {
+        identifier: identifier,
+        userID: userID,
+        itemCode: itemCode,
+        data: data
+    };
+
+    try{
+
+        await itemModel.create(itemData);
+
+        return identifier;
+
+    } catch(error) {
+        console.log(error);
+    }
+}
+
+module.exports = {createNewPlayer, updateExp, modifyValue, getObjectData, createItem}

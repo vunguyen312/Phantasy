@@ -11,16 +11,15 @@ const getInventory = async (profileData) => {
     let counter = 0;
 
     for(item of profileData.inventory){
-        //MongoDB documents will return an object in array form.
         const rarity = `Rarity: ${item[1].rarity}`;
         const type = `Type: ${item[1].type}`;
-        const amount = `Amount: ${item[1].amount}`;
-        const itemProps = { name: item[1].name, value: `\`${rarity}\n${type}\n${amount}\``, inline: true };
+        const itemID = `ID: ${item[0]}`;
+        const itemProps = { name: item[1].name, value: `\`${rarity}\n${type}\n${itemID}\``, inline: true };
         
         inventoryPage.push(itemProps, embedSpace);
         
         counter++;
-        if(counter < 8) continue;
+        if(counter < 5) continue;
 
         inventory.push(inventoryPage);
         inventoryPage = [];
@@ -42,6 +41,7 @@ const getInventoryPage = async (interaction, response, confirm, embed, inventory
     const row = new ActionRowBuilder().setComponents(leftArrow, rightArrow);
 
     embed
+    .setTitle(`📈 ${interaction.user.tag}'s Inventory Pg. ${index + 1}`)
     .setFields(inventory[index]);
 
     if(index - 1 < 0) row.components[0].setDisabled(true);
@@ -72,8 +72,8 @@ module.exports = {
         const inventory = await getInventory(profileData);
         
         const embed = new EmbedBuilder()
-        .setColor('Blue')
-        .setTitle(`📈 ${interaction.user.tag}'s Inventory`)
+        .setColor('Grey')
+        .setTitle(`📈 ${interaction.user.tag}'s Inventory Pg. 1`)
         .setFields(inventory[0])
         .setThumbnail(interaction.user.displayAvatarURL());
 

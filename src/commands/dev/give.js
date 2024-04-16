@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const profileModel = require('../../models/profileSchema');
 const { modifyValue } = require('../../utilities/dbQuery');
-const { getObjectData } = require('../../utilities/dbQuery');
+const { createItem } = require('../../utilities/dbQuery');
 
 module.exports = {
     cooldown: 5,
@@ -30,17 +30,13 @@ module.exports = {
         .setTitle(`💰 ${interaction.user.tag} has received *${itemToGive.toUpperCase()}*!`)
         .setThumbnail(interaction.user.displayAvatarURL());
 
-        await modifyValue(
-            "profile",
-            { userID: targetData.userID },
-            { $set: { [`inventory.${itemToGive}`]: itemsList[itemToGive] } }
-        );
+        const identifier = await createItem(interaction.user.id, itemToGive, itemsList[itemToGive]);
 
         await modifyValue(
             "profile",
             { userID: targetData.userID },
-            { $inc: { [`inventory.${itemToGive}.amount`]: 1 } }
-        );        
+            { $set: { [`inventory.${identifier}`]: itemsList[itemToGive] } }
+        );
 
         await interaction.reply({ embeds: [embed] });
     }

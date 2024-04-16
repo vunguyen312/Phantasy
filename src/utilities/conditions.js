@@ -101,7 +101,7 @@ module.exports = {
     },
     "0019": {
     //Check if the item the user is inspecting exists or not.
-        check: (interaction, profileData) => !(profileData.inventory.get(interaction.options.getString('item_code'))),
+        check: (interaction, profileData) => !(profileData.inventory.get(interaction.options.getString('id'))),
         msg: `Please enter an item that exists.` 
     }
 }
