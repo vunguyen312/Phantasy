@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const profileModel = require("../../models/profileSchema");
+const itemModel = require("../../models/itemSchema");
 const { modifyValue, createNewPlayer } = require('../../utilities/dbQuery');
 
 module.exports = {
@@ -18,6 +19,8 @@ module.exports = {
         );
 
         await profileModel.findOneAndDelete({ userID: interaction.user.id });
+
+        await itemModel.deleteMany({ userID: interaction.user.id });
 
         await createNewPlayer(interaction);
 

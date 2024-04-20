@@ -29,7 +29,6 @@ module.exports = (client, Discord) => {
 
     for (const folder of commandFolders) {
 	    const commandsPath = path.join(foldersPath, folder);
-        //&& returns second operand if the first is false.
 	    fs.readdirSync(commandsPath).forEach(file => file.endsWith('.js') && commandFiles.set(file, commandsPath));
     }
 
