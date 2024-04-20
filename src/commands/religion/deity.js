@@ -66,7 +66,7 @@ module.exports = {
         .setColor('White')
         .setTitle('A Challenger Approaches The Tower...')
         .setDescription("`Dost thou wish to proceed?`")
-        .setImage('https://cdn.discordapp.com/attachments/769659795740688424/1210771403108777985/image.png?ex=65ebc5bd&is=65d950bd&hm=287e92f051136266113aa8df6ba3c9827f05b4427db95f6a0e0aab8686569663&');
+        .setImage("https://lh3.googleusercontent.com/pw/AP1GczNx3EUY5VOs4nULqMdkYQMe21a0QJUNocIRIUDjQ3D6pURBC6uyvpeN8PfJ3QNRo5SAkpUNBnhhXfEpWr91xGGILMOujTZ-aV7Tz7XGckR-eMV5FnHA7wz8mXJnjM8icoKyy2JS-6OJ6rs8bbW2m6rrksB5C8Rk9lgkRD1SANI8CeoA2A7BugRr3iCGQynYs7a5297OZASqNNSnkgZAOWnZ5b2ZLEBsgDeFaM_6lsBFrDEvDQqHYTIyc84Dx_rSoaBQF9SSUk3Xq6Vsk3myDFhP5O-ZuYVE5ssDKSAm1tVEiafK09lv1QrKsL2ChnTGNimN1s31qdm0KTnKfzqf2hxT1CQ3hO0Zf8uCq5KBC_76WVfk4lvmqO5WuPyGptczzfuBz9sNRoznWL7XE9hJsQhwDzaAHkPHir0D_7Ju2_gKM_9-SBtkT-qw7GPxJBotqFhexhIh3caNZYLe-uzF_d7nduH14mtqc36vM5j_h6As6UWKCnb9PVT2IFWNbqXG6gRS7IJ1oLvSdPCgHfcFiAvxGtNl-ZqXJZ4TmuzhZYaW8z9LvOQjdMp-1-kjq771dOlDSfqUTb2oRIDvXFCQz4o6xMVxI4_HllMJ6NtDECxum8gRjj_twaMlQrUcMh0zhFD6onLR7fK0sX92SbTiM0QmdurLfp374esEeGziatUNWv7DhTGhtm_FqMPGvh12uPK20WDtWK1nYFa-R0le0Nwg7pUCI2zEoVQRyQosFMTf0xgxwskWXEk5-gV6BMBHgJaSoUyf2Ddzhldvhg1_EXGSlpuK9CwrE6xJvkp518DzHebBbBsxLEfFuvJAiOJ2CbHWrP504Q24fz5b9xkXB5DjSH3_7Xi3sxjz1dOlhICosmDKrbfUCbot7CRUWosHVVR9OCHscsk9GgzsKPGk1dJUz0Y=w601-h467-s-no-gm?authuser=0");
 
         await interaction.reply({ content: 'Sent to Direct Messages', ephemeral: true });
 
