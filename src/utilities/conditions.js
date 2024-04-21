@@ -103,5 +103,10 @@ module.exports = {
     //Check if the item the user is inspecting exists or not.
         check: (interaction, profileData) => !(profileData.inventory.get(interaction.options.getString('id'))),
         msg: `Please enter an item that exists.` 
+    },
+    "0020": {
+    //Check if the item the user is equipping is equippable or not.
+        check: (interaction, profileData) => !(profileData.inventory.get(interaction.options.getString('id')).equippable),
+        msg: `Please enter an item that can be equipped.` 
     }
 }

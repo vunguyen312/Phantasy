@@ -7,16 +7,15 @@ const getInventory = async (profileData) => {
 
     const inventory = [];
     let inventoryPage = [];
-    const embedSpace = { name: '\u200B', value: '\u200B', inline: true };
     let counter = 0;
 
     for(item of profileData.inventory){
         const rarity = `Rarity: ${item[1].rarity}`;
         const type = `Type: ${item[1].type}`;
         const itemID = `ID: ${item[0]}`;
-        const itemProps = { name: item[1].name, value: `\`${rarity}\n${type}\n${itemID}\``, inline: true };
+        const itemProps = { name: item[1].name, value: `\`${rarity}\n${type}\n${itemID}\`` };
         
-        inventoryPage.push(itemProps, embedSpace);
+        inventoryPage.push(itemProps);
         
         counter++;
         if(counter < 5) continue;
@@ -72,7 +71,7 @@ module.exports = {
         const embed = new EmbedBuilder()
         .setColor('Grey')
         .setTitle(`📈 ${interaction.user.tag}'s Inventory Pg. 1`)
-        .setFields(inventory[0]);
+        .setFields(inventory[0] || { name: `\u200B`, value: `\u200B` });
 
         const embedRow = new EmbedRow();
 
