@@ -4,7 +4,7 @@ const { modifyValue } = require('../../utilities/dbQuery');
 const { createItem } = require('../../utilities/dbQuery');
 
 module.exports = {
-    cooldown: 5,
+    cooldown: 1,
     data: new SlashCommandBuilder()
         .setName('give')
         .setDescription(`Give away some items.`)
