@@ -1,11 +1,13 @@
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require("discord.js");
 
 class EmbedRow {
+
     constructor(embed){
         this.embed = embed;
     }
 
     createButton(id, label, style){
+
         return new ButtonBuilder()
         .setCustomId(id)
         .setLabel(label)
@@ -13,6 +15,7 @@ class EmbedRow {
     }
 
     createConfirmation(){
+
         const accept = this.createButton('accept', 'Accept ✔️', ButtonStyle.Success);
         const decline = this.createButton('decline', 'Decline ❌', ButtonStyle.Danger);
     
@@ -20,12 +23,14 @@ class EmbedRow {
     }
 
     createSelectOption(id, label){
+
         return new StringSelectMenuOptionBuilder()
         .setValue(id)
         .setLabel(label);
     }
 
     createSelectMenu(id, placeholder, options){
+
         const selectMenu = new StringSelectMenuBuilder()
         .setCustomId(id)
         .setPlaceholder(placeholder)
@@ -37,6 +42,7 @@ class EmbedRow {
 }
 
 const updateDeclined = async (confirm) => {
+
     const embed = new EmbedBuilder()
     .setTitle('❌ Window has been closed.')
     .setColor('Red');
@@ -81,6 +87,7 @@ const checkResponse = async (response, actions, confirm, type) => {
 }
 
 const showLevel = async (exp, prevExp, interaction) => {
+    
     const currLevel = Math.floor(Math.sqrt(exp / 3));
     const prevLevel = Math.floor(Math.sqrt(prevExp / 3));
     const nextExpReq = 3 *(currLevel + 1)**2;
