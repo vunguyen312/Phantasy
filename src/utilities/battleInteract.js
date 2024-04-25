@@ -1,36 +1,88 @@
-class Battle {
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonStyle } = require("discord.js");
+const { EmbedRow, waitForResponse, checkResponse } = require("./embedUtils");
 
-    constructor(player, target, playerStats, targetStats){
+class BattleNPC {
+
+    constructor(interaction, player, target, playerStats, targetStats){
+
+        //Players
         this.player = player;
         this.target = target;
         this.playerStats = playerStats;
         this.targetStats = targetStats;
+
+        //UI 
+        this.interaction = interaction;
+        this.embed;
+        this.embedRow = new EmbedRow();
+        this.row;
+        this.actions;
+        this.response;
+        this.confirm;
     }
 
+    async createEmbed(){
 
+        this.embed = new EmbedBuilder()
+        .setColor("Blurple")
+        .setTitle(`<@${this.player}> VS <@${this.target}>`)
+        .setFields(
+            { name: 'Player HP: ', value: `${this.playerStats.get("health")}`, inline: true },
+            { name: '\u200B', value: '\u200B', inline: true },
+            { name: 'Enemy HP: ', value: `${this.targetStats.health}`, inline: true },
+        );
 
-    basicAtk(interaction, caster, enemy){
+        const basicAtk = this.embedRow.createButton("basic", "🗡️", ButtonStyle.Secondary);
 
-        const enemyStats = enemy === this.target 
-        ? this.targetStats 
-        : this.playerStats;
-        
-        const healthDeducted = enemyStats.health - 10;
+        this.row = new ActionRowBuilder().setComponents(basicAtk);
 
-        console.log(enemyStats);
+        this.response = await this.interaction.reply({ 
+            embeds: [this.embed],
+            components: [this.row]
+        });
 
-        enemyStats.health = Math.max(0, healthDeducted);
+        this.confirm = await waitForResponse(this.interaction, this.response, "user");
 
-        if(enemyStats.health === 0) return this.endGame(caster);
+        this.actions = {
+            "basic": await this.basicAtk.bind(this),
+        }
 
-        console.log(enemyStats);
-        
+        await checkResponse(this.response, this.actions, this.confirm, "button");
     }
 
-    endGame(winner){
-        return console.log(`${winner} has won!`);
+    async updateEmbed(){
+
+        this.embed.setFields(
+            { name: 'Player HP: ', value: `${this.playerStats.get("health")}`, inline: true },
+            { name: '\u200B', value: '\u200B', inline: true },
+            { name: 'Enemy HP: ', value: `${this.targetStats.health}`, inline: true },
+        );
+
+        this.confirm.update({ embeds: [this.embed], components: [this.row] });
+
+        this.confirm = await waitForResponse(this.interaction, this.response, "user");
+
+        await checkResponse(this.response, this.actions, this.confirm, "button");
+    }
+
+    async basicAtk(){
+        
+        const healthDeducted = this.targetStats.health - 10;
+
+        this.targetStats.health = Math.max(0, healthDeducted);
+
+        if(this.targetStats.health === 0) return await this.endGame(this.player);
+
+        await this.updateEmbed();
+    }
+
+    async endGame(winner){
+        const embed = new EmbedBuilder()
+        .setColor(winner === this.player ? "Green" : "Red")
+        .setTitle(winner === this.player ? "YOU HAVE WON!" : "YOU HAVE LOST!");
+
+        await this.interaction.editReply({ embeds: [embed], components: [] });
     }
 }
 
-
-module.exports = {Battle}
+module.exports = {BattleNPC}
