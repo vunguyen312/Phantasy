@@ -1,17 +1,13 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonStyle } = require("discord.js");
 const { EmbedRow, waitForResponse, checkResponse } = require("./embedUtils");
 
-class BattleNPC {
+class Player {
 
-    constructor(interaction, player, target, playerStats, targetStats){
+    constructor(interaction, player, playerStats){
 
-        //Players
         this.player = player;
-        this.target = target;
         this.playerStats = playerStats;
-        this.targetStats = targetStats;
 
-        //UI 
         this.interaction = interaction;
         this.embed;
         this.embedRow = new EmbedRow();
@@ -21,15 +17,32 @@ class BattleNPC {
         this.confirm;
     }
 
-    async createEmbed(){
+    //Attacks
+
+    async basicAtk(target){
+
+        const targetStats = target.selfStats;
+        
+        const healthDeducted = targetStats.health - 10;
+
+        targetStats.health = Math.max(0, healthDeducted);
+
+        if(targetStats.health <= 0) return await this.endScreen(this.player);
+
+        await target.basicAtk();
+    }
+
+    //Embeds
+
+    async createEmbed(battle, target, targetStats){
 
         this.embed = new EmbedBuilder()
         .setColor("Blurple")
-        .setTitle(`<@${this.player}> VS <@${this.target}>`)
+        .setTitle(`<@${this.player}> VS <@${target}>`)
         .setFields(
             { name: 'Player HP: ', value: `${this.playerStats.get("health")}`, inline: true },
             { name: '\u200B', value: '\u200B', inline: true },
-            { name: 'Enemy HP: ', value: `${this.targetStats.health}`, inline: true },
+            { name: 'Enemy HP: ', value: `${targetStats.health}`, inline: true },
         );
 
         const basicAtk = this.embedRow.createButton("basic", "🗡️", ButtonStyle.Secondary);
@@ -44,18 +57,18 @@ class BattleNPC {
         this.confirm = await waitForResponse(this.interaction, this.response, "user");
 
         this.actions = {
-            "basic": await this.basicAtk.bind(this),
+            "basic": await this.basicAtk.bind(this, battle.target),
         }
 
         await checkResponse(this.response, this.actions, this.confirm, "button");
     }
 
-    async updateEmbed(){
+    async updateEmbed(targetStats){
 
         this.embed.setFields(
             { name: 'Player HP: ', value: `${this.playerStats.get("health")}`, inline: true },
             { name: '\u200B', value: '\u200B', inline: true },
-            { name: 'Enemy HP: ', value: `${this.targetStats.health}`, inline: true },
+            { name: 'Enemy HP: ', value: `${targetStats.health}`, inline: true },
         );
 
         this.confirm.update({ embeds: [this.embed], components: [this.row] });
@@ -65,18 +78,8 @@ class BattleNPC {
         await checkResponse(this.response, this.actions, this.confirm, "button");
     }
 
-    async basicAtk(){
-        
-        const healthDeducted = this.targetStats.health - 10;
+    async endScreen(winner){
 
-        this.targetStats.health = Math.max(0, healthDeducted);
-
-        if(this.targetStats.health === 0) return await this.endGame(this.player);
-
-        await this.updateEmbed();
-    }
-
-    async endGame(winner){
         const embed = new EmbedBuilder()
         .setColor(winner === this.player ? "Green" : "Red")
         .setTitle(winner === this.player ? "YOU HAVE WON!" : "YOU HAVE LOST!");
@@ -85,4 +88,42 @@ class BattleNPC {
     }
 }
 
-module.exports = {BattleNPC}
+class NPC {
+
+    constructor(self, selfStats, target){
+
+        this.self = self;
+        //Replace selfStats with different stats for monsters later 
+        this.selfStats = selfStats;
+        this.target = target;
+        this.targetStats = this.target.playerStats;
+    }
+
+    async basicAtk(){
+        
+        const healthDeducted = this.targetStats.get("health") - 10;
+        console.log(healthDeducted);
+
+        this.targetStats.set("health", Math.max(0, healthDeducted));
+
+        if(this.targetStats.get("health") <= 0) return await this.target.endScreen(this.self);
+
+        await this.target.updateEmbed(this.selfStats);
+    }
+}
+
+class BattlePVE {
+
+    constructor(interaction, player, target, playerStats, targetStats){
+
+        this.player = new Player(interaction, player, playerStats);
+        this.target = new NPC(target, targetStats, this.player);
+    }
+
+    async startBattle(){
+
+        await this.player.createEmbed(this, this.target.self, this.target.selfStats);
+    }
+}
+
+module.exports = {BattlePVE}
