@@ -11,7 +11,7 @@ module.exports = {
     conditions: ["0005"],
     async execute(interaction, profileData){
         
-        const battle = new BattlePVE(interaction, interaction.user.id, "Dummy", profileData.battleStats, { health: 110 });
+        const battle = new BattlePVE(interaction, interaction.user.tag, "Blue Slime", profileData.battleStats);
         battle.startBattle();
     }
 }
