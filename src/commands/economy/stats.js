@@ -29,15 +29,15 @@ const getStats = (profileData, clanData, type) => {
             { name: '🌎 Server:', value: `\`${ clanData ? clanData.serverID : "None" }\``, inline: true }
         ],
         "battle": [
-            { name: '❤️ Health:', value: `\`${ profileData.battleStats.get("health") } HP\``, inline: true },
-            { name: '💧 Ichor:', value: `\`${ profileData.battleStats.get("ichor") } Ichor\``, inline: true },
-            { name: '🛡️ Defense:', value: `\`${ profileData.battleStats.get("defense") } DEF\``, inline: true},
-            { name: '🤺 Physical Attack:', value: `\`${ profileData.battleStats.get("physAtk") } ATK\``, inline: true },
-            { name: '🔮 Ichor Attack:', value: `\`${ profileData.battleStats.get("ichorAtk") } ATK\``, inline: true},
-            { name: '🏰 Physical Resistance:', value: `\`${ profileData.battleStats.get("physRes") } RES\``, inline: true },
-            { name: '💙 Ichor Resistance:', value: `\`${ profileData.battleStats.get("ichorRes") } RES\``, inline: true},
-            { name: '💨 Speed:', value: `\`${ profileData.battleStats.get("speed") } SPD\``, inline: true },
-            { name: '📿 Willpower:', value: `\`${ profileData.battleStats.get("willpower") } WP\``, inline: true }
+            { name: '❤️ Health:', value: `\`${ profileData.battleStats.health } HP\``, inline: true },
+            { name: '💧 Ichor:', value: `\`${ profileData.battleStats.ichor } Ichor\``, inline: true },
+            { name: '🛡️ Defense:', value: `\`${ profileData.battleStats.defense } DEF\``, inline: true},
+            { name: '🤺 Physical Attack:', value: `\`${ profileData.battleStats.physAtk } ATK\``, inline: true },
+            { name: '🔮 Ichor Attack:', value: `\`${ profileData.battleStats.ichorAtk } ATK\``, inline: true},
+            { name: '🏰 Physical Resistance:', value: `\`${ profileData.battleStats.physRes } RES\``, inline: true },
+            { name: '💙 Ichor Resistance:', value: `\`${ profileData.battleStats.ichorRes } RES\``, inline: true},
+            { name: '💨 Speed:', value: `\`${ profileData.battleStats.speed } SPD\``, inline: true },
+            { name: '📿 Willpower:', value: `\`${ profileData.battleStats.willpower } WP\``, inline: true }
         ],
     };
 

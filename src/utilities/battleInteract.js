@@ -1,170 +1,220 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonStyle } = require("discord.js");
 const { EmbedRow, waitForResponse, checkResponse } = require("./embedUtils");
 const { getObjectData } = require('./dbQuery');
+const { Queue } = require('./collections');
 
 class Player {
 
     constructor(interaction, player, playerStats){
+        //Player
+        this.self = player;
+        this.stats = playerStats;
+        this.ichor = playerStats.ichor;
 
-        this.player = player;
-        this.playerStats = playerStats;
-
+        //Main UI
         this.interaction = interaction;
         this.embed;
+
+        //Battle UI
+        this.moveEmbed;
         this.embedRow = new EmbedRow();
         this.row;
         this.actions;
         this.response;
         this.confirm;
+        this.moves;
     }
 
     //Attacks
 
-    async basicAtk(target, battle){
+    async basicAtk(targetStats){
+        const hitData = {
+            caster: this.self,
+            attack: 'BASIC ATTACK',
+            damage: this.stats.physAtk,
+            healthDeducted: targetStats.health - this.stats.physAtk
+        };
 
-        if(target.selfStats.speed > this.playerStats.get("speed")){
-            const targetAtk = await target.basicAtk();
-            if(targetAtk === "Ended") return;
-        }
-
-        const targetStats = target.selfStats;
-        const damage = this.playerStats.get("physAtk");
-        const healthDeducted = targetStats.health - damage;
-
-        targetStats.health = Math.max(0, healthDeducted);
-
-        if(targetStats.health <= 0) return await this.endScreen(this.player);
-
-        await battle.nextTurn(`\`${this.player} used [BASIC ATTACK] and dealt ${damage} DMG\``);
+        return hitData;
     }
 
     async createEmbed(battle, target, targetStats, image){
-
         this.embed = new EmbedBuilder()
         .setColor("Blurple")
-        .setTitle(`${this.player} VS. ${target}`)
+        .setTitle(`${this.self} VS. ${target}`)
         .setImage(image)
         .setFields(
-            { name: 'Player HP:', value: `\`${this.playerStats.get("health")}\``, inline: true },
+            { name: 'Player HP:', value: `\`${this.stats.health}\``, inline: true },
             { name: '\u200B', value: '\u200B', inline: true },
             { name: 'Enemy HP:', value: `\`${targetStats.health}\``, inline: true },
         );
+
+        await this.interaction.reply({ embeds: [this.embed] });
+
+        return await this.createMoveSelector(battle);
+    }
+
+    async updateEmbed(targetStats, logs, battle){
+        this.embed
+        .setDescription(logs)
+        .setFields(
+            { name: 'Player HP:', value: `\`${this.stats.health}\``, inline: true },
+            { name: '\u200B', value: '\u200B', inline: true },
+            { name: 'Enemy HP:', value: `\`${targetStats.health}\``, inline: true },
+        );
+
+        await this.interaction.editReply({ embeds: [this.embed] });
+
+        return await this.createMoveSelector(battle);
+    }
+
+    async createMoveSelector(battle){
+        this.moveEmbed = new EmbedBuilder()
+        .setColor("Blurple")
+        .setDescription(`Current Ichor: ${this.ichor}`);
 
         const basicAtk = this.embedRow.createButton("basic", "🗡️", ButtonStyle.Secondary);
 
         this.row = new ActionRowBuilder().setComponents(basicAtk);
 
-        this.response = await this.interaction.reply({ 
-            embeds: [this.embed],
+        this.response = await this.interaction.channel.send({ 
+            embeds: [this.moveEmbed],
             components: [this.row]
         });
 
         this.confirm = await waitForResponse(this.interaction, this.response, "user");
 
         this.actions = {
-            "basic": await this.basicAtk.bind(this, battle.target, battle),
+            "basic": await this.basicAtk.bind(this, battle.target.stats),
         }
 
-        await checkResponse(this.response, this.actions, this.confirm, "button");
+        const attack = await checkResponse(this.response, this.actions, this.confirm, "button");
+
+        await this.deleteMoveSelector(battle);
+
+        return attack;
     }
 
-    async updateEmbed(targetStats, logs){
-
-        this.embed
-        .setDescription(logs)
-        .setFields(
-            { name: 'Player HP:', value: `\`${this.playerStats.get("health")}\``, inline: true },
-            { name: '\u200B', value: '\u200B', inline: true },
-            { name: 'Enemy HP:', value: `\`${targetStats.health}\``, inline: true },
-        );
-
-        await this.confirm.update({ embeds: [this.embed], components: [this.row] });
-
-        this.confirm = await waitForResponse(this.interaction, this.response, "user");
-
-        await checkResponse(this.response, this.actions, this.confirm, "button");
-
+    async deleteMoveSelector(battle){
+        this.response.delete();
+        this.response = null;
+        this.row = null;
+        this.confirm = null;
+        this.actions = null;
     }
 
     async endScreen(winner){
-
         const embed = new EmbedBuilder()
-        .setColor(winner === this.player ? "Green" : "Red")
-        .setTitle(winner === this.player ? "YOU HAVE WON!" : "YOU HAVE LOST!");
+        .setColor(winner === this.self ? "Green" : "Red")
+        .setTitle(winner === this.self ? "YOU HAVE WON!" : "YOU HAVE LOST!");
 
         await this.interaction.editReply({ embeds: [embed], components: [] });
 
-        return "Ended";
+        return 'Ended';
     }
 }
 
 class NPC {
 
     constructor(self, target){
-
         this.self = self;
-        this.selfStats;
+        this.stats;
         this.target = target;
-        this.targetStats = this.target.playerStats;
     }
 
     async getStats(){
-
         const retrievedStats = await getObjectData("monsters");
 
-        this.selfStats = retrievedStats[this.self].stats;
+        this.stats = retrievedStats[this.self].stats;
         return retrievedStats[this.self];
     }
 
     async basicAtk(){
-        
-        const healthDeducted = this.targetStats.get("health") - this.selfStats.physAtk - 10;
+        const hitData = {
+            caster: this.self,
+            attack: 'BASIC ATTACK',
+            damage: this.stats.physAtk + 10,
+            healthDeducted: this.target.stats.health - this.stats.physAtk - 10
+        };
 
-        this.targetStats.set("health", Math.max(0, healthDeducted));
-
-        if(this.targetStats.get("health") <= 0) return await this.target.endScreen(this.self);
-        
-        return `\`${this.self} used [BASIC ATTACK] and dealt ${this.selfStats.physAtk} DMG\``;
+        return hitData;
     }
 }
 
 class BattlePVE {
 
     constructor(interaction, player, target, playerStats){
-
         this.player = new Player(interaction, player, playerStats);
         this.target = new NPC(target, this.player);
 
-        this.battleLog = [];
+        this.battleLog = new Queue();
+        this.playerHitData;
+        this.monsterHitData;
         this.turn = 1;
-        this.currentTurn = player;
+        this.currentTurn;
     }
 
-    async nextTurn(log){
+    calculateInitiative(){
+        const playerSpeed = this.player.stats.speed;
+        const monsterSpeed = this.target.stats.speed;
 
-        this.currentTurn = this.currentTurn === this.player.player
-        ? this.target.self
-        : this.player.player;
+        this.currentTurn = playerSpeed - monsterSpeed > 0 ? this.player.self : this.target.self;
+    }
 
+    async hit(caster, target, hitData){
+        target.stats.health = Math.max(0, hitData.healthDeducted);
+        this.battleLog.enqueue(`\`${caster.self} used [${hitData.attack}] and dealt ${hitData.damage} DMG\``);
+        if(target.stats.health <= 0) return await this.player.endScreen(caster.self);
+    }
 
-        if(this.battleLog.length >= 5){
-            this.battleLog.shift();
-            this.battleLog.shift();
-            this.battleLog.shift();
+    async decideHit(){
+        this.calculateInitiative();
+
+        this.monsterHitData = await this.target.basicAtk(this);
+
+        //Sorry for whoever has to read this LOL
+        if(this.currentTurn === this.player.player){
+            //This'll only return a value if one of the combatants die
+            if(await this.hit(this.player, this.target, this.playerHitData)) return;
+            if(await this.hit(this.target, this.player, this.monsterHitData)) return;
+            await this.nextTurn();
+            return;
         }
-        this.battleLog.push(`*Turn ${this.turn}:*`, log, monsterHit);
 
-        this.turn++;
-
-        await this.player.updateEmbed(this.target.selfStats, this.battleLog.join('\n'));
+        if(await this.hit(this.target, this.player, this.monsterHitData)) return;
+        if(await this.hit(this.player, this.target, this.playerHitData)) return;
+        await this.nextTurn();
     }
 
     async startBattle(){
-
         const targetInfo = await this.target.getStats();
 
-        await this.player.createEmbed(this, this.target.self, this.target.selfStats, targetInfo.img);
+        this.playerHitData = await this.player.createEmbed(this, this.target.self, this.target.stats, targetInfo.img);
+
+        await this.decideHit();
     }
+
+    async nextTurn(){
+        if(this.battleLog.size >= 5){
+            this.battleLog.dequeue();
+            this.battleLog.dequeue();
+        }
+
+        this.turn++;
+
+        this.playerHitData = await this.player.updateEmbed(this.target.stats, this.getLogs(), this);
+
+        await this.decideHit();
+    }
+
+    getLogs(){
+        let result = "";
+
+        for(const log in this.battleLog.elements) result += `\n${this.battleLog.elements[log]}`;
+
+        return result;
+    }
+
 }
 
 module.exports = {BattlePVE}
