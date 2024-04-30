@@ -1,5 +1,4 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const profileModel = require('../../models/profileSchema');
 const { modifyValue } = require('../../utilities/dbQuery');
 
 module.exports = {
@@ -22,7 +21,6 @@ module.exports = {
     async execute(interaction, profileData){
 
         const amount = interaction.options.getNumber('amount');
-        //const targetData = await profileModel.findOne({ userID: interaction.options.getUser('user').id });
 
         const embed = new EmbedBuilder()
         .setColor('Blue')

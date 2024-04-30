@@ -3,6 +3,8 @@ const { EmbedRow, waitForResponse, checkResponse } = require("./embedUtils");
 const { getObjectData } = require('./dbQuery');
 const { Queue } = require('./collections');
 
+//#COMBATANTS
+
 class Player {
 
     constructor(interaction, player, playerStats){
@@ -140,6 +142,8 @@ class NPC {
         return hitData;
     }
 }
+
+//#BATTLES
 
 class BattlePVE {
 
