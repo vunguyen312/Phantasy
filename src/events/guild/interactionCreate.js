@@ -4,14 +4,13 @@ const { createNewPlayer, getObjectData } = require('../../utilities/dbQuery');
 const conditionsMap = require('../../utilities/conditions');
 
 const checkConditions = async (conditions, interaction, profileData, clanData, itemsList) => {
-    
-    const conditionResults = await Promise.all(conditions.map(async code => {
+    for (const code of conditions) {
         const condition = conditionsMap[code];
         const result = await condition.check(interaction, profileData, clanData, itemsList);
-        return { result, msg: condition.msg };
-    }));
-  
-    return conditionResults.find(condition => condition.result);
+        if (result) return { result, msg: condition.msg };
+    }
+
+    return false; 
 }
 
 const getPlayerData = async (interaction) => {

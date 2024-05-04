@@ -100,8 +100,13 @@ module.exports = {
         msg: `The path you've chosen is set in stone...`
     },
     "0019": {
-    //Check if the item the user is inspecting exists or not.
+    //Check if the item the user is inspecting exists or not within their inventory.
         check: (interaction, profileData) => !(profileData.inventory.get(interaction.options.getString('id'))),
-        msg: `Please enter an item that exists.` 
+        msg: `Please enter an item that you own.` 
+    },
+    "0020": {
+    //Check if the item the user is equipping is equippable or not.
+        check: (interaction, profileData) => !(profileData.inventory.get(interaction.options.getString('id')).equippable),
+        msg: `Please enter an item that can be equipped.` 
     }
 }

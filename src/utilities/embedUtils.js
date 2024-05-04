@@ -1,6 +1,7 @@
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require("discord.js");
 
 class EmbedRow {
+
     constructor(embed){
         this.embed = embed;
     }
@@ -44,7 +45,6 @@ const updateDeclined = async (confirm) => {
 }
 
 const waitForResponse = async (interaction, response, target) => {
-
     const targetTable = {
         "user": i => i.user.id === interaction.user.id,
         "targetUser": i => i.user.id === interaction.options.getUser('user').id,
@@ -69,7 +69,7 @@ const checkResponse = async (response, actions, confirm, type) => {
 
         //actions = [{id: function},{id: function},...];
 
-        actions[customId] ? await actions[customId]() : console.log("Error: Invalid Action");
+        return actions[customId] ? await actions[customId]() : console.log("Error: Invalid Action");
 
     } catch (error) {
         const failEmbed = new EmbedBuilder()

@@ -7,16 +7,15 @@ const getInventory = async (profileData) => {
 
     const inventory = [];
     let inventoryPage = [];
-    const embedSpace = { name: '\u200B', value: '\u200B', inline: true };
     let counter = 0;
 
     for(item of profileData.inventory){
         const rarity = `Rarity: ${item[1].rarity}`;
         const type = `Type: ${item[1].type}`;
         const itemID = `ID: ${item[0]}`;
-        const itemProps = { name: item[1].name, value: `\`${rarity}\n${type}\n${itemID}\``, inline: true };
+        const itemProps = { name: item[1].name, value: `\`${rarity}\n${type}\n${itemID}\`` };
         
-        inventoryPage.push(itemProps, embedSpace);
+        inventoryPage.push(itemProps);
         
         counter++;
         if(counter < 5) continue;
@@ -31,29 +30,27 @@ const getInventory = async (profileData) => {
     return inventory;
 }
 
-const getInventoryPage = async (interaction, response, confirm, embed, inventory, index) => {
-
-    const embedRow = new EmbedRow();
-
-    const leftArrow = embedRow.createButton("leftArrow", "⬅️", ButtonStyle.Secondary);
-    const rightArrow = embedRow.createButton("rightArrow", "➡️", ButtonStyle.Secondary);
-
-    const row = new ActionRowBuilder().setComponents(leftArrow, rightArrow);
+const getInventoryPage = async (interaction, response, confirm, row, embed, inventory, index) => {
 
     embed
     .setTitle(`📈 ${interaction.user.tag}'s Inventory Pg. ${index + 1}`)
     .setFields(inventory[index]);
 
-    if(index - 1 < 0) row.components[0].setDisabled(true);
-    else if(index + 1 > inventory.length - 1) row.components[1].setDisabled(true);
+    index - 1 < 0 
+    ? row.components[0].setDisabled(true)
+    : row.components[0].setDisabled(false);
+
+    index + 1 > inventory.length - 1 
+    ? row.components[1].setDisabled(true)
+    : row.components[1].setDisabled(false);
 
     await confirm.update({ embeds: [embed], components: [row] });
     
     const confirm2 = await waitForResponse(interaction, response, "user");
     
     const actions = {
-        "leftArrow": await getInventoryPage.bind(null, interaction, response, confirm2, embed, inventory, index - 1),
-        "rightArrow": await getInventoryPage.bind(null, interaction, response, confirm2, embed, inventory, index + 1)
+        "leftArrow": await getInventoryPage.bind(null, interaction, response, confirm2, row, embed, inventory, index - 1),
+        "rightArrow": await getInventoryPage.bind(null, interaction, response, confirm2, row, embed, inventory, index + 1)
     };
 
     await checkResponse(response, actions, confirm2, "button");
@@ -74,23 +71,25 @@ module.exports = {
         const embed = new EmbedBuilder()
         .setColor('Grey')
         .setTitle(`📈 ${interaction.user.tag}'s Inventory Pg. 1`)
-        .setFields(inventory[0])
-        .setThumbnail(interaction.user.displayAvatarURL());
+        .setFields(inventory[0] || { name: `\u200B`, value: `\u200B` });
 
         const embedRow = new EmbedRow();
 
+        const leftArrow = embedRow.createButton("leftArrow", "⬅️", ButtonStyle.Secondary);
         const rightArrow = embedRow.createButton("rightArrow", "➡️", ButtonStyle.Secondary);
 
-        const row = new ActionRowBuilder().setComponents(rightArrow);
+        const row = new ActionRowBuilder().setComponents(leftArrow, rightArrow);
 
-        if(inventory.length - 1 <= 0) row.components[0].setDisabled(true);
+        row.components[0].setDisabled(true);
+        if(inventory.length - 1 <= 0) row.components[1].setDisabled(true);
 
         const response = await interaction.reply({ embeds: [embed], components: [row] });
 
         const confirm = await waitForResponse(interaction, response, "user");
 
         const actions = {
-            "rightArrow": await getInventoryPage.bind(null, interaction, response, confirm, embed, inventory, 1)
+            "leftArrow": await getInventoryPage.bind(null, interaction, response, confirm, row, embed, inventory, 0),
+            "rightArrow": await getInventoryPage.bind(null, interaction, response, confirm, row, embed, inventory, 1)
         };
 
         await checkResponse(response, actions, confirm, "button");

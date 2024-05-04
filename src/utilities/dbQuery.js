@@ -5,7 +5,6 @@ const itemModel = require('../models/itemSchema');
 const { showLevel } = require('./embedUtils');
 
 const createNewPlayer = async (interaction) => {
-
     const battleStats = {
         health: 100,
         ichor: 100,
@@ -53,7 +52,6 @@ const createNewPlayer = async (interaction) => {
 }
 
 const updateExp = async (profileData, value, interaction) => {
-    
     try{
 
         await showLevel(profileData.exp + value, profileData.exp, interaction);
@@ -69,7 +67,6 @@ const updateExp = async (profileData, value, interaction) => {
 }
 
 const modifyValue = async (model, query, operation) => {
-
     const models = {
         "profile": profileModel,
         "clan": clanModel,
@@ -86,7 +83,6 @@ const modifyValue = async (model, query, operation) => {
 }
 
 const getObjectData = async (table) => {
-
     try{
 
         const dataTable = await objectModel.findOne({ identifier: table });
@@ -99,7 +95,6 @@ const getObjectData = async (table) => {
 }
 
 const createID = async () => {
-    
     const newIdentifier = Math.random().toString(20).substring(2, 8); 
 
     try{
@@ -114,7 +109,6 @@ const createID = async () => {
 }
 
 const createItem = async (userID, itemCode, data) => {
-
     const identifier = await createID();
 
     const itemData = {

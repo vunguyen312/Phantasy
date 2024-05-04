@@ -15,7 +15,8 @@ const changeOath = async (interaction, confirm, deity) => {
     await confirm.update({ embeds: [successEmbed], components: [] });
 }
 
-const showDeity = async (interaction, response, confirm, embed, index) => {
+const showDeity = async (interaction, response, confirm, row, embed, index) => {
+
     const deityTable = await getObjectData("deities");
     const deity = deityTable[index];
 
@@ -29,25 +30,34 @@ const showDeity = async (interaction, response, confirm, embed, index) => {
     )
     .setImage(deity.img);
 
-    const embedRow = new EmbedRow();
+    let newRow = row;
 
-    const leftArrow = embedRow.createButton("leftArrow", "⬅️", ButtonStyle.Secondary);
-    const rightArrow = embedRow.createButton("rightArrow", "➡️", ButtonStyle.Secondary);
-    const oathButton = embedRow.createButton("oath", "Oath 🙏", ButtonStyle.Primary);
+    if(!newRow){
+        const embedRow = new EmbedRow();
 
-    const row = new ActionRowBuilder().setComponents(leftArrow, oathButton, rightArrow);
+        const leftArrow = embedRow.createButton("leftArrow", "⬅️", ButtonStyle.Secondary);
+        const rightArrow = embedRow.createButton("rightArrow", "➡️", ButtonStyle.Secondary);
+        const oathButton = embedRow.createButton("oath", "Oath 🙏", ButtonStyle.Primary);
 
-    if(index - 1 < 0) row.components[0].setDisabled(true);
-    else if(index + 1 > deityTable.length - 1) row.components[2].setDisabled(true);
+        newRow = new ActionRowBuilder().setComponents(leftArrow, oathButton, rightArrow);
+    }
 
-    await confirm.update({ embeds: [embed], components: [row] });
+    index - 1 < 0 
+    ? newRow.components[0].setDisabled(true)
+    : newRow.components[0].setDisabled(false);
+
+    index + 1 > deityTable.length - 1 
+    ? newRow.components[2].setDisabled(true)
+    : newRow.components[2].setDisabled(false);
+
+    await confirm.update({ embeds: [embed], components: [newRow] });
 
     const confirm2 = await waitForResponse(interaction, response, "user");
 
     const actions = {
         "oath": await changeOath.bind(null, interaction, confirm2, deity),
-        "leftArrow": await showDeity.bind(null, interaction, response, confirm2, embed, index - 1),
-        "rightArrow": await showDeity.bind(null, interaction, response, confirm2, embed, index + 1)
+        "leftArrow": await showDeity.bind(null, interaction, response, confirm2, newRow, embed, index - 1),
+        "rightArrow": await showDeity.bind(null, interaction, response, confirm2, newRow, embed, index + 1)
     };
 
     await checkResponse(response, actions, confirm2, "button");
@@ -66,7 +76,7 @@ module.exports = {
         .setColor('White')
         .setTitle('A Challenger Approaches The Tower...')
         .setDescription("`Dost thou wish to proceed?`")
-        .setImage("https://lh3.googleusercontent.com/pw/AP1GczNx3EUY5VOs4nULqMdkYQMe21a0QJUNocIRIUDjQ3D6pURBC6uyvpeN8PfJ3QNRo5SAkpUNBnhhXfEpWr91xGGILMOujTZ-aV7Tz7XGckR-eMV5FnHA7wz8mXJnjM8icoKyy2JS-6OJ6rs8bbW2m6rrksB5C8Rk9lgkRD1SANI8CeoA2A7BugRr3iCGQynYs7a5297OZASqNNSnkgZAOWnZ5b2ZLEBsgDeFaM_6lsBFrDEvDQqHYTIyc84Dx_rSoaBQF9SSUk3Xq6Vsk3myDFhP5O-ZuYVE5ssDKSAm1tVEiafK09lv1QrKsL2ChnTGNimN1s31qdm0KTnKfzqf2hxT1CQ3hO0Zf8uCq5KBC_76WVfk4lvmqO5WuPyGptczzfuBz9sNRoznWL7XE9hJsQhwDzaAHkPHir0D_7Ju2_gKM_9-SBtkT-qw7GPxJBotqFhexhIh3caNZYLe-uzF_d7nduH14mtqc36vM5j_h6As6UWKCnb9PVT2IFWNbqXG6gRS7IJ1oLvSdPCgHfcFiAvxGtNl-ZqXJZ4TmuzhZYaW8z9LvOQjdMp-1-kjq771dOlDSfqUTb2oRIDvXFCQz4o6xMVxI4_HllMJ6NtDECxum8gRjj_twaMlQrUcMh0zhFD6onLR7fK0sX92SbTiM0QmdurLfp374esEeGziatUNWv7DhTGhtm_FqMPGvh12uPK20WDtWK1nYFa-R0le0Nwg7pUCI2zEoVQRyQosFMTf0xgxwskWXEk5-gV6BMBHgJaSoUyf2Ddzhldvhg1_EXGSlpuK9CwrE6xJvkp518DzHebBbBsxLEfFuvJAiOJ2CbHWrP504Q24fz5b9xkXB5DjSH3_7Xi3sxjz1dOlhICosmDKrbfUCbot7CRUWosHVVR9OCHscsk9GgzsKPGk1dJUz0Y=w601-h467-s-no-gm?authuser=0");
+        .setImage("https://cdn.discordapp.com/attachments/798592742976389160/1231377046580625469/tower.png?ex=662598bd&is=6624473d&hm=3492767d74b182fa1d64e065b8b75d0e4849b2fe15d3142fa55346527cc7540b&");
 
         await interaction.reply({ content: 'Sent to Direct Messages', ephemeral: true });
 
@@ -80,7 +90,7 @@ module.exports = {
         const confirm = await waitForResponse(interaction, response, "user");
 
         const actions = {
-            "accept": await showDeity.bind(null, interaction, response, confirm, embed, 0),
+            "accept": await showDeity.bind(null, interaction, response, confirm, null, embed, 0),
             "decline": await updateDeclined.bind(null, confirm)
         }
 
