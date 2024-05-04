@@ -6,7 +6,7 @@ const path = require('path');
 const refreshCommands = async (commands, rest) => {
     try {
 
-        console.log(`${commands.length > 0 ? '✓' : 'X'} Refreshing ${commands.length} application (/) commands.`);
+        console.log(`Refreshing ${commands.length} application (/) commands...`);
 
         const data = await rest.put(
             Routes.applicationCommands(process.env.CLIENT_ID),

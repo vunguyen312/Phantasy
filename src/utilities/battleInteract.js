@@ -12,6 +12,7 @@ class Player {
         this.self = player;
         this.stats = playerStats;
         this.ichor = playerStats.ichor;
+        this.buffs = {};
 
         //Main UI
         this.interaction = interaction;
@@ -122,6 +123,7 @@ class NPC {
         this.self = self;
         this.stats;
         this.target = target;
+        this.buffs = {};
     }
 
     async getStats(){

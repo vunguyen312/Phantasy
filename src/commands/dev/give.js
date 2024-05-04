@@ -25,12 +25,13 @@ module.exports = {
         const itemToGive = interaction.options.getString('item');
         const targetData = await profileModel.findOne({ userID: interaction.options.getUser('user').id });
         
+        const identifier = await createItem(interaction.user.id, itemToGive, itemsList[itemToGive]);
+
         const embed = new EmbedBuilder()
         .setColor('Blue')
         .setTitle(`💰 ${interaction.user.tag} has received *${itemToGive.toUpperCase()}*!`)
+        .setDescription(identifier)
         .setThumbnail(interaction.user.displayAvatarURL());
-
-        const identifier = await createItem(interaction.user.id, itemToGive, itemsList[itemToGive]);
 
         await modifyValue(
             "profile",
