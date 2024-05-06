@@ -12,6 +12,7 @@ class Player {
         this.self = player;
         this.stats = playerStats;
         this.ichor = playerStats.ichor;
+        this.spells = {};
         this.buffs = {};
 
         //Main UI
@@ -77,8 +78,12 @@ class Player {
         .setDescription(`Current Ichor: ${this.ichor}`);
 
         const basicAtk = this.embedRow.createButton("basic", "🗡️", ButtonStyle.Secondary);
+        /*const spell1 = this.embedRow.createButton("spell1", `${this.spells[0]}`, ButtonStyle.Secondary);
+        const spell2 = this.embedRow.createButton("spell2", `${this.spells[1]}`, ButtonStyle.Secondary);
+        const spell3 = this.embedRow.createButton("spell3", `${this.spells[2]}`, ButtonStyle.Secondary);
+        const spell4 = this.embedRow.createButton("spell4", `${this.spells[3]}`, ButtonStyle.Secondary);*/
 
-        this.row = new ActionRowBuilder().setComponents(basicAtk);
+        this.row = new ActionRowBuilder().setComponents(basicAtk /*spell1, spell2, spell3, spell4*/);
 
         this.response = await this.interaction.channel.send({ 
             embeds: [this.moveEmbed],
@@ -98,7 +103,7 @@ class Player {
         return attack;
     }
 
-    async deleteMoveSelector(battle){
+    async deleteMoveSelector(){
         this.response.delete();
         this.response = null;
         this.row = null;
@@ -133,7 +138,7 @@ class NPC {
         return retrievedStats[this.self];
     }
 
-    async basicAtk(){
+    basicAtk(){
         const hitData = {
             caster: this.self,
             attack: 'BASIC ATTACK',
@@ -170,13 +175,14 @@ class BattlePVE {
     async hit(caster, target, hitData){
         target.stats.health = Math.max(0, hitData.healthDeducted);
         this.battleLog.enqueue(`\`${caster.self} used [${hitData.attack}] and dealt ${hitData.damage} DMG\``);
+
         if(target.stats.health <= 0) return await this.player.endScreen(caster.self);
     }
 
     async decideHit(){
         this.calculateInitiative();
 
-        this.monsterHitData = await this.target.basicAtk(this);
+        this.monsterHitData = this.target.basicAtk();
 
         //Sorry for whoever has to read this LOL
         if(this.currentTurn === this.player.player){
@@ -197,6 +203,8 @@ class BattlePVE {
 
         this.playerHitData = await this.player.createEmbed(this, this.target.self, this.target.stats, targetInfo.img);
 
+        if(!this.playerHitData.attack) return await this.player.endScreen(this.target.self);
+
         await this.decideHit();
     }
 
@@ -208,7 +216,10 @@ class BattlePVE {
 
         this.turn++;
 
-        this.playerHitData = await this.player.updateEmbed(this.target.stats, this.getLogs(), this);
+        const newData = await this.player.updateEmbed(this.target.stats, this.getLogs(), this);
+        this.playerHitData = newData;
+
+        if(!newData.attack) return await this.player.endScreen(this.target.self);
 
         await this.decideHit();
     }

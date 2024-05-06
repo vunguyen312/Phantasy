@@ -52,8 +52,8 @@ const waitForResponse = async (interaction, response, target) => {
     };
 
     try{
-    
-        return await response.awaitMessageComponent({ filter: targetTable[target], time: 60_000 });
+
+        return await response.awaitMessageComponent({ filter: targetTable[target], time: 60_000 }); 
 
     } catch (error) {
         console.error('Window Expired');
