@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
 const profileModel = require('../../models/profileSchema');
-const { EmbedRow, waitForResponse, checkResponse, updateDeclined } = require("../../utilities/embedUtils");
+const { EmbedRow, componentResponse, updateDeclined } = require("../../utilities/embedUtils");
 const { modifyValue } = require('../../utilities/dbQuery');
 
 const updateAccepted = async (interaction, targetData, profileData, clanData, embed, confirm) => {
@@ -53,13 +53,11 @@ module.exports = {
             components: [row]
         });
 
-        const confirm = await waitForResponse(interaction, response, "targetUser");
-
         const actions = {
             "accept": updateAccepted.bind(null, interaction, targetData, profileData, clanData, embed, confirm),
             "decline": updateDeclined.bind(null, confirm)
         }
 
-        await checkResponse(response, actions, confirm, "button");
+        await componentResponse(interaction, response, actions, "targetUser", "button");
     }
 }

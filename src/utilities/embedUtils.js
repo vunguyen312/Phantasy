@@ -34,7 +34,6 @@ class EmbedRow {
     
         return new ActionRowBuilder().addComponents(selectMenu);
     }
-
 }
 
 const updateDeclined = async (confirm) => {
@@ -80,6 +79,12 @@ const checkResponse = async (response, actions, confirm, type) => {
     }
 }
 
+const componentResponse = async (interaction, response, actions, userFilter, componentType) => {
+    const confirm = await waitForResponse(interaction, response, userFilter);
+
+    return await checkResponse(response, actions, confirm, componentType);
+}
+
 const showLevel = async (exp, prevExp, interaction) => {
     const currLevel = Math.floor(Math.sqrt(exp / 3));
     const prevLevel = Math.floor(Math.sqrt(prevExp / 3));
@@ -101,4 +106,4 @@ const showLevel = async (exp, prevExp, interaction) => {
     return `**Level ${prevLevel}**\n*${exp - prevExpReq} / ${nextExpReq - prevExpReq} EXP*`;
 }
 
-module.exports = {EmbedRow, waitForResponse, checkResponse, updateDeclined, showLevel};
+module.exports = {EmbedRow, waitForResponse, checkResponse, updateDeclined, componentResponse, showLevel};

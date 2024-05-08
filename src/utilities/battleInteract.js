@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonStyle } = require("discord.js");
-const { EmbedRow, waitForResponse, checkResponse } = require("./embedUtils");
+const { EmbedRow, componentResponse } = require("./embedUtils");
 const { getObjectData } = require('./dbQuery');
 const { Queue } = require('./collections');
 
@@ -78,10 +78,10 @@ class Player {
         .setDescription(`Current Ichor: ${this.ichor}`);
 
         const basicAtk = this.embedRow.createButton("basic", "🗡️", ButtonStyle.Secondary);
-        /*const spell1 = this.embedRow.createButton("spell1", `${this.spells[0]}`, ButtonStyle.Secondary);
+        const spell1 = this.embedRow.createButton("spell1", `${this.spells[0]}`, ButtonStyle.Secondary);
         const spell2 = this.embedRow.createButton("spell2", `${this.spells[1]}`, ButtonStyle.Secondary);
         const spell3 = this.embedRow.createButton("spell3", `${this.spells[2]}`, ButtonStyle.Secondary);
-        const spell4 = this.embedRow.createButton("spell4", `${this.spells[3]}`, ButtonStyle.Secondary);*/
+        const spell4 = this.embedRow.createButton("spell4", `${this.spells[3]}`, ButtonStyle.Secondary);
 
         this.row = new ActionRowBuilder().setComponents(basicAtk /*spell1, spell2, spell3, spell4*/);
 
@@ -90,13 +90,11 @@ class Player {
             components: [this.row]
         });
 
-        this.confirm = await waitForResponse(this.interaction, this.response, "user");
-
         this.actions = {
             "basic": await this.basicAtk.bind(this, battle.target.stats),
         }
 
-        const attack = await checkResponse(this.response, this.actions, this.confirm, "button");
+        const attack = await componentResponse(this.interaction, this.response, this.actions, "user", "button");
 
         await this.deleteMoveSelector(battle);
 
