@@ -46,6 +46,7 @@ class Player {
         this.embed = new EmbedBuilder()
         .setColor("Blurple")
         .setTitle(`${this.self} VS. ${target}`)
+        .setDescription(`TURN EXPIRES: <t:${Math.round((Date.now() + 60_000) / 1000)}:R>`)
         .setImage(image)
         .setFields(
             { name: 'Player HP:', value: `\`${this.stats.health}\``, inline: true },
@@ -60,7 +61,7 @@ class Player {
 
     async updateEmbed(targetStats, logs, battle){
         this.embed
-        .setDescription(logs)
+        .setDescription(`TURN EXPIRES: <t:${Math.round((Date.now() + 60_000) / 1000)}:R>\n ${logs}`)
         .setFields(
             { name: 'Player HP:', value: `\`${this.stats.health}\``, inline: true },
             { name: '\u200B', value: '\u200B', inline: true },
@@ -201,7 +202,12 @@ class BattlePVE {
 
         this.playerHitData = await this.player.createEmbed(this, this.target.self, this.target.stats, targetInfo.img);
 
-        if(!this.playerHitData.attack) return await this.player.endScreen(this.target.self);
+        if(!this.playerHitData.attack) this.playerHitData = {
+            caster: this.self,
+            attack: 'NO TURN',
+            damage: 0,
+            healthDeducted: this.target.stats.health
+        };
 
         await this.decideHit();
     }
@@ -214,10 +220,14 @@ class BattlePVE {
 
         this.turn++;
 
-        const newData = await this.player.updateEmbed(this.target.stats, this.getLogs(), this);
-        this.playerHitData = newData;
+        this.playerHitData = await this.player.updateEmbed(this.target.stats, this.getLogs(), this);
 
-        if(!newData.attack) return await this.player.endScreen(this.target.self);
+        if(!this.playerHitData.attack) this.playerHitData = {
+            caster: this.self,
+            attack: 'NO TURN',
+            damage: 0,
+            healthDeducted: this.target.stats.health
+        };
 
         await this.decideHit();
     }
