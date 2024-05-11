@@ -117,6 +117,10 @@ class Player {
 
         await this.interaction.editReply({ embeds: [embed], components: [] });
 
+        const client = this.interaction.client;
+
+        client.locked.delete(this.interaction.user.id);
+
         return 'Ended';
     }
 }
@@ -162,6 +166,8 @@ class BattlePVE {
         this.monsterHitData;
         this.turn = 1;
         this.currentTurn;
+
+        interaction.client.locked.set(interaction.user.id);
     }
 
     calculateInitiative(){

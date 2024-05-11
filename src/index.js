@@ -4,6 +4,7 @@ const client = new Discord.Client({intents: ["Guilds", "GuildMessages", "Message
 const mongoose = require('mongoose');
 
 client.commands = new Discord.Collection();
+client.locked = new Discord.Collection();
 client.events = new Discord.Collection();
 client.cooldowns = new Discord.Collection();
 
