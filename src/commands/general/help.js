@@ -1,5 +1,4 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const {Battle} = require("../../utilities/battleInteract");
 const fs = require('fs');
 const path = require('path');
 

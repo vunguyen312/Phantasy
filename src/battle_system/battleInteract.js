@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonStyle } = require("discord.js");
-const { EmbedRow, componentResponse } = require("./embedUtils");
-const { getObjectData } = require('./dbQuery');
-const { Queue } = require('./collections');
+const { EmbedRow, componentResponse } = require("../utilities/embedUtils");
+const { getObjectData } = require('../utilities/dbQuery');
+const { Queue } = require('../utilities/collections');
 
 //#COMBATANTS
 
@@ -46,7 +46,7 @@ class Player {
         this.embed = new EmbedBuilder()
         .setColor("Blurple")
         .setTitle(`${this.self} VS. ${target}`)
-        .setDescription(`TURN EXPIRES: <t:${Math.round((Date.now() + 60_000) / 1000)}:R>`)
+        .setDescription(`TURN ENDS: <t:${Math.round((Date.now() + 60_000) / 1000)}:R>`)
         .setImage(image)
         .setFields(
             { name: 'Player HP:', value: `\`${this.stats.health}\``, inline: true },
@@ -61,7 +61,7 @@ class Player {
 
     async updateEmbed(targetStats, logs, battle){
         this.embed
-        .setDescription(`TURN EXPIRES: <t:${Math.round((Date.now() + 60_000) / 1000)}:R>\n ${logs}`)
+        .setDescription(`TURN ENDS: <t:${Math.round((Date.now() + 60_000) / 1000)}:R>\n ${logs}`)
         .setFields(
             { name: 'Player HP:', value: `\`${this.stats.health}\``, inline: true },
             { name: '\u200B', value: '\u200B', inline: true },
