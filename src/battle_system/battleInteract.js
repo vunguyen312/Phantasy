@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonStyle } = require("discord.js");
 const { EmbedRow, componentResponse } = require("../utilities/embedUtils");
 const { getObjectData } = require('../utilities/dbQuery');
+const { Spell } = require('./spells');
 const { Queue } = require('../utilities/collections');
 
 //#COMBATANTS
@@ -41,6 +42,14 @@ class Player {
 
         return hitData;
     }
+
+    castSpell(spellName, target){
+        const spell = new Spell(spellName, this.self, target);
+
+        return spell.castToTarget();
+    }
+
+    //Embeds
 
     async createEmbed(battle, target, targetStats, image){
         this.embed = new EmbedBuilder()
@@ -84,7 +93,7 @@ class Player {
         const spell3 = this.embedRow.createButton("spell3", `${this.spells[2]}`, ButtonStyle.Secondary);
         const spell4 = this.embedRow.createButton("spell4", `${this.spells[3]}`, ButtonStyle.Secondary);
 
-        this.row = new ActionRowBuilder().setComponents(basicAtk /*spell1, spell2, spell3, spell4*/);
+        this.row = new ActionRowBuilder().setComponents(basicAtk, spell1, /*spell2, spell3, spell4*/);
 
         this.response = await this.interaction.channel.send({ 
             embeds: [this.moveEmbed],
@@ -93,9 +102,12 @@ class Player {
 
         this.actions = {
             "basic": await this.basicAtk.bind(this, battle.target.stats),
+            "spell1": this.castSpell.bind(this, "Fireball", battle.target) 
         }
 
         const attack = await componentResponse(this.interaction, this.response, this.actions, "user", "button");
+
+        console.log(attack);
 
         await this.deleteMoveSelector(battle);
 
@@ -174,7 +186,9 @@ class BattlePVE {
         const playerSpeed = this.player.stats.speed;
         const monsterSpeed = this.target.stats.speed;
 
-        this.currentTurn = playerSpeed - monsterSpeed > 0 ? this.player.self : this.target.self;
+        this.currentTurn = playerSpeed - monsterSpeed > 0 
+        ? this.player.self 
+        : this.target.self;
     }
 
     async hit(caster, target, hitData){
