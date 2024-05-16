@@ -44,7 +44,7 @@ class Player {
     }
 
     castSpell(spellName, target){
-        const spell = new Spell(spellName, this.self, target);
+        const spell = new Spell(spellName, this, target);
 
         return spell.castToTarget();
     }
@@ -106,8 +106,6 @@ class Player {
         }
 
         const attack = await componentResponse(this.interaction, this.response, this.actions, "user", "button");
-
-        console.log(attack);
 
         await this.deleteMoveSelector(battle);
 
