@@ -2,8 +2,13 @@
 const spells = {
     "Fireball": {
         type: "ST_ATK",
-        scale: { factor: 0.5, stat: "ichorAtk"},
-        damage: 50
+        scale: { factor: 0.5, stat: "ichorAtk" },
+        base: 50
+    },
+    "Heal": {
+        type: "ST_BUFF",
+        scale: { factor: 0.5, stat: "ichorAtk" },
+        buff: { base: 50, stat: "health" }
     }
 };
 
@@ -21,28 +26,42 @@ class Spell {
         //PROTOTYPE BUFF SYSTEM
         //BASE_DMG + SCALE FACTOR * SCALING STAT - TARGET_DEF
 
-        this.hitData.damage += 
-        this.hitData.scale.factor 
+        if(this.hitData.type === "ST_ATK")
+        return this.hitData.base 
+        + this.hitData.scale.factor 
         * this.caster.stats[this.hitData.scale.stat]
         - this.target.stats.ichorRes;
+
+        //STAT UPS
+        //BASE_BUFF + SCALE FACTOR * SCALING STAT
+
+        return this.hitData.buff.base + this.hitData.scale.factor * this.caster.stats[this.hitData.scale.stat];
     }
 
     castToTarget(){
-        this.applyStats();
+        const newStat = this.applyStats();
 
-        const spellVariants = {
-            "ST_ATK": {
+        switch(this.hitData.type){
+            case "ST_ATK": 
+            return {
                 caster: this.caster.self,
+                type: this.hitData.type,
                 attack: this.name,
-                damage: this.hitData.damage,
-                healthDeducted: this.target.stats.health - this.hitData.damage
-            },
-            "ST_BUFF": {
-                
+                damage: newStat,
+                statChange: this.target.stats.health - newStat
             }
-        };
+            case "ST_BUFF": 
+            return {
+                caster: this.caster.self,
+                type: this.hitData.type,
+                stat: this.hitData.buff.stat,
+                attack: this.name,
+                buff: newStat,
+                statChange: this.target.stats[this.hitData.buff.stat] + newStat
+            }
+        }
 
-        return spellVariants[this.hitData.type];
+        return newData;
     }
 }
 

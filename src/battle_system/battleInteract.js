@@ -11,8 +11,8 @@ class Player {
     constructor(interaction, player, playerStats){
         //Player
         this.self = player;
-        this.stats = playerStats;
-        this.ichor = playerStats.ichor;
+        this.baseStats = Object.assign({}, playerStats);
+        this.stats = Object.assign({}, playerStats);
         this.spells = {};
         this.buffs = {};
 
@@ -35,9 +35,10 @@ class Player {
     async basicAtk(targetStats){
         const hitData = {
             caster: this.self,
+            type: "ST_ATK",
             attack: 'BASIC ATTACK',
             damage: this.stats.physAtk,
-            healthDeducted: targetStats.health - this.stats.physAtk
+            statChange: targetStats.health - this.stats.physAtk
         };
 
         return hitData;
@@ -93,7 +94,7 @@ class Player {
         const spell3 = this.embedRow.createButton("spell3", `${this.spells[2]}`, ButtonStyle.Secondary);
         const spell4 = this.embedRow.createButton("spell4", `${this.spells[3]}`, ButtonStyle.Secondary);
 
-        this.row = new ActionRowBuilder().setComponents(basicAtk, spell1, /*spell2, spell3, spell4*/);
+        this.row = new ActionRowBuilder().setComponents(basicAtk, spell1, spell2, /*spell3, spell4*/);
 
         this.response = await this.interaction.channel.send({ 
             embeds: [this.moveEmbed],
@@ -102,8 +103,9 @@ class Player {
 
         this.actions = {
             "basic": await this.basicAtk.bind(this, battle.target.stats),
-            "spell1": this.castSpell.bind(this, "Fireball", battle.target) 
-        }
+            "spell1": this.castSpell.bind(this, "Fireball", battle.target),
+            "spell2": this.castSpell.bind(this, "Heal", this)
+        };
 
         const attack = await componentResponse(this.interaction, this.response, this.actions, "user", "button");
 
@@ -154,9 +156,10 @@ class NPC {
     basicAtk(){
         const hitData = {
             caster: this.self,
+            type: "ST_ATK",
             attack: 'BASIC ATTACK',
             damage: this.stats.physAtk + 10,
-            healthDeducted: this.target.stats.health - this.stats.physAtk - 10
+            statChange: this.target.stats.health - this.stats.physAtk - 10
         };
 
         return hitData;
@@ -190,10 +193,16 @@ class BattlePVE {
     }
 
     async hit(caster, target, hitData){
-        target.stats.health = Math.max(0, hitData.healthDeducted);
-        this.battleLog.enqueue(`\`${caster.self} used [${hitData.attack}] and dealt ${hitData.damage} DMG\``);
+        if(hitData.type === "ST_ATK"){
+            target.stats.health = Math.max(0, hitData.statChange);
+            this.battleLog.enqueue(`\`${caster.self} used [${hitData.attack}] and dealt ${hitData.damage} DMG\``);
+    
+            if(target.stats.health <= 0) return await this.player.endScreen(caster.self);
+            return;
+        }
 
-        if(target.stats.health <= 0) return await this.player.endScreen(caster.self);
+        caster.stats[hitData.stat] = Math.min(caster.baseStats[hitData.stat], hitData.statChange);
+        this.battleLog.enqueue(`\`${caster.self} used [${hitData.attack}] and increased ${hitData.stat.toUpperCase()} by ${hitData.buff}\``);
     }
 
     async decideHit(){
