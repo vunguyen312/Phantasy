@@ -1,5 +1,10 @@
 //Move this to Redis at later date
 const spells = {
+    "BASIC ATTACK": {
+        type: "ST_ATK",
+        scale: { factor: 1, stat: "physAtk" },
+        base: 1
+    },
     "Fireball": {
         type: "ST_ATK",
         scale: { factor: 0.5, stat: "ichorAtk" },
@@ -9,6 +14,11 @@ const spells = {
         type: "ST_BUFF",
         scale: { factor: 0.5, stat: "ichorAtk" },
         buff: { base: 50, stat: "health" }
+    },
+    "Accel": {
+        type: "ST_BUFF",
+        scale: { factor: 0.5, stat: "ichorAtk" },
+        buff: { base: 50, stat: "speed" }
     }
 };
 
@@ -30,7 +40,7 @@ class Spell {
         return this.hitData.base 
         + this.hitData.scale.factor 
         * this.caster.stats[this.hitData.scale.stat]
-        - this.target.stats.ichorRes;
+        - (this.hitData.scale.stat === "ichorAtk" ? this.target.stats.ichorRes : this.target.stats.physRes);
 
         //STAT UPS
         //BASE_BUFF + SCALE FACTOR * SCALING STAT
@@ -48,7 +58,6 @@ class Spell {
                 type: this.hitData.type,
                 attack: this.name,
                 damage: newStat,
-                statChange: this.target.stats.health - newStat
             }
             case "ST_BUFF": 
             return {
@@ -56,12 +65,9 @@ class Spell {
                 type: this.hitData.type,
                 stat: this.hitData.buff.stat,
                 attack: this.name,
-                buff: newStat,
-                statChange: this.target.stats[this.hitData.buff.stat] + newStat
+                buff: newStat
             }
         }
-
-        return newData;
     }
 }
 

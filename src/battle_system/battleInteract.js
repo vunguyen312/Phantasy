@@ -30,20 +30,6 @@ class Player {
         this.moves;
     }
 
-    //Attacks
-
-    async basicAtk(targetStats){
-        const hitData = {
-            caster: this.self,
-            type: "ST_ATK",
-            attack: 'BASIC ATTACK',
-            damage: this.stats.physAtk,
-            statChange: targetStats.health - this.stats.physAtk
-        };
-
-        return hitData;
-    }
-
     castSpell(spellName, target){
         const spell = new Spell(spellName, this, target);
 
@@ -94,7 +80,7 @@ class Player {
         const spell3 = this.embedRow.createButton("spell3", `${this.spells[2]}`, ButtonStyle.Secondary);
         const spell4 = this.embedRow.createButton("spell4", `${this.spells[3]}`, ButtonStyle.Secondary);
 
-        this.row = new ActionRowBuilder().setComponents(basicAtk, spell1, spell2, /*spell3, spell4*/);
+        this.row = new ActionRowBuilder().setComponents(basicAtk, spell1, spell2, spell3, /*spell4*/);
 
         this.response = await this.interaction.channel.send({ 
             embeds: [this.moveEmbed],
@@ -102,9 +88,10 @@ class Player {
         });
 
         this.actions = {
-            "basic": await this.basicAtk.bind(this, battle.target.stats),
+            "basic": this.castSpell.bind(this, "BASIC ATTACK", battle.target),
             "spell1": this.castSpell.bind(this, "Fireball", battle.target),
-            "spell2": this.castSpell.bind(this, "Heal", this)
+            "spell2": this.castSpell.bind(this, "Heal", this),
+            "spell3": this.castSpell.bind(this, "Accel", this)
         };
 
         const attack = await componentResponse(this.interaction, this.response, this.actions, "user", "button");
@@ -158,8 +145,7 @@ class NPC {
             caster: this.self,
             type: "ST_ATK",
             attack: 'BASIC ATTACK',
-            damage: this.stats.physAtk + 10,
-            statChange: this.target.stats.health - this.stats.physAtk - 10
+            damage: this.stats.physAtk + 10
         };
 
         return hitData;
@@ -176,9 +162,9 @@ class BattlePVE {
 
         this.battleLog = new Queue();
         this.playerHitData;
-        this.monsterHitData;
         this.turn = 1;
         this.currentTurn;
+        this.awaitingTurn;
 
         interaction.client.locked.set(interaction.user.id);
     }
@@ -187,40 +173,44 @@ class BattlePVE {
         const playerSpeed = this.player.stats.speed;
         const monsterSpeed = this.target.stats.speed;
 
-        this.currentTurn = playerSpeed - monsterSpeed > 0 
-        ? this.player.self 
-        : this.target.self;
+        this.currentTurn = playerSpeed > monsterSpeed
+        ? this.player 
+        : this.target;
+
+        this.awaitingTurn = this.currentTurn === this.player
+        ? this.target
+        : this.player;
     }
 
     async hit(caster, target, hitData){
         if(hitData.type === "ST_ATK"){
-            target.stats.health = Math.max(0, hitData.statChange);
+            target.stats.health = Math.max(0, target.stats.health - hitData.damage);
             this.battleLog.enqueue(`\`${caster.self} used [${hitData.attack}] and dealt ${hitData.damage} DMG\``);
     
             if(target.stats.health <= 0) return await this.player.endScreen(caster.self);
             return;
         }
 
-        caster.stats[hitData.stat] = Math.min(caster.baseStats[hitData.stat], hitData.statChange);
+        hitData.stat === "health" 
+        ? caster.stats[hitData.stat] = Math.min(caster.baseStats[hitData.stat], caster.stats[hitData.stat] + hitData.buff)
+        : caster.stats[hitData.stat] += hitData.buff;
+
         this.battleLog.enqueue(`\`${caster.self} used [${hitData.attack}] and increased ${hitData.stat.toUpperCase()} by ${hitData.buff}\``);
     }
 
     async decideHit(){
         this.calculateInitiative();
 
-        this.monsterHitData = this.target.basicAtk();
+        const currTurnData = this.currentTurn === this.player
+        ? this.playerHitData
+        : this.target.basicAtk();
 
-        //Sorry for whoever has to read this LOL
-        if(this.currentTurn === this.player.player){
-            //This'll only return a value if one of the combatants die
-            if(await this.hit(this.player, this.target, this.playerHitData)) return;
-            if(await this.hit(this.target, this.player, this.monsterHitData)) return;
-            await this.nextTurn();
-            return;
-        }
+        const awaitTurnData = this.currentTurn === this.player
+        ? this.target.basicAtk()
+        :this.playerHitData;
 
-        if(await this.hit(this.target, this.player, this.monsterHitData)) return;
-        if(await this.hit(this.player, this.target, this.playerHitData)) return;
+        if(await this.hit(this.currentTurn, this.awaitingTurn, currTurnData)) return;
+        if(await this.hit(this.awaitingTurn, this.currentTurn, awaitTurnData)) return;
         await this.nextTurn();
     }
 
@@ -229,8 +219,10 @@ class BattlePVE {
 
         this.playerHitData = await this.player.createEmbed(this, this.target.self, this.target.stats, targetInfo.img);
 
-        if(!this.playerHitData.attack) this.playerHitData = {
+        if(!this.playerHitData.attack) 
+        this.playerHitData = {
             caster: this.self,
+            type: "ST_ATK",
             attack: 'NO TURN',
             damage: 0,
             healthDeducted: this.target.stats.health
@@ -249,8 +241,10 @@ class BattlePVE {
 
         this.playerHitData = await this.player.updateEmbed(this.target.stats, this.getLogs(), this);
 
-        if(!this.playerHitData.attack) this.playerHitData = {
+        if(!this.playerHitData.attack) 
+        this.playerHitData = {
             caster: this.self,
+            type: "ST_ATK",
             attack: 'NO TURN',
             damage: 0,
             healthDeducted: this.target.stats.health
