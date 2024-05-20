@@ -1,37 +1,22 @@
-//Move this to Redis at later date
-const spells = {
-    "BASIC ATTACK": {
-        type: "ST_ATK",
-        scale: { factor: 1, stat: "physAtk" },
-        base: 1
-    },
-    "Fireball": {
-        type: "ST_ATK",
-        scale: { factor: 0.5, stat: "ichorAtk" },
-        base: 50
-    },
-    "Heal": {
-        type: "ST_BUFF",
-        scale: { factor: 0.5, stat: "ichorAtk" },
-        buff: { base: 50, stat: "health" }
-    },
-    "Accel": {
-        type: "ST_BUFF",
-        scale: { factor: 0.5, stat: "ichorAtk" },
-        buff: { base: 50, stat: "speed" }
-    }
-};
+const { getObjectData } = require("../utilities/dbQuery");
 
 class Spell {
 
     constructor(name, caster, target){
         this.name = name;
-        this.hitData = spells[name];
+        this.hitData;
         this.caster = caster;
         this.target = target;
     }
 
-    applyStats(){
+    async getSpellData(){
+        const spellsData = await getObjectData("spells");
+
+        this.hitData = spellsData[this.name];
+    }
+
+    async applyStats(){
+        await this.getSpellData();
 
         //PROTOTYPE BUFF SYSTEM
         //BASE_DMG + SCALE FACTOR * SCALING STAT - TARGET_DEF
@@ -48,8 +33,8 @@ class Spell {
         return this.hitData.buff.base + this.hitData.scale.factor * this.caster.stats[this.hitData.scale.stat];
     }
 
-    castToTarget(){
-        const newStat = this.applyStats();
+    async castToTarget(){
+        const newStat = await this.applyStats();
 
         switch(this.hitData.type){
             case "ST_ATK": 

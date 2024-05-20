@@ -30,10 +30,10 @@ class Player {
         this.moves;
     }
 
-    castSpell(spellName, target){
+    async castSpell(spellName, target){
         const spell = new Spell(spellName, this, target);
 
-        return spell.castToTarget();
+        return await spell.castToTarget();
     }
 
     //Embeds
@@ -88,10 +88,10 @@ class Player {
         });
 
         this.actions = {
-            "basic": this.castSpell.bind(this, "BASIC ATTACK", battle.target),
-            "spell1": this.castSpell.bind(this, "Fireball", battle.target),
-            "spell2": this.castSpell.bind(this, "Heal", this),
-            "spell3": this.castSpell.bind(this, "Accel", this)
+            "basic": await this.castSpell.bind(this, "BASIC ATTACK", battle.target),
+            "spell1": await this.castSpell.bind(this, "Fireball", battle.target),
+            "spell2": await this.castSpell.bind(this, "Heal", this),
+            "spell3": await this.castSpell.bind(this, "Accel", this)
         };
 
         const attack = await componentResponse(this.interaction, this.response, this.actions, "user", "button");
