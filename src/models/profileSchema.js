@@ -14,23 +14,18 @@ const profileSchema = new mongoose.Schema({
     gold: { type: Number, require: true },
     bank: { type: Number, require: true },
     maxBank: { type: Number, require: true },
-    earnRate: { type: Number, require: true },
     
     //Clan
 
     allegiance: { type: String, require: true },
     rank: { type: String, require: true },
-    productionScore: { type: Number, require: true },
-    citizens: { type: Number, require: true },
-    growthRate: { type: Number, require: true },
-    taxRate: { type: Number, require: true },
-    structures: { type: Map, require: true },
 
     //Combat
 
     class: { type: Map, require: true },
     weapon: { type: String, require: true },
     battleStats: { type: Object, require: true },
+    activeSpells: { type: Object, require: true },
 
     //Inventory
 

@@ -82,6 +82,8 @@ const checkResponse = async (response, actions, confirm, type) => {
 const componentResponse = async (interaction, response, actions, userFilter, componentType) => {
     const confirm = await waitForResponse(interaction, response, userFilter);
 
+    if(!confirm) return;
+
     return await checkResponse(response, actions, confirm, componentType);
 }
 

@@ -39,14 +39,14 @@ class Spell {
         switch(this.hitData.type){
             case "ST_ATK": 
             return {
-                caster: this.caster.self,
+                caster: this.caster,
                 type: this.hitData.type,
                 attack: this.name,
                 damage: newStat,
             }
             case "ST_BUFF": 
             return {
-                caster: this.caster.self,
+                caster: this.caster,
                 type: this.hitData.type,
                 stat: this.hitData.buff.stat,
                 attack: this.name,
