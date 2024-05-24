@@ -33,9 +33,6 @@ module.exports = {
             if(prevWeapon) newStats[stat] -= (prevWeapon.data[`${stat}`] || 0); 
         }
 
-        console.log(newStats);
-        
-
         await modifyValue(
             "profile",
             { userID: interaction.user.id },

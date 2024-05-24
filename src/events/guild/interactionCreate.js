@@ -34,10 +34,11 @@ module.exports = async (client, Discord, interaction) => {
 
     if(!command) return console.error(`Command ${interaction.commandName} doesn't exist.`);
 
-    const { cooldowns } = client;
+    const { cooldowns, locked } = client;
     
     //Check for command cooldown
 
+    if(locked.has(interaction.user.id)) return interaction.reply({ content: `Commands are disabled while in battle!`, ephemeral: true });
     if(!cooldowns.has(command.data.name)) cooldowns.set(command.data.name, new Discord.Collection());
     
     const currTime = Date.now();
@@ -48,7 +49,7 @@ module.exports = async (client, Discord, interaction) => {
 
     if (currTime < expireTime){
         const expiredTimestamp = Math.round(expireTime / 1000);
-        return interaction.reply({ content: `Slow down! \`${command.data.name}\` is usable <t:${expiredTimestamp}:R>.`, ephemeral: true});
+        return interaction.reply({ content: `Slow down! \`${command.data.name}\` is usable <t:${expiredTimestamp}:R>.`, ephemeral: true });
     }
 
     timestamps.set(interaction.user.id, currTime);

@@ -12,20 +12,15 @@ const getStats = (profileData, clanData, type) => {
             { name: '🥇 Rank:', value: `\`${ profileData.rank }\``, inline: true },
             { name: '🧈 Gold:', value: `\`${ profileData.gold }\``, inline: true },
             embedSpace,
-            { name: '💰 Bank:', value: `\`${ profileData.bank } / ${ profileData.maxBank }\``, inline: true },
-            { name: '🧑‍🤝‍🧑 Citizens:', value: `\`${ profileData.citizens }\``, inline: true },
-            embedSpace,
-            { name: '📈 Growth Rate:', value: `\`${ profileData.growthRate } citizens/h\``, inline: true },
-            { name: '🏆 Gold Rate:', value: `\`${ profileData.earnRate } gold/h\``, inline: true },
-            embedSpace,
-            { name: '💸 Tax Rate:', value: `\`${ profileData.taxRate * 100 }%\``, inline: true },
+            { name: '💰 Bank:', value: `\`${ profileData.bank } / ${ profileData.maxBank }\``, inline: true }
         ],
         "clan": [
             { name: '👑 Leader:', value: `\`<@${ clanData ? clanData.leaderID : "None" }>\``, inline: true },
             embedSpace,
             { name: '🛡️ Members:', value: `\`${ clanData ? clanData.members.size : 0 }\``, inline: true },
-            { name: '🧑‍🤝‍🧑 Citizens:', value: `\`placeholder\``, inline: true},
+            { name: '🧑‍🤝‍🧑 Citizens:', value: `\`${ clanData ? clanData.citizens : 0 }\``, inline: true},
             embedSpace,
+            { name: '🏆 Gold Rate:', value: `\`${ clanData ? clanData.earnRate : 0 } gold/h\``, inline: true },
             { name: '🌎 Server:', value: `\`${ clanData ? clanData.serverID : "None" }\``, inline: true }
         ],
         "battle": [

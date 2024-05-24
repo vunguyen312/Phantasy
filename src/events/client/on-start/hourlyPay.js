@@ -1,22 +1,7 @@
 const profileModel = require('../../../models/profileSchema');
 
-const updateProfile = async (profile) =>{
-    const { earnRate, growthRate } = profile;
-
-    await profileModel.updateMany(
-    { 
-        userID: profile.userID 
-    },
-    { 
-        $inc: 
-        { 
-        citizens: growthRate,
-        earnRate: growthRate,
-        growthRate: 1,
-        gold: earnRate,
-        } 
-    }
-    );
+const updateProfiles = async (profile) =>{
+    await profileModel.updateMany({ userID: profile.userID }, { $inc: { gold: 100 } });
 }
 
 const hourlyPay = async (prevHour) => {
@@ -27,7 +12,7 @@ const hourlyPay = async (prevHour) => {
 
         if(currHour === prevHour) return setTimeout(async () => await hourlyPay(prevHour), 10000);
 
-        profiles.forEach(profile => updateProfile(profile));
+        profiles.forEach(profile => updateProfiles(profile));
   
         console.log('Updated values of all players.');
 

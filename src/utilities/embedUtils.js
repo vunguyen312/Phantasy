@@ -34,7 +34,6 @@ class EmbedRow {
     
         return new ActionRowBuilder().addComponents(selectMenu);
     }
-
 }
 
 const updateDeclined = async (confirm) => {
@@ -52,8 +51,8 @@ const waitForResponse = async (interaction, response, target) => {
     };
 
     try{
-    
-        return await response.awaitMessageComponent({ filter: targetTable[target], time: 60_000 });
+
+        return await response.awaitMessageComponent({ filter: targetTable[target], time: 60_000 }); 
 
     } catch (error) {
         console.error('Window Expired');
@@ -80,6 +79,14 @@ const checkResponse = async (response, actions, confirm, type) => {
     }
 }
 
+const componentResponse = async (interaction, response, actions, userFilter, componentType) => {
+    const confirm = await waitForResponse(interaction, response, userFilter);
+
+    if(!confirm) return;
+
+    return await checkResponse(response, actions, confirm, componentType);
+}
+
 const showLevel = async (exp, prevExp, interaction) => {
     const currLevel = Math.floor(Math.sqrt(exp / 3));
     const prevLevel = Math.floor(Math.sqrt(prevExp / 3));
@@ -101,4 +108,4 @@ const showLevel = async (exp, prevExp, interaction) => {
     return `**Level ${prevLevel}**\n*${exp - prevExpReq} / ${nextExpReq - prevExpReq} EXP*`;
 }
 
-module.exports = {EmbedRow, waitForResponse, checkResponse, updateDeclined, showLevel};
+module.exports = {EmbedRow, waitForResponse, checkResponse, updateDeclined, componentResponse, showLevel};

@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
-const { BattlePVE } = require('../../utilities/battleInteract');
+const { BattlePVE } = require('../../battle_system/battleInteract');
 const { EmbedRow, waitForResponse, checkResponse } = require('../../utilities/embedUtils');
 
 module.exports = {
