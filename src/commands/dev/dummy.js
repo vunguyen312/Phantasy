@@ -10,8 +10,9 @@ module.exports = {
     syntax: '/dummy',
     conditions: ["0005"],
     async execute(interaction, profileData){
-        
-        const battle = new BattlePVE(interaction, interaction.user.tag, "Blue Slime", profileData.battleStats);
+
+        const { battleStats, activeSpells } = profileData;
+        const battle = new BattlePVE(interaction, interaction.user.tag, "Blue Slime", battleStats, activeSpells);
         battle.startBattle();
     }
 }

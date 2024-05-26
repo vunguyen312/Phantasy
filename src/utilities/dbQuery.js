@@ -24,17 +24,11 @@ const createNewPlayer = async (interaction) => {
         gold: 0,
         bank: 0,
         maxBank: 10000,
-        productionScore: 1,
-        citizens: 1,
-        growthRate: 1,
-        earnRate: 10,
-        taxRate: .1,
-        jobs: new Map(),
-        structures: new Map(),
         notifications: true,
         oath: 'Wanderer',
         inventory: new Map(),
         battleStats: battleStats,
+        activeSpells: [],
         weapon: 'None'
     }
 

@@ -8,12 +8,12 @@ const { Queue } = require('../utilities/collections');
 
 class Player {
 
-    constructor(interaction, player, playerStats){
+    constructor(interaction, player, playerStats, spells){
         //Player
         this.self = player;
-        this.baseStats = Object.assign({}, playerStats);
+        this.baseStats = playerStats;
         this.stats = Object.assign({}, playerStats);
-        this.spells = {};
+        this.spells = spells;
         this.buffs = {};
 
         //Main UI
@@ -74,25 +74,29 @@ class Player {
         .setColor("Blurple")
         .setDescription(`Current Ichor: ${this.ichor}`);
 
-        const basicAtk = this.embedRow.createButton("basic", "🗡️", ButtonStyle.Secondary);
-        const spell1 = this.embedRow.createButton("spell1", `${this.spells[0]}`, ButtonStyle.Secondary);
-        const spell2 = this.embedRow.createButton("spell2", `${this.spells[1]}`, ButtonStyle.Secondary);
-        const spell3 = this.embedRow.createButton("spell3", `${this.spells[2]}`, ButtonStyle.Secondary);
-        const spell4 = this.embedRow.createButton("spell4", `${this.spells[3]}`, ButtonStyle.Secondary);
 
-        this.row = new ActionRowBuilder().setComponents(basicAtk, spell1, spell2, spell3, /*spell4*/);
+
+        const basicAtk = this.embedRow.createButton("basic", "🗡️", ButtonStyle.Secondary);
+        this.row = new ActionRowBuilder().setComponents(basicAtk);
+
+        this.actions = {
+            "basic": await this.castSpell.bind(this, "BASIC ATTACK", battle.target)
+        };
+
+        for(let i = 0; i < 4; i++){
+            const spell = this.spells[i] || { id: "BASIC ATTACK", type: "target" };
+            const buttonName = `spell${i + 1}`;
+
+            const newButton = this.embedRow.createButton(buttonName, `${spell.id}`, ButtonStyle.Secondary);
+            this.row.addComponents(newButton);
+
+            this.actions[buttonName] = await this.castSpell.bind(this, spell.id, spell.type === "self" ? this : battle.target);
+        }
 
         this.response = await this.interaction.channel.send({ 
             embeds: [this.moveEmbed],
             components: [this.row]
         });
-
-        this.actions = {
-            "basic": await this.castSpell.bind(this, "BASIC ATTACK", battle.target),
-            "spell1": await this.castSpell.bind(this, "Fireball", battle.target),
-            "spell2": await this.castSpell.bind(this, "Heal", this),
-            "spell3": await this.castSpell.bind(this, "Accel", this)
-        };
 
         const attack = await componentResponse(this.interaction, this.response, this.actions, "user", "button");
 
@@ -163,8 +167,8 @@ class NPC {
 
 class BattlePVE {
 
-    constructor(interaction, player, target, playerStats){
-        this.player = new Player(interaction, player, playerStats);
+    constructor(interaction, player, target, playerStats, spells){
+        this.player = new Player(interaction, player, playerStats, spells);
         this.target = new NPC(target, this.player);
 
         this.battleLog = new Queue();
