@@ -52,7 +52,7 @@ class Player {
 
         await this.interaction.reply({ embeds: [this.embed] });
 
-        return await this.createMoveSelector(battle);
+        return await this.createMoveSelector(battle, this.stats.ichor);
     }
 
     async updateEmbed(targetStats, logs, battle){
@@ -66,15 +66,13 @@ class Player {
 
         await this.interaction.editReply({ embeds: [this.embed] });
 
-        return await this.createMoveSelector(battle);
+        return await this.createMoveSelector(battle, this.stats.ichor);
     }
 
-    async createMoveSelector(battle){
+    async createMoveSelector(battle, ichor){
         this.moveEmbed = new EmbedBuilder()
         .setColor("Blurple")
-        .setDescription(`Current Ichor: ${this.ichor}`);
-
-
+        .setDescription(`Current Ichor: ${ichor}`);
 
         const basicAtk = this.embedRow.createButton("basic", "🗡️", ButtonStyle.Secondary);
         this.row = new ActionRowBuilder().setComponents(basicAtk);
@@ -84,13 +82,13 @@ class Player {
         };
 
         for(let i = 0; i < 4; i++){
-            const spell = this.spells[i] || { id: "BASIC ATTACK", type: "target" };
+            const { id, type } = this.spells[i] || { id: "BASIC ATTACK", type: "target" };
             const buttonName = `spell${i + 1}`;
 
-            const newButton = this.embedRow.createButton(buttonName, `${spell.id}`, ButtonStyle.Secondary);
+            const newButton = this.embedRow.createButton(buttonName, `${id}`, ButtonStyle.Secondary);
             this.row.addComponents(newButton);
 
-            this.actions[buttonName] = await this.castSpell.bind(this, spell.id, spell.type === "self" ? this : battle.target);
+            this.actions[buttonName] = await this.castSpell.bind(this, id, type === "self" ? this : battle.target);
         }
 
         this.response = await this.interaction.channel.send({ 
@@ -101,6 +99,9 @@ class Player {
         const attack = await componentResponse(this.interaction, this.response, this.actions, "user", "button");
 
         await this.deleteMoveSelector(battle);
+
+        //Reopen the move selector if ichor is insufficient
+        if(this.stats.ichor - attack.cost < 0) return this.createMoveSelector(battle, `${this.stats.ichor} *INSUFFICIENT ICHOR*`);
 
         return attack;
     }
@@ -200,6 +201,9 @@ class BattlePVE {
     async hit(target, hitData){
         const { caster } = hitData;
 
+        //Remove ichor per spell cast
+        if(target === this.target) this.player.stats.ichor -= hitData.cost;
+
         if(hitData.type === "ST_ATK"){
             target.stats.health = Math.max(0, target.stats.health - hitData.damage);
             this.battleLog.enqueue(`\`${caster.self} used [${hitData.attack}] and dealt ${hitData.damage} DMG\``);
@@ -235,7 +239,8 @@ class BattlePVE {
             type: "ST_ATK",
             attack: 'NO TURN',
             damage: 0,
-            healthDeducted: this.target.stats.health
+            healthDeducted: this.target.stats.health,
+            cost: 0
         };
 
         await this.decideHit();
@@ -248,6 +253,7 @@ class BattlePVE {
         }
 
         this.turn++;
+        this.player.stats.ichor += 5;
 
         this.playerHitData = await this.player.updateEmbed(this.target.stats, this.getLogs(), this);
 
@@ -257,7 +263,8 @@ class BattlePVE {
             type: "ST_ATK",
             attack: 'NO TURN',
             damage: 0,
-            healthDeducted: this.target.stats.health
+            healthDeducted: this.target.stats.health,
+            cost: 0
         };
 
         await this.decideHit();
