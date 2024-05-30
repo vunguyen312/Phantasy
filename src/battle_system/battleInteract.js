@@ -14,7 +14,7 @@ class Player {
         this.baseStats = playerStats;
         this.stats = Object.assign({}, playerStats);
         this.spells = spells;
-        this.buffs = {};
+        this.status = {};
 
         //Main UI
         this.interaction = interaction;
@@ -34,6 +34,22 @@ class Player {
         const spell = new Spell(spellName, this, target);
 
         return await spell.castToTarget();
+    }
+
+    decreaseStatusTimer(){
+        for(const status in this.status){
+            const currStatus = this.status[status];
+            const { buff, stat } = currStatus;
+
+            //TODO: Fix timer lasting 1 turn less and stacking buffs
+            currStatus.expiry--;
+            if(currStatus.expiry <= 0){
+                //Rework this system later
+                if(status !== "Heal") this.stats[stat] -= buff;
+                
+                delete this.status[status];
+            }
+        }
     }
 
     //Embeds
@@ -101,9 +117,19 @@ class Player {
         await this.deleteMoveSelector(battle);
 
         //Reopen the move selector if ichor is insufficient
-        if(this.stats.ichor - attack.cost < 0) return this.createMoveSelector(battle, `${this.stats.ichor} *INSUFFICIENT ICHOR*`);
+        if(attack && this.stats.ichor - attack.cost < 0) 
+        return this.createMoveSelector(battle, `${this.stats.ichor} *INSUFFICIENT ICHOR*`);
 
-        return attack;
+        //Return a default attack schema if the user doesn't move
+        return attack || 
+        {
+            caster: this,
+            type: "ST_ATK",
+            attack: 'NO TURN',
+            damage: 0,
+            healthDeducted: battle.target.stats.health,
+            cost: 0
+        };;
     }
 
     async deleteMoveSelector(){
@@ -199,24 +225,34 @@ class BattlePVE {
     }
 
     async hit(target, hitData){
-        const { caster } = hitData;
+        const { caster, attack, stat } = hitData;
 
         //Remove ichor per spell cast
         if(target === this.target) this.player.stats.ichor -= hitData.cost;
 
-        if(hitData.type === "ST_ATK"){
+        if(hitData.type !== "ST_BUFF"){
+            console.log(caster.self);
             target.stats.health = Math.max(0, target.stats.health - hitData.damage);
-            this.battleLog.enqueue(`\`${caster.self} used [${hitData.attack}] and dealt ${hitData.damage} DMG\``);
+            this.battleLog.enqueue(`\`${caster.self} used [${attack}] and dealt ${hitData.damage} DMG\``);
     
             if(target.stats.health <= 0) return await this.player.endScreen(caster.self, target);
             return;
         }
 
-        hitData.stat === "health" 
-        ? caster.stats[hitData.stat] = Math.min(caster.baseStats[hitData.stat], caster.stats[hitData.stat] + hitData.buff)
-        : caster.stats[hitData.stat] += hitData.buff;
+        console.log(caster.self);
 
-        this.battleLog.enqueue(`\`${caster.self} used [${hitData.attack}] and increased ${hitData.stat.toUpperCase()} by ${hitData.buff}\``);
+        const { buff, expiry } = hitData;
+
+        stat === "health" 
+        ? caster.stats[stat] = Math.min(caster.baseStats[stat], caster.stats[stat] + buff)
+        : caster.stats[stat] = caster.stats[stat] + buff;
+
+        console.log(stat);
+
+        //Add a turn expiration timer to buffs and debuffs
+        this.player.status[attack] = { stat, buff, expiry };
+
+        this.battleLog.enqueue(`\`${caster.self} used [${attack}] and increased ${stat.toUpperCase()} by ${buff}\``);
     }
 
     async decideHit(){
@@ -233,16 +269,6 @@ class BattlePVE {
 
         this.playerHitData = await this.player.createEmbed(this, this.target.self, this.target.stats, targetInfo.img);
 
-        if(!this.playerHitData || !this.playerHitData.attack) 
-        this.playerHitData = {
-            caster: this.player,
-            type: "ST_ATK",
-            attack: 'NO TURN',
-            damage: 0,
-            healthDeducted: this.target.stats.health,
-            cost: 0
-        };
-
         await this.decideHit();
     }
 
@@ -256,16 +282,7 @@ class BattlePVE {
         this.player.stats.ichor += 5;
 
         this.playerHitData = await this.player.updateEmbed(this.target.stats, this.getLogs(), this);
-
-        if(!this.playerHitData || !this.playerHitData.attack) 
-        this.playerHitData = {
-            caster: this.player,
-            type: "ST_ATK",
-            attack: 'NO TURN',
-            damage: 0,
-            healthDeducted: this.target.stats.health,
-            cost: 0
-        };
+        this.player.decreaseStatusTimer();
 
         await this.decideHit();
     }

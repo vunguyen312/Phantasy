@@ -52,7 +52,8 @@ class Spell {
                 stat: this.hitData.buff.stat,
                 attack: this.name,
                 buff: newStat,
-                cost: this.hitData.cost
+                cost: this.hitData.cost,
+                expiry: this.hitData.expiry
             }
         }
     }
