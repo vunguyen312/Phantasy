@@ -41,9 +41,8 @@ class Player {
             const currStatus = this.status[status];
             const { buff, stat } = currStatus;
 
-            //TODO: Fix timer lasting 1 turn less and stacking buffs
             currStatus.expiry--;
-            if(currStatus.expiry <= 0){
+            if(currStatus.expiry < 0){
                 //Rework this system later
                 if(status !== "Heal") this.stats[stat] -= buff;
                 
@@ -129,7 +128,7 @@ class Player {
             damage: 0,
             healthDeducted: battle.target.stats.health,
             cost: 0
-        };;
+        };
     }
 
     async deleteMoveSelector(){
@@ -231,7 +230,6 @@ class BattlePVE {
         if(target === this.target) this.player.stats.ichor -= hitData.cost;
 
         if(hitData.type !== "ST_BUFF"){
-            console.log(caster.self);
             target.stats.health = Math.max(0, target.stats.health - hitData.damage);
             this.battleLog.enqueue(`\`${caster.self} used [${attack}] and dealt ${hitData.damage} DMG\``);
     
@@ -239,15 +237,11 @@ class BattlePVE {
             return;
         }
 
-        console.log(caster.self);
-
         const { buff, expiry } = hitData;
 
         stat === "health" 
         ? caster.stats[stat] = Math.min(caster.baseStats[stat], caster.stats[stat] + buff)
         : caster.stats[stat] = caster.stats[stat] + buff;
-
-        console.log(stat);
 
         //Add a turn expiration timer to buffs and debuffs
         this.player.status[attack] = { stat, buff, expiry };
@@ -279,7 +273,7 @@ class BattlePVE {
         }
 
         this.turn++;
-        this.player.stats.ichor += 5;
+        this.player.stats.ichor = Math.min(this.player.baseStats.ichor, this.player.stats.ichor + 5);
 
         this.playerHitData = await this.player.updateEmbed(this.target.stats, this.getLogs(), this);
         this.player.decreaseStatusTimer();
