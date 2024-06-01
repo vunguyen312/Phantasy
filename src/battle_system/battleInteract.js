@@ -103,13 +103,14 @@ class Player {
             const newButton = this.embedRow.createButton(buttonName, `${id}`, ButtonStyle.Secondary);
             this.row.addComponents(newButton);
 
-            this.actions[buttonName] = await this.castSpell.bind(this, id, type === "self" ? this : battle.target);
+            this.actions[buttonName] = await this.castSpell.bind(this, id, type === "ST_BUFF" ? this : battle.target);
         }
 
-        this.response = await this.interaction.channel.send({ 
-            embeds: [this.moveEmbed],
-            components: [this.row]
-        });
+        const msgContent = { embeds: [this.moveEmbed], components: [this.row] };
+
+        this.response = this.interaction.channel 
+        ? await this.interaction.channel.send(msgContent)
+        : await this.interaction.user.send(msgContent);
 
         const attack = await componentResponse(this.interaction, this.response, this.actions, "user", "button");
 
@@ -160,7 +161,7 @@ class NPC {
         this.self = self;
         this.stats;
         this.target = target;
-        this.buffs = {};
+        this.status = {};
 
         //Drops
 
@@ -177,6 +178,8 @@ class NPC {
         return retrievedStats;
     }
 
+    //TODO: Move selecting AI for NPCs
+    //Weighted probability move selection system
     basicAtk(){
         const hitData = {
             caster: this,
