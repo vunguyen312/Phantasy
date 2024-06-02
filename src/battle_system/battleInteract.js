@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonStyle } = require("discord.js");
 const { EmbedRow, componentResponse } = require("../utilities/embedUtils");
-const { getObjectData } = require('../utilities/dbQuery');
+const { getObjectData, modifyValue } = require('../utilities/dbQuery');
 const { Spell } = require('./spells');
 const { Queue } = require('../utilities/collections');
 
@@ -140,10 +140,21 @@ class Player {
         this.actions = null;
     }
 
-    async endScreen(winner){
+    async endScreen(winner, gold){
+        const randomizedGold = winner === this.self 
+        ? Math.round(Math.random() * gold)
+        : 0;
+
+        await modifyValue(
+            'profile', 
+            { userID: this.interaction.user.id },
+            { $inc: { gold: randomizedGold } }
+        );
+
         const embed = new EmbedBuilder()
         .setColor(winner === this.self ? "Green" : "Red")
-        .setTitle(winner === this.self ? "YOU HAVE WON!" : "YOU HAVE LOST!");
+        .setTitle(winner === this.self ? "YOU HAVE WON!" : "YOU HAVE LOST!")
+        .setDescription(`Gold Dropped: ${randomizedGold}`);
 
         await this.interaction.editReply({ embeds: [embed], components: [] });
 
@@ -173,7 +184,7 @@ class NPC {
         const retrievedStats = (await getObjectData("monsters"))[this.self];
 
         this.stats = retrievedStats.stats;
-        //this.gold = retrievedStats.gold;
+        this.gold = retrievedStats.gold;
         //this.drops = retrievedStats.drops;
         return retrievedStats;
     }
@@ -236,7 +247,7 @@ class BattlePVE {
             target.stats.health = Math.max(0, target.stats.health - hitData.damage);
             this.battleLog.enqueue(`\`${caster.self} used [${attack}] and dealt ${hitData.damage} DMG\``);
     
-            if(target.stats.health <= 0) return await this.player.endScreen(caster.self, target);
+            if(target.stats.health <= 0) return await this.player.endScreen(caster.self, this.target.gold);
             return;
         }
 
