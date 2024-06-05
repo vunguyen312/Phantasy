@@ -1,6 +1,6 @@
-const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonStyle } = require("discord.js");
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonStyle, SlashCommandSubcommandGroupBuilder } = require("discord.js");
 const { EmbedRow, componentResponse } = require("../utilities/embedUtils");
-const { getObjectData, modifyValue } = require('../utilities/dbQuery');
+const { getObjectData, modifyValue, createItem } = require('../utilities/dbQuery');
 const { Spell } = require('./spells');
 const { Queue } = require('../utilities/collections');
 
@@ -140,7 +140,31 @@ class Player {
         this.actions = null;
     }
 
-    async endScreen(winner, gold){
+    async giveDrops(target){
+        const drops = await target.calculateDrops();
+        const itemsList = await getObjectData("items");
+        let dropString = '';
+
+        for(let i = 0; i < drops.length; i++){
+            if(!drops[i]) continue;
+
+            const item = itemsList[drops[i]];
+            const identifier = await createItem(this.interaction.user.id, drops[i], item);
+
+            await modifyValue(
+                "profile",
+                { userID: this.interaction.user.id },
+                { $set: { [`inventory.${identifier}`]: item } }
+            );
+            dropString += `\n\`${item.name}\``;
+        }
+
+        return dropString;
+    }
+
+    async endScreen(winner, target){
+        const { gold } = target;
+        const itemsDropped = await this.giveDrops(target);
         const randomizedGold = winner === this.self 
         ? Math.round(Math.random() * gold)
         : 0;
@@ -154,7 +178,7 @@ class Player {
         const embed = new EmbedBuilder()
         .setColor(winner === this.self ? "Green" : "Red")
         .setTitle(winner === this.self ? "YOU HAVE WON!" : "YOU HAVE LOST!")
-        .setDescription(`Gold Dropped: ${randomizedGold}`);
+        .setDescription(`Gold Dropped: ${randomizedGold} \n Items Dropped: ${itemsDropped || "`None`"}`);
 
         await this.interaction.editReply({ embeds: [embed], components: [] });
 
@@ -185,8 +209,21 @@ class NPC {
 
         this.stats = retrievedStats.stats;
         this.gold = retrievedStats.gold;
-        //this.drops = retrievedStats.drops;
+        this.drops = retrievedStats.drops;
         return retrievedStats;
+    }
+
+    dropItem(dropData){
+        const randomNumber = Math.random();
+        const { chance, item } = dropData;
+
+        if(randomNumber <= chance) return item;
+    }
+
+    async calculateDrops(){
+        const drops = this.drops.map(dropData => this.dropItem(dropData));
+
+        return drops;
     }
 
     //TODO: Move selecting AI for NPCs
@@ -247,7 +284,7 @@ class BattlePVE {
             target.stats.health = Math.max(0, target.stats.health - hitData.damage);
             this.battleLog.enqueue(`\`${caster.self} used [${attack}] and dealt ${hitData.damage} DMG\``);
     
-            if(target.stats.health <= 0) return await this.player.endScreen(caster.self, this.target.gold);
+            if(target.stats.health <= 0) return await this.player.endScreen(caster.self, this.target);
             return;
         }
 
