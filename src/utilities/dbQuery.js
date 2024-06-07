@@ -123,4 +123,14 @@ const createItem = async (userID, itemCode, data) => {
     }
 }
 
-module.exports = {createNewPlayer, updateExp, modifyValue, getObjectData, createItem}
+const hasItem = async (userID, item) => {
+    const playerData = await profileModel.findOne({ userID: userID });
+    
+    if(!playerData) return console.log("Error: Could not find player data!");
+
+    const inventory = playerData.inventory;
+
+    return inventory.has(item);
+}
+
+module.exports = {createNewPlayer, updateExp, modifyValue, getObjectData, createItem, hasItem}

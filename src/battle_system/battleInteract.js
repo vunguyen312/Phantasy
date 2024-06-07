@@ -1,6 +1,6 @@
-const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonStyle, SlashCommandSubcommandGroupBuilder } = require("discord.js");
+const { EmbedBuilder, ActionRowBuilder, ButtonStyle } = require("discord.js");
 const { EmbedRow, componentResponse } = require("../utilities/embedUtils");
-const { getObjectData, modifyValue, createItem } = require('../utilities/dbQuery');
+const { getObjectData, modifyValue, createItem, hasItem } = require('../utilities/dbQuery');
 const { Spell } = require('./spells');
 const { Queue } = require('../utilities/collections');
 
@@ -150,12 +150,23 @@ class Player {
 
             const item = itemsList[drops[i]];
             const identifier = await createItem(this.interaction.user.id, drops[i], item);
-
+            
+            if(!await hasItem(this.interaction.user.id, item.itemCode)){
             await modifyValue(
                 "profile",
                 { userID: this.interaction.user.id },
-                { $set: { [`inventory.${identifier}`]: item } }
+                { $set: { [`inventory.${item.unique ? identifier : item.itemCode}`]: item } }
             );
+            console.log("Test");
+            }
+
+            if(!item.unique)
+            await modifyValue(
+                "profile",
+                { userID: this.interaction.user.id },
+                { $inc: { [`inventory.${item.itemCode}.quantity`]: 1 } }
+            );
+            
             dropString += `\n\`${item.name}\``;
         }
 
@@ -164,7 +175,11 @@ class Player {
 
     async endScreen(winner, target){
         const { gold } = target;
-        const itemsDropped = await this.giveDrops(target);
+        
+        const itemsDropped = winner === this.self 
+        ? await this.giveDrops(target) 
+        : null;
+
         const randomizedGold = winner === this.self 
         ? Math.round(Math.random() * gold)
         : 0;

@@ -13,7 +13,8 @@ const getInventory = async (profileData) => {
         const rarity = `Rarity: ${item[1].rarity}`;
         const type = `Type: ${item[1].type}`;
         const itemID = `ID: ${item[0]}`;
-        const itemProps = { name: item[1].name, value: `\`${rarity}\n${type}\n${itemID}\`` };
+        const quantity = !item[1].unique ? `Quantity: ${item[1].quantity}` : "";
+        const itemProps = { name: item[1].name, value: `\`${rarity}\n${type}\n${itemID}\n${quantity}\`` };
         
         inventoryPage.push(itemProps);
         
