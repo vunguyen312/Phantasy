@@ -24,17 +24,11 @@ const createNewPlayer = async (interaction) => {
         gold: 0,
         bank: 0,
         maxBank: 10000,
-        productionScore: 1,
-        citizens: 1,
-        growthRate: 1,
-        earnRate: 10,
-        taxRate: .1,
-        jobs: new Map(),
-        structures: new Map(),
         notifications: true,
         oath: 'Wanderer',
         inventory: new Map(),
         battleStats: battleStats,
+        activeSpells: [],
         weapon: 'None'
     }
 
@@ -129,4 +123,14 @@ const createItem = async (userID, itemCode, data) => {
     }
 }
 
-module.exports = {createNewPlayer, updateExp, modifyValue, getObjectData, createItem}
+const hasItem = async (userID, item) => {
+    const playerData = await profileModel.findOne({ userID: userID });
+    
+    if(!playerData) return console.log("Error: Could not find player data!");
+
+    const inventory = playerData.inventory;
+
+    return inventory.has(item);
+}
+
+module.exports = {createNewPlayer, updateExp, modifyValue, getObjectData, createItem, hasItem}

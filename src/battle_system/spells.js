@@ -43,6 +43,7 @@ class Spell {
                 type: this.hitData.type,
                 attack: this.name,
                 damage: newStat,
+                cost: this.hitData.cost
             }
             case "ST_BUFF": 
             return {
@@ -50,7 +51,9 @@ class Spell {
                 type: this.hitData.type,
                 stat: this.hitData.buff.stat,
                 attack: this.name,
-                buff: newStat
+                buff: newStat,
+                cost: this.hitData.cost,
+                expiry: this.hitData.expiry
             }
         }
     }

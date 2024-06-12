@@ -1,6 +1,6 @@
-const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonStyle } = require("discord.js");
+const { EmbedBuilder, ActionRowBuilder, ButtonStyle } = require("discord.js");
 const { EmbedRow, componentResponse } = require("../utilities/embedUtils");
-const { getObjectData } = require('../utilities/dbQuery');
+const { getObjectData, modifyValue, createItem, hasItem } = require('../utilities/dbQuery');
 const { Spell } = require('./spells');
 const { Queue } = require('../utilities/collections');
 
@@ -8,13 +8,13 @@ const { Queue } = require('../utilities/collections');
 
 class Player {
 
-    constructor(interaction, player, playerStats){
+    constructor(interaction, player, playerStats, spells){
         //Player
         this.self = player;
-        this.baseStats = Object.assign({}, playerStats);
+        this.baseStats = playerStats;
         this.stats = Object.assign({}, playerStats);
-        this.spells = {};
-        this.buffs = {};
+        this.spells = spells;
+        this.status = {};
 
         //Main UI
         this.interaction = interaction;
@@ -36,6 +36,21 @@ class Player {
         return await spell.castToTarget();
     }
 
+    decreaseStatusTimer(){
+        for(const status in this.status){
+            const currStatus = this.status[status];
+            const { buff, stat } = currStatus;
+
+            currStatus.expiry--;
+            if(currStatus.expiry < 0){
+                //Rework this system later
+                if(status !== "Heal") this.stats[stat] -= buff;
+                
+                delete this.status[status];
+            }
+        }
+    }
+
     //Embeds
 
     async createEmbed(battle, target, targetStats, image){
@@ -52,7 +67,7 @@ class Player {
 
         await this.interaction.reply({ embeds: [this.embed] });
 
-        return await this.createMoveSelector(battle);
+        return await this.createMoveSelector(battle, this.stats.ichor);
     }
 
     async updateEmbed(targetStats, logs, battle){
@@ -66,39 +81,55 @@ class Player {
 
         await this.interaction.editReply({ embeds: [this.embed] });
 
-        return await this.createMoveSelector(battle);
+        return await this.createMoveSelector(battle, this.stats.ichor);
     }
 
-    async createMoveSelector(battle){
+    async createMoveSelector(battle, ichor){
         this.moveEmbed = new EmbedBuilder()
         .setColor("Blurple")
-        .setDescription(`Current Ichor: ${this.ichor}`);
+        .setDescription(`Current Ichor: ${ichor}`);
 
         const basicAtk = this.embedRow.createButton("basic", "🗡️", ButtonStyle.Secondary);
-        const spell1 = this.embedRow.createButton("spell1", `${this.spells[0]}`, ButtonStyle.Secondary);
-        const spell2 = this.embedRow.createButton("spell2", `${this.spells[1]}`, ButtonStyle.Secondary);
-        const spell3 = this.embedRow.createButton("spell3", `${this.spells[2]}`, ButtonStyle.Secondary);
-        const spell4 = this.embedRow.createButton("spell4", `${this.spells[3]}`, ButtonStyle.Secondary);
-
-        this.row = new ActionRowBuilder().setComponents(basicAtk, spell1, spell2, spell3, /*spell4*/);
-
-        this.response = await this.interaction.channel.send({ 
-            embeds: [this.moveEmbed],
-            components: [this.row]
-        });
+        this.row = new ActionRowBuilder().setComponents(basicAtk);
 
         this.actions = {
-            "basic": await this.castSpell.bind(this, "BASIC ATTACK", battle.target),
-            "spell1": await this.castSpell.bind(this, "Fireball", battle.target),
-            "spell2": await this.castSpell.bind(this, "Heal", this),
-            "spell3": await this.castSpell.bind(this, "Accel", this)
+            "basic": await this.castSpell.bind(this, "BASIC ATTACK", battle.target)
         };
+
+        for(let i = 0; i < 4; i++){
+            const { id, type } = this.spells[i] || { id: "BASIC ATTACK", type: "target" };
+            const buttonName = `spell${i + 1}`;
+
+            const newButton = this.embedRow.createButton(buttonName, `${id}`, ButtonStyle.Secondary);
+            this.row.addComponents(newButton);
+
+            this.actions[buttonName] = await this.castSpell.bind(this, id, type === "ST_BUFF" ? this : battle.target);
+        }
+
+        const msgContent = { embeds: [this.moveEmbed], components: [this.row] };
+
+        this.response = this.interaction.channel 
+        ? await this.interaction.channel.send(msgContent)
+        : await this.interaction.user.send(msgContent);
 
         const attack = await componentResponse(this.interaction, this.response, this.actions, "user", "button");
 
         await this.deleteMoveSelector(battle);
 
-        return attack;
+        //Reopen the move selector if ichor is insufficient
+        if(attack && this.stats.ichor - attack.cost < 0) 
+        return this.createMoveSelector(battle, `${this.stats.ichor} *INSUFFICIENT ICHOR*`);
+
+        //Return a default attack schema if the user doesn't move
+        return attack || 
+        {
+            caster: this,
+            type: "ST_ATK",
+            attack: 'NO TURN',
+            damage: 0,
+            healthDeducted: battle.target.stats.health,
+            cost: 0
+        };
     }
 
     async deleteMoveSelector(){
@@ -109,10 +140,60 @@ class Player {
         this.actions = null;
     }
 
-    async endScreen(winner){
+    async giveDrops(target){
+        const drops = await target.calculateDrops();
+        const itemsList = await getObjectData("items");
+        let dropString = '';
+
+        for(let i = 0; i < drops.length; i++){
+            if(!drops[i]) continue;
+
+            const item = itemsList[drops[i]];
+            const identifier = await createItem(this.interaction.user.id, drops[i], item);
+            
+            if(!await hasItem(this.interaction.user.id, item.itemCode)){
+            await modifyValue(
+                "profile",
+                { userID: this.interaction.user.id },
+                { $set: { [`inventory.${item.unique ? identifier : item.itemCode}`]: item } }
+            );
+            console.log("Test");
+            }
+
+            if(!item.unique)
+            await modifyValue(
+                "profile",
+                { userID: this.interaction.user.id },
+                { $inc: { [`inventory.${item.itemCode}.quantity`]: 1 } }
+            );
+            
+            dropString += `\n\`${item.name}\``;
+        }
+
+        return dropString;
+    }
+
+    async endScreen(winner, target){
+        const { gold } = target;
+        
+        const itemsDropped = winner === this.self 
+        ? await this.giveDrops(target) 
+        : null;
+
+        const randomizedGold = winner === this.self 
+        ? Math.round(Math.random() * gold)
+        : 0;
+
+        await modifyValue(
+            'profile', 
+            { userID: this.interaction.user.id },
+            { $inc: { gold: randomizedGold } }
+        );
+
         const embed = new EmbedBuilder()
         .setColor(winner === this.self ? "Green" : "Red")
-        .setTitle(winner === this.self ? "YOU HAVE WON!" : "YOU HAVE LOST!");
+        .setTitle(winner === this.self ? "YOU HAVE WON!" : "YOU HAVE LOST!")
+        .setDescription(`Gold Dropped: ${randomizedGold} \n Items Dropped: ${itemsDropped || "`None`"}`);
 
         await this.interaction.editReply({ embeds: [embed], components: [] });
 
@@ -130,7 +211,7 @@ class NPC {
         this.self = self;
         this.stats;
         this.target = target;
-        this.buffs = {};
+        this.status = {};
 
         //Drops
 
@@ -142,11 +223,26 @@ class NPC {
         const retrievedStats = (await getObjectData("monsters"))[this.self];
 
         this.stats = retrievedStats.stats;
-        //this.gold = retrievedStats.gold;
-        //this.drops = retrievedStats.drops;
+        this.gold = retrievedStats.gold;
+        this.drops = retrievedStats.drops;
         return retrievedStats;
     }
 
+    dropItem(dropData){
+        const randomNumber = Math.random();
+        const { chance, item } = dropData;
+
+        if(randomNumber <= chance) return item;
+    }
+
+    async calculateDrops(){
+        const drops = this.drops.map(dropData => this.dropItem(dropData));
+
+        return drops;
+    }
+
+    //TODO: Move selecting AI for NPCs
+    //Weighted probability move selection system
     basicAtk(){
         const hitData = {
             caster: this,
@@ -163,8 +259,8 @@ class NPC {
 
 class BattlePVE {
 
-    constructor(interaction, player, target, playerStats){
-        this.player = new Player(interaction, player, playerStats);
+    constructor(interaction, player, target, playerStats, spells){
+        this.player = new Player(interaction, player, playerStats, spells);
         this.target = new NPC(target, this.player);
 
         this.battleLog = new Queue();
@@ -194,21 +290,29 @@ class BattlePVE {
     }
 
     async hit(target, hitData){
-        const { caster } = hitData;
+        const { caster, attack, stat } = hitData;
 
-        if(hitData.type === "ST_ATK"){
+        //Remove ichor per spell cast
+        if(target === this.target) this.player.stats.ichor -= hitData.cost;
+
+        if(hitData.type !== "ST_BUFF"){
             target.stats.health = Math.max(0, target.stats.health - hitData.damage);
-            this.battleLog.enqueue(`\`${caster.self} used [${hitData.attack}] and dealt ${hitData.damage} DMG\``);
+            this.battleLog.enqueue(`\`${caster.self} used [${attack}] and dealt ${hitData.damage} DMG\``);
     
-            if(target.stats.health <= 0) return await this.player.endScreen(caster.self, target);
+            if(target.stats.health <= 0) return await this.player.endScreen(caster.self, this.target);
             return;
         }
 
-        hitData.stat === "health" 
-        ? caster.stats[hitData.stat] = Math.min(caster.baseStats[hitData.stat], caster.stats[hitData.stat] + hitData.buff)
-        : caster.stats[hitData.stat] += hitData.buff;
+        const { buff, expiry } = hitData;
 
-        this.battleLog.enqueue(`\`${caster.self} used [${hitData.attack}] and increased ${hitData.stat.toUpperCase()} by ${hitData.buff}\``);
+        stat === "health" 
+        ? caster.stats[stat] = Math.min(caster.baseStats[stat], caster.stats[stat] + buff)
+        : caster.stats[stat] = caster.stats[stat] + buff;
+
+        //Add a turn expiration timer to buffs and debuffs
+        this.player.status[attack] = { stat, buff, expiry };
+
+        this.battleLog.enqueue(`\`${caster.self} used [${attack}] and increased ${stat.toUpperCase()} by ${buff}\``);
     }
 
     async decideHit(){
@@ -225,15 +329,6 @@ class BattlePVE {
 
         this.playerHitData = await this.player.createEmbed(this, this.target.self, this.target.stats, targetInfo.img);
 
-        if(!this.playerHitData || !this.playerHitData.attack) 
-        this.playerHitData = {
-            caster: this.player,
-            type: "ST_ATK",
-            attack: 'NO TURN',
-            damage: 0,
-            healthDeducted: this.target.stats.health
-        };
-
         await this.decideHit();
     }
 
@@ -244,17 +339,10 @@ class BattlePVE {
         }
 
         this.turn++;
+        this.player.stats.ichor = Math.min(this.player.baseStats.ichor, this.player.stats.ichor + 5);
 
         this.playerHitData = await this.player.updateEmbed(this.target.stats, this.getLogs(), this);
-
-        if(!this.playerHitData || !this.playerHitData.attack) 
-        this.playerHitData = {
-            caster: this.player,
-            type: "ST_ATK",
-            attack: 'NO TURN',
-            damage: 0,
-            healthDeducted: this.target.stats.health
-        };
+        this.player.decreaseStatusTimer();
 
         await this.decideHit();
     }
