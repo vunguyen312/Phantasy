@@ -151,15 +151,13 @@ class Player {
             const item = itemsList[drops[i]];
             const identifier = await createItem(this.interaction.user.id, drops[i], item);
             
-            if(!await hasItem(this.interaction.user.id, item.itemCode)){
+            if(!await hasItem(this.interaction.user.id, item.itemCode))
             await modifyValue(
                 "profile",
                 { userID: this.interaction.user.id },
                 { $set: { [`inventory.${item.unique ? identifier : item.itemCode}`]: item } }
             );
-            console.log("Test");
-            }
-
+            
             if(!item.unique)
             await modifyValue(
                 "profile",
