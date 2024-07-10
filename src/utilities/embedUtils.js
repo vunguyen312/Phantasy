@@ -52,15 +52,20 @@ const waitForResponse = async (interaction, response, target) => {
 
     try{
 
-        return await response.awaitMessageComponent({ filter: targetTable[target], time: 60_000 }); 
+        return await response.awaitMessageComponent({ filter: targetTable[target], time: 60_000 });
 
     } catch (error) {
         console.error('Window Expired');
+        return error.message === "Collector received no interactions before ending with reason: messageDelete" 
+        ? "deleted"
+        : null;
     }
 }
 
 const checkResponse = async (response, actions, confirm, type) => {
     try {
+
+        if(!confirm) return;
         
         const customId = type === "button" 
         ? confirm.customId 
@@ -68,9 +73,11 @@ const checkResponse = async (response, actions, confirm, type) => {
 
         //actions = [{id: function},{id: function},...];
 
-        return actions[customId] ? await actions[customId]() : console.log("Error: Invalid Action");
+        return actions[customId] 
+        ? await actions[customId]() 
+        : console.log("Error: Invalid Action");
 
-    } catch (error) {
+    } catch(error) {
         const failEmbed = new EmbedBuilder()
         .setTitle('❌ Window has expired.')
         .setColor('Red');
@@ -83,6 +90,8 @@ const componentResponse = async (interaction, response, actions, userFilter, com
     const confirm = await waitForResponse(interaction, response, userFilter);
 
     if(!confirm) return;
+
+    if(confirm === "deleted") return "deleted";
 
     return await checkResponse(response, actions, confirm, componentType);
 }

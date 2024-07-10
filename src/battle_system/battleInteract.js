@@ -114,6 +114,8 @@ class Player {
 
         const attack = await componentResponse(this.interaction, this.response, this.actions, "user", "button");
 
+        if(attack === "deleted") return null;
+
         await this.deleteMoveSelector(battle);
 
         //Reopen the move selector if ichor is insufficient
@@ -326,6 +328,9 @@ class BattlePVE {
         const targetInfo = await this.target.getStats();
 
         this.playerHitData = await this.player.createEmbed(this, this.target.self, this.target.stats, targetInfo.img);
+        //Checks if the move menu message was forcefully deleted, causing the player's hit data to be empty.
+        if(this.playerHitData === null) return;
+        //TODO: Debug the deletion of the main visuals as well
 
         await this.decideHit();
     }
@@ -340,6 +345,7 @@ class BattlePVE {
         this.player.stats.ichor = Math.min(this.player.baseStats.ichor, this.player.stats.ichor + 5);
 
         this.playerHitData = await this.player.updateEmbed(this.target.stats, this.getLogs(), this);
+        if(this.playerHitData === null) return;
         this.player.decreaseStatusTimer();
 
         await this.decideHit();
