@@ -19,6 +19,8 @@ module.exports = {
         const { battleStats, activeSpells } = profileData;
         const monster = interaction.options.getString('monster');
         const battle = new BattlePVE(interaction, interaction.user.tag, monster, battleStats, activeSpells);
+
+        await interaction.reply("`A hostile enemy has appeared...`");
         battle.startBattle();
     }
 }

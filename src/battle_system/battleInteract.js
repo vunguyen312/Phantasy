@@ -21,6 +21,7 @@ class Player {
         this.embed;
 
         //Battle UI
+        this.mainUI;
         this.moveEmbed;
         this.embedRow = new EmbedRow();
         this.row;
@@ -65,23 +66,31 @@ class Player {
             { name: 'Enemy HP:', value: `\`${targetStats.health}\``, inline: true },
         );
 
-        await this.interaction.reply({ embeds: [this.embed] });
+        this.mainUI = this.interaction.channel 
+        ? await this.interaction.channel.send({ embeds: [this.embed] })
+        : await this.interaction.user.send({ embeds: [this.embed] });
 
         return await this.createMoveSelector(battle, this.stats.ichor);
     }
 
     async updateEmbed(targetStats, logs, battle){
-        this.embed
-        .setDescription(`TURN ENDS: <t:${Math.round((Date.now() + 60_000) / 1000)}:R>\n ${logs}`)
-        .setFields(
-            { name: 'Player HP:', value: `\`${this.stats.health}\``, inline: true },
-            { name: '\u200B', value: '\u200B', inline: true },
-            { name: 'Enemy HP:', value: `\`${targetStats.health}\``, inline: true },
-        );
+        try{
 
-        await this.interaction.editReply({ embeds: [this.embed] });
+            this.embed
+            .setDescription(`TURN ENDS: <t:${Math.round((Date.now() + 60_000) / 1000)}:R>\n ${logs}`)
+            .setFields(
+                { name: 'Player HP:', value: `\`${this.stats.health}\``, inline: true },
+                { name: '\u200B', value: '\u200B', inline: true },
+                { name: 'Enemy HP:', value: `\`${targetStats.health}\``, inline: true },
+            );
 
-        return await this.createMoveSelector(battle, this.stats.ichor);
+            await this.mainUI.edit({ embeds: [this.embed] });
+            return await this.createMoveSelector(battle, this.stats.ichor);
+
+        } catch(error) {
+            const targetInfo = await battle.target.getStats();
+            return this.mainUI = await this.createEmbed(battle, battle.target.self, battle.target.stats, targetInfo.img);
+        }
     }
 
     async createMoveSelector(battle, ichor){
@@ -119,8 +128,7 @@ class Player {
         await this.deleteMoveSelector(battle);
 
         //Reopen the move selector if ichor is insufficient
-        if(attack && this.stats.ichor - attack.cost < 0) 
-        return this.createMoveSelector(battle, `${this.stats.ichor} *INSUFFICIENT ICHOR*`);
+        if(attack && this.stats.ichor - attack.cost < 0) return this.createMoveSelector(battle, `${this.stats.ichor} *INSUFFICIENT ICHOR*`);
 
         //Return a default attack schema if the user doesn't move
         return attack || 
@@ -195,7 +203,16 @@ class Player {
         .setTitle(winner === this.self ? "YOU HAVE WON!" : "YOU HAVE LOST!")
         .setDescription(`Gold Dropped: ${randomizedGold} \n Items Dropped: ${itemsDropped || "`None`"}`);
 
-        await this.interaction.editReply({ embeds: [embed], components: [] });
+        this.interaction.channel 
+        ? await this.interaction.channel.send({ embeds: [embed] })
+        : await this.interaction.user.send({ embeds: [embed] });
+        
+        //There are cases where mainUI may be inaccessible
+        try {
+            
+            await this.mainUI.delete();
+
+        } catch {}
 
         const client = this.interaction.client;
 
@@ -330,7 +347,6 @@ class BattlePVE {
         this.playerHitData = await this.player.createEmbed(this, this.target.self, this.target.stats, targetInfo.img);
         //Checks if the move menu message was forcefully deleted, causing the player's hit data to be empty.
         if(this.playerHitData === null) return;
-        //TODO: Debug the deletion of the main visuals as well
 
         await this.decideHit();
     }
