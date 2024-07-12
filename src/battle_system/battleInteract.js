@@ -289,6 +289,9 @@ class BattlePVE {
         this.currentTurn;
         this.awaitingTurn;
 
+        //Start the battle
+        this.startBattle();
+
         interaction.client.locked.set(interaction.user.id);
     }
 
