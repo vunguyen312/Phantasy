@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
+const { SlashCommandBuilder } = require("discord.js");
 const profileModel = require("../../models/profileSchema");
 const itemModel = require("../../models/itemSchema");
 const { modifyValue, createNewPlayer } = require('../../utilities/dbQuery');
@@ -18,10 +18,9 @@ module.exports = {
             { $unset: { [`members.${profileData.rank}.${interaction.user.id}`]: "" } }
         );
 
+        //Wipe the database of the user's data
         await profileModel.findOneAndDelete({ userID: interaction.user.id });
-
         await itemModel.deleteMany({ userID: interaction.user.id });
-
         await createNewPlayer(interaction);
 
         await interaction.reply('Stats reset');

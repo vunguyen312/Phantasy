@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const { modifyValue, getObjectData, updateExp } = require('../../utilities/dbQuery');
 const { EmbedRow, waitForResponse, checkResponse } = require('../../utilities/embedUtils');
+const { BattlePVE } = require('../../battle_system/battleInteract');
 
 const success = async (interaction, confirm, path, profileData) => {
 
@@ -25,25 +26,35 @@ const success = async (interaction, confirm, path, profileData) => {
 }
 
 const fail = async (interaction, confirm, path, profileData) => {
-
-    const rewardMinMax = path.fail.reward;
-    const randomizedReward = Math.round(profileData.gold * rewardMinMax);
-
-    await modifyValue(
-        "profile",
-        { userID: interaction.user.id },
-        { $inc: { gold: -randomizedReward } }
-    );
-
-    await updateExp(profileData, 5, interaction);
-
     const embed = new EmbedBuilder()
     .setTitle("🗺️ Failed Exploration!")
     .setColor("Red")
-    .setDescription(path.fail.msg)
-    .setFields({ name: "Gold Lost: ", value: `🧈 ${randomizedReward} Gold` });
+    .setDescription(path.fail.msg);
 
+    if(path.fail.reward){
+        const rewardMinMax = path.fail.reward;
+        const randomizedReward = Math.round(profileData.gold * rewardMinMax);
+    
+        await modifyValue(
+            "profile",
+            { userID: interaction.user.id },
+            { $inc: { gold: -randomizedReward } }
+        );
+    
+        await updateExp(profileData, 5, interaction);
+    
+        embed
+        .setFields({ name: "Gold Lost: ", value: `🧈 ${randomizedReward} Gold` });
+    
+        return await confirm.update({ embeds: [embed], components: [] });
+    } 
+    
     await confirm.update({ embeds: [embed], components: [] });
+
+    const monster = path.fail.encounter;
+    const { battleStats, activeSpells } = profileData;
+
+    new BattlePVE(interaction, interaction.user.tag, monster, battleStats, activeSpells);
 }
 
 const selectedOption = async (interaction, confirm, path, profileData) => {

@@ -56,6 +56,7 @@ const waitForResponse = async (interaction, response, target) => {
 
     } catch (error) {
         console.error('Window Expired');
+        //Embeds with collectors can get prematurely deleted and crash the bot
         return error.message === "Collector received no interactions before ending with reason: messageDelete" 
         ? "deleted"
         : null;
