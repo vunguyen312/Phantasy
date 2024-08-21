@@ -1,10 +1,9 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const { modifyValue, getObjectData, updateExp } = require('../../utilities/dbQuery');
 const { EmbedRow, waitForResponse, checkResponse } = require('../../utilities/embedUtils');
-const { BattlePVE } = require('../../battle_system/battleInteract');
+const BattlePVE = require('../../battle_system/pve');
 
 const success = async (interaction, confirm, path, profileData) => {
-
     const rewardMinMax = path.success.reward;
     const randomizedReward = Math.round(Math.random() * rewardMinMax[0]);
 

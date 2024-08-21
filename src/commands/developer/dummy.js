@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require("discord.js");
-const { BattlePVE } = require('../../battle_system/battleInteract');
+const BattlePVE = require('../../battle_system/pve');
 
 module.exports = {
     cooldown: 1,
@@ -17,8 +17,9 @@ module.exports = {
 
         const { battleStats, activeSpells } = profileData;
         const monster = interaction.options.getString('monster');
-        new BattlePVE(interaction, interaction.user.tag, monster, battleStats, activeSpells);
-
+        
         await interaction.reply("`A hostile enemy has appeared...`");
+
+        new BattlePVE(interaction, interaction.user.tag, monster, battleStats, activeSpells);
     }
 }
