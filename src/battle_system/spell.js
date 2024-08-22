@@ -1,4 +1,5 @@
 const { getObjectData } = require("../utilities/dbQuery");
+const path = require('path');
 
 class Spell {
 
@@ -57,6 +58,25 @@ class Spell {
             }
         }
     }
+
+    //Performs a search for a spell's effect and casts it to the target. 
+    castEffectToTarget(){
+        if(!this.hitData.effect) return;
+
+        let effect = null;
+        const foldersPath = path.join(__dirname, `../effects`);
+
+        //Effects won't be that large, so we can afford to use a for...of loop
+        for(file of foldersPath){                                                                                     
+            const fileName = file.split('.')[0];
+            if(fileName !== this.hitData.effect) return;
+
+            effect = require(file);
+            break;
+        }
+
+        if(effect) return effect;
+    }
 }
 
-module.exports = {Spell};
+module.exports = Spell;

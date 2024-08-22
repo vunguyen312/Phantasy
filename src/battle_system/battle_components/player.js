@@ -1,7 +1,7 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonStyle } = require("discord.js");
 const { EmbedRow, componentResponse } = require("../../utilities/embedUtils");
 const { getObjectData, modifyValue, createItem, hasItem } = require('../../utilities/dbQuery');
-const { Spell } = require('../spell');
+const Spell = require('../spell');
 
 class Player {
 
@@ -30,8 +30,10 @@ class Player {
 
     async castSpell(spellName, target){
         const spell = new Spell(spellName, this, target);
-
-        return spell.castToTarget();
+    
+        return spell
+        .castToTarget()
+        .castEffectToTarget();
     }
 
     decreaseStatusTimer(){

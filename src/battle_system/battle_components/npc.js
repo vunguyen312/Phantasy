@@ -14,6 +14,20 @@ class NPC {
         this.drops;
     }
 
+    decreaseStatusTimer(){
+        for(const status in this.status){
+            const currStatus = this.status[status];
+            const { buff, stat } = currStatus;
+
+            currStatus.expiry--;
+            if(currStatus.expiry < 0){
+                if(status !== "Heal") this.stats[stat] -= buff;
+                
+                delete this.status[status];
+            }
+        }
+    }
+
     async getStats(){
         const retrievedStats = (await getObjectData("monsters"))[this.self];
 
